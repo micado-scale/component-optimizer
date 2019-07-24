@@ -4,6 +4,10 @@
 From project root run
 ```python pure.py```
 
+## Test flask
+From project root run
+```python helloMTA.py```
+
 ## Start program 
 From project root run  
 ```python optimizer.py --cfg path/to_config_file```
