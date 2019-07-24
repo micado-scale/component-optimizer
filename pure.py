@@ -539,7 +539,7 @@ y_predicted = predictMultiLayerRegressor(mlp, X_normalized)
 # In[59]:
 
 
-from optimizer import evaluateGoodnessOfPrediction
+from utils import evaluateGoodnessOfPrediction
 
 
 # In[60]:
