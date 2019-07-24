@@ -1,0 +1,9 @@
+*.log
+/.idea/
+/output/
+/*.iml
+/__pycache__/
+/.ipynb_checkpoints/
+/backups/
+Helpers.*
+*backup*.*
