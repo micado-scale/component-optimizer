@@ -7,6 +7,7 @@ From project root run
 ## Start program 
 From project root run  
 ```python optimizer.py --cfg path/to_config_file```
+
 ```python optimizer.py --cfg config/config.yaml```
 
 ## Test REST API 
