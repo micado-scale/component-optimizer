@@ -18,7 +18,7 @@ From project root run
 
 ## Test REST API 
 __GET /optimizer/hello__
-Test REST API
+Test REST API.
 ```curl -X GET http://193.224.59.115:5000/optimizer/hello```
 
 ```curl -X GET http://193.224.59.115:5000/```
