@@ -3,10 +3,19 @@ import os
 from ruamel import yaml
 import csv
 import zipfile
+import pandas as pd
 
 import logging
 
 logger = logging.getLogger('optimizer')
+
+
+def readCSV(filename):
+    df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null" )
+
+    # Return DataFrame
+    return df
+
 
 
 def read_yaml(yaml_file):
@@ -57,7 +66,8 @@ def persist_data(filename, data, mode):
     global logger
     try:
         with open(filename, mode) as stream:
-            wr = csv.writer(stream, quoting=csv.QUOTE_NONNUMERIC)
+            # wr = csv.writer(stream, quoting=csv.QUOTE_NONNUMERIC)
+            wr = csv.writer(stream)
             if isinstance(data[0], list):
                 for line in data: 
                     wr.writerow(line)
