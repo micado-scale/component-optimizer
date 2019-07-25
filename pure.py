@@ -1,11 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
-# import optimizer as op
-
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
@@ -16,11 +8,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 from sklearn.externals import joblib
 
-# import plotly
-# import plotly.plotly as py
-# import plotly.graph_objs as go
-# import plotly.figure_factory as ff
-
 np.set_printoptions(precision=3, suppress=True)
 
 pandas_dataframe_styles = {
@@ -29,11 +16,15 @@ pandas_dataframe_styles = {
 }
 
 
-# In[2]:
+def init(csvFileName, targetVariable):
+    print( csvFileName, targetVariable)
+    
+    
+    return pass
+
 
 
 inputCSVFile   = 'data/grafana_data_export_long_running_test.csv'
-
 targetVariable = 'avg latency (quantile 0.5)'
 
 

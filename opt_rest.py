@@ -6,6 +6,8 @@ import logging.config
 
 import opt_config
 import opt_utils
+import opt_trainer
+import opt_advisor
 
 import pandas as pd
 
@@ -22,6 +24,10 @@ training_unit = None
 #advice = None
 training_result = []
 
+target_metrics = None
+
+# TODO:
+# Ezek sem kellenek
 constants = {}
 sample_number = 0
 vm_number_prev = 0
@@ -65,6 +71,7 @@ def init():
         logger.info('Preparing database for training data...')
         input_metrics = [metric.get('name')
                          for metric in constants.get('input_metrics')]
+        global target_metrics
         target_metrics = [metric.get('name')
                           for metric in constants.get('target_metrics')]
 
@@ -151,8 +158,28 @@ def sample():
             if( tmp_df.shape[0] > 10 ):
                 logger.info('There is enough data for start learning')
                 global training_result
-                # training_result = training_unit.train()
-                # logger.debug(f'Training result:  {training_result}')
+                # Comment: Nehogy már minden körben tanítsuk
+                if( tmp_df.shape[0] % 1 == 0 ):
+                    # TODO:
+                    # Csináljunk egy függvényt valahová akinek odaadhatom a tmp_df dataframet
+                    # az eredményt tároljuk el a global training_result változóban
+                    logger.info('----------Learning Neural Network and Linear Regression Phase----------')
+                    
+                    # training_result = opt_trainer.run()
+                    
+                    # TODO:
+                    # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
+                    opt_trainer.run()
+                    
+                    
+                    # TODO:
+                    # Jó lenne ha ez a metodus tényleg csak az éppen aktuális adatokat kapná meg
+                    # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
+                    # Vagy akár megkaphatja a komplet adatokat is
+                    # opt_advisor.run()
+                    
+                    # opt_advisor.run(tmp_df[:-1])
+
             else:
                 logger.info('There is not enough data for start learning')
 
