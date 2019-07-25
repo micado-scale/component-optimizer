@@ -17,11 +17,11 @@ From project root run
 ```python optimizer.py --cfg config/config.yaml --host=192.168.0.60```
 
 ## Test REST API 
-__GET /optimizer/hello__
-Test REST API.
-```curl -X GET http://193.224.59.115:5000/optimizer/hello```
+__GET /optimizer/hello__  
+Test REST API.  
+```curl -X GET http://193.224.59.115:5000/optimizer/hello```  
 
-```curl -X GET http://193.224.59.115:5000/```
+```curl -X GET http://193.224.59.115:5000/```  
 
 __POST /optimizer/init__  
 Initialize optimizer with the neccessary constants.  
