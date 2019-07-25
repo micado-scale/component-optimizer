@@ -57,44 +57,24 @@ def init():
         global constants
         constants = yaml.safe_load(constants_yaml).get('constants')
         logger.info(f'Constants received: {constants}')
-        
-        # és kell írni egy metodust arra is, hogy törölje azt a szerencsétlet (reset)
 
         logger.info('Saving constants...')
         opt_utils.write_yaml(config.constants_filename, constants)
         logger.info('Constants saved to "data/constants.yaml"')
-        # TODO:
-        # ezekre a vm_number_prev változókra valószínüleg nem lesz szükség ugyhogy majd törölhetem
-        global vm_number_prev
-        logger.info(f'VM_NUMBER_PREV BEFORE INIT: {vm_number_prev}')
-        vm_number_prev = constants.get('initial_vm_number', 1)
-        global vm_number_prev_kept
-        vm_number_prev_kept = vm_number_prev
-        logger.info(f'Initial vm number: {vm_number_prev}')
-        logger.info(f'Vm number prev used: {vm_number_prev_kept}')
 
         logger.info('Preparing database for training data...')
-
         input_metrics = [metric.get('name')
                          for metric in constants.get('input_metrics')]
         target_metrics = [metric.get('name')
                           for metric in constants.get('target_metrics')]
 
         timestamp_col = ['timestamp']
-        vm_cols = ['vm_number', 'vm_number_prev', 'vm_number_diff']
         worker_count = ['vm_number']
 
         logger.info('Creating a .csv file for neural network...')
         opt_utils.persist_data(
-            # TODO:
-            # ide a vm_numbert is hozzá kell adnom
             config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
         logger.info('File created')
-        
-        logger.debug('Creating a .csv file for linear regression...')
-        opt_utils.persist_data(
-            config.lr_filename, timestamp_col+input_metrics+vm_cols, 'w')
-        logger.debug('File created')
 
         logger.info('Optimizer REST initialized successfully ')
     return jsonify('OK'), 200
@@ -175,10 +155,6 @@ def sample():
                 # logger.debug(f'Training result:  {training_result}')
             else:
                 logger.info('There is not enough data for start learning')
-            
-            
-            
-
 
             logger.info('Samples received and processed.')   
 

@@ -1,20 +1,35 @@
 sample:
   timestamp: 1553263975
   input_metrics:
-    - name: number_of_requests 
-      value: 3
-      
-    - name: cpu_usage
-      value: 64
+    - name: AVG RR
+      value: 58.06666666666667
 
-    - name: number_of_interrupts
-      value: 2
+    - name: SUM RR
+      value: 58.06666666666667
 
-    - name: number_of_ctx_switches
-      value: 2
+    - name: CPU
+      value: 78.06722053709326
+
+    - name: Inter
+      value: 5798.3393142450805
+
+    - name: CTXSW
+      value: 9355.44417519416
+
+    - name: KBIn
+      value: 3410.636697571778
+
+    - name: PktIn
+      value: 3256.803750986078
+
+    - name: KBOut
+      value: 146.46843363087984
+
+    - name: PktOut
+      value: 1203.111476839661
 
   target_metrics: 
-    - name: response_time
-      value: 0.3
+    - name: avg latency (quantile 0.5)
+      value: 19260.11
 
-  vm_number: 4
+  vm_number: 2
