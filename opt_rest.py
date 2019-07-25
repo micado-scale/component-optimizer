@@ -82,12 +82,13 @@ def init():
 
         timestamp_col = ['timestamp']
         vm_cols = ['vm_number', 'vm_number_prev', 'vm_number_diff']
+        worker_count = ['vm_number']
 
         logger.info('Creating a .csv file for neural network...')
         opt_utils.persist_data(
             # TODO:
-            # ide a vm_numbert is hozz kell adnom
-            config.nn_filename, timestamp_col+input_metrics+target_metrics, 'w')
+            # ide a vm_numbert is hozzá kell adnom
+            config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
         logger.info('File created')
         
         logger.debug('Creating a .csv file for linear regression...')
@@ -147,18 +148,20 @@ def sample():
             logger.info('----------------------------------------------')
             logger.info(f'pandas dataframe df.columns = {df.columns}')
             logger.info('----------------------------------------------')
-            
-            # TODO:
+
             # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
-            tmp_df = df.append(pd.Series(timestamp_col+input_metrics+target_metrics, index=df.columns ), ignore_index=True)
+            # tmp_df = df.append(pd.Series(timestamp_col+input_metrics+target_metrics, index=df.columns ), ignore_index=True)
+            tmp_df = df.append(pd.Series(timestamp_col+input_metrics+[vm_number]+target_metrics, index=df.columns ), ignore_index=True)
             
             print(timestamp_col+input_metrics+target_metrics)
             print(tmp_df.values)
             print(tmp_df.head())
-            
-            # TODO:
+
             # Elmenteni ezt a tmp_df pandas dataframet ugyan abba a csv fájlba
             tmp_df.to_csv('data/nn_training_data.csv', sep=',', encoding='utf-8', index=False)
+            
+            # TODO:
+            # Ne csak ezeket az adatokat, hanem azt is tároljuk el, hogy hány VM van
             
             
             
