@@ -150,13 +150,15 @@ def sample():
             
             # TODO:
             # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
-            # tmp_df = df.append(pd.Series([timestamp_col+input_metrics+target_metrics], index=df.columns ), ignore_index=True)
             tmp_df = df.append(pd.Series(timestamp_col+input_metrics+target_metrics, index=df.columns ), ignore_index=True)
             
             print(timestamp_col+input_metrics+target_metrics)
-            
             print(tmp_df.values)
             print(tmp_df.head())
+            
+            # TODO:
+            # Elmenteni ezt a tmp_df pandas dataframet ugyan abba a csv fájlba
+            tmp_df.to_csv('data/nn_training_data.csv', sep=',', encoding='utf-8', index=False)
             
             
             
