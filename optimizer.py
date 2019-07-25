@@ -1,20 +1,17 @@
 import argparse
 import logging, logging.config
 import opt_utils
-# import opt_rest
-# ide kell majd beraknom a saját programomat ami most pure néven szerepel
-
-# az opt_rest fájlba viszont bele kell néznem, mert lehet, hogy ez egy egyszerű inicializálsá nem több
+import opt_rest
 
 def launch_optimizer():
     args = parse_arguments()
     config = opt_utils.read_yaml(args.config_path)
     create_logger(config)
-    # opt_utils.create_dirs(config.get('directories', ['data', 'log']).values())
-    # opt_rest.init_service(config)
-    # opt_rest.app.run(debug=True,
-    #                  host=args.host,
-    #                  port=args.port)
+    opt_utils.create_dirs(config.get('directories', ['data', 'log']).values())
+    opt_rest.init_service(config)
+    opt_rest.app.run(debug=True,
+                     host=args.host,
+                     port=args.port)
                      
 def create_logger(config):
     try:
@@ -35,7 +32,7 @@ def parse_arguments():
 
     parser.add_argument('--host',
                         type=str,
-                        default='127.0.0.1', # ezt át kell írnom az MTA gép lokális címére 192.168.0.60
+                        default='127.0.0.1',
                         help='host to bind service to')
     parser.add_argument('--port',
                         type=int,

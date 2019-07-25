@@ -9,15 +9,6 @@ import logging
 logger = logging.getLogger('optimizer')
 
 
-def create_dirs(directories):
-    for dir in directories: 
-        if not os.path.exists(dir):
-            try:
-                os.makedirs(dir)
-            except IOError as e: #?
-                logger.error(e)
-
-
 def read_yaml(yaml_file):
     global logger
     with open(yaml_file, 'r') as stream:
@@ -27,6 +18,17 @@ def read_yaml(yaml_file):
             logger.error(e)
         else:
             return yaml_data
+
+        
+def create_dirs(directories):
+    for dir in directories: 
+        if not os.path.exists(dir):
+            try:
+                os.makedirs(dir)
+            except IOError as e:
+                logger.error(e)
+        else:
+            logger.info(f'Directory {dir} exists')
 
 
 def write_yaml(yaml_file, data):
