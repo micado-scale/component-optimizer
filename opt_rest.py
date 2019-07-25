@@ -150,7 +150,6 @@ def sample():
             logger.info('----------------------------------------------')
 
             # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
-            # tmp_df = df.append(pd.Series(timestamp_col+input_metrics+target_metrics, index=df.columns ), ignore_index=True)
             tmp_df = df.append(pd.Series(timestamp_col+input_metrics+[vm_number]+target_metrics, index=df.columns ), ignore_index=True)
             
             print(timestamp_col+input_metrics+target_metrics)
@@ -158,64 +157,31 @@ def sample():
             print(tmp_df.head())
 
             # Elmenteni ezt a tmp_df pandas dataframet ugyan abba a csv fájlba
-            tmp_df.to_csv('data/nn_training_data.csv', sep=',', encoding='utf-8', index=False)
+            # tmp_df.to_csv('data/nn_training_data.csv', sep=',', encoding='utf-8', index=False)
+            tmp_df.to_csv(config.nn_filename, sep=',', encoding='utf-8', index=False)
+            logger.info('----------Data has been added and saved to csv file----------')
             
             # TODO:
-            # Ne csak ezeket az adatokat, hanem azt is tároljuk el, hogy hány VM van
+            # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
+            logger.info(f'tmp_df.shape = {tmp_df.shape}')
+            logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
             
-            
-            
-            global vm_number_prev
-            global vm_number_prev_kept
-            global sample_number
-            global sample_data_temp
-            logger.debug(f'VM number now: {vm_number}')
-            logger.debug(f'VM number prev: {vm_number_prev}')
-
-            if vm_number == vm_number_prev:
-                sample_data_temp.append([timestamp_col+input_metrics+target_metrics, timestamp_col+input_metrics+[vm_number, vm_number_prev, vm_number-vm_number_prev]])
-                logger.debug('Sample data added to temporary buffer.')
+            # TRAINING
+            # if( tmp_df.shape[0] > constants.get('training_samples_required', 10) ):
+            if( tmp_df.shape[0] > 10 ):
+                logger.info('There is enough data for start learning')
+                global training_result
+                # training_result = training_unit.train()
+                # logger.debug(f'Training result:  {training_result}')
             else:
-                logger.debug('New VM number occurred.')
-                logger.debug(f'Sample data buffer length now: {len(sample_data_temp)}')
-                logger.debug(f'Min same length: {min_same_length}')
-                if len(sample_data_temp) >= min_same_length:
-                    logger.debug('Enough valid data with the same VM number, start persisting...')
-                    logger.debug(f'Sample data to persist: {sample_data_temp}')
-                    nn_data, lr_data = map(list, zip(*sample_data_temp))
-                    logger.debug(f'NN data: {nn_data}')
-                    logger.debug(f'LR data: {lr_data}')
-                    logger.debug('Saving timestamp, input and target metrics to neural network data file...') 
-                    opt_utils.persist_data(config.nn_filename, nn_data, 'a')
-                    logger.debug('Data saved')
+                logger.info('There is not enough data for start learning')
+            
+            
+            
 
-                    logger.debug('Saving timestamp, input metrics and VM number related data to linear regression data file...')
-                    opt_utils.persist_data(config.lr_filename, lr_data, 'a')
-                    logger.debug('Data saved')
-                    
-                    vm_number_prev_kept = vm_number_prev
-                    logger.debug(f'Vm number prev used after persisting relevant data: {vm_number_prev_kept}')
 
-                    sample_number += len(sample_data_temp)
-                    logger.debug(f'Number of samples now: {sample_number}')
-
-                sample_data_temp.clear()
-                logger.debug(f'Sample data after clearing: {sample_data_temp}')
-                sample_data_temp.append([timestamp_col+input_metrics+target_metrics, timestamp_col+input_metrics+[vm_number, vm_number_prev_kept, vm_number-vm_number_prev_kept]])
-                logger.debug(f'Sample data after new append: {sample_data_temp}')
-
-                
-            vm_number_prev = vm_number
             logger.info('Samples received and processed.')   
 
-            #training
-            if sample_number >= constants.get('training_samples_required', 10):
-                logger.debug('Enough valid sample for start training.')
-                global training_result
-                training_result = training_unit.train()
-                logger.debug(f'Training result:  {training_result}')
-            else:
-                logger.debug('Not enough valid sample for start training.')
         else:
             logger.error('Sample ignored because it contains empty value.')
     return jsonify('OK'), 200
