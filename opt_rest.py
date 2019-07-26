@@ -158,6 +158,8 @@ def sample():
             if( tmp_df.shape[0] > 10 ):
                 logger.info('There is enough data for start learning')
                 global training_result
+                # TODO:
+                # Kivezetni hogy hány mintánként tanuljon
                 # Comment: Nehogy már minden körben tanítsuk
                 if( tmp_df.shape[0] % 1 == 0 ):
                     # TODO:
@@ -169,14 +171,28 @@ def sample():
                     
                     # TODO:
                     # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
-                    # opt_trainer.run()
+                    
+                    opt_trainer.run(config.nn_filename)
+                    
+                    
+                    # TODO:
+                    # A traningin_results-ba leginkább a tanulást leíró metrikákat kéne tenni
+                    # semmi esetre sem az adatok becslését
+                    
+                    # TODO:
+                    # Más kérdés, hogy a metrikákat akár minden alkalommal el lehet kérni
+                    # Akár tanítás nélkül is, vagy azért mert el vannak tárolva
+                    # valahol a trainerben, vagy mert relatíve könnyű öket kiszámolni
+                    # de életszerűbbnek tartom azt a helyzetet, ha csak akkor kérjük el amikor
+                    # tanulás is történ vagy ezt is bizonyos időközönként és nem minden lépésben
                     
                     
                     # TODO:
                     # Jó lenne ha ez a metodus tényleg csak az éppen aktuális adatokat kapná meg
                     # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
                     # Vagy akár megkaphatja a komplet adatokat is
-                    opt_advisor.run()
+                    
+                    # opt_advisor.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
 

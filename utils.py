@@ -32,8 +32,10 @@ def preProcessing(df):
     df = df.copy()
     
     # Drop Time
-    df = dropVariable(df, 'Time')
-    df = dropVariable(df, 'avg latency (quantile 0.9)')
+    if( df.columns.contains('Time')):
+        df = dropVariable(df, 'Time')
+    if( df.columns.contains('avg latency (quantile 0.9)')):
+        df = dropVariable(df, 'avg latency (quantile 0.9)')
 
     # Debug
     # printDF(df)

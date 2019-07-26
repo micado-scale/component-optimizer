@@ -1,33 +1,41 @@
-def run():
-    import matplotlib.pyplot as plt
-    import matplotlib
-    import numpy as np
-    import pandas as pd
+import logging
+import logging.config
 
-    from sklearn.preprocessing import MinMaxScaler
-    from sklearn.model_selection import train_test_split
-    from sklearn.neural_network import MLPRegressor
-    from sklearn.externals import joblib
+import opt_config
 
-    np.set_printoptions(precision=3, suppress=True)
+import matplotlib.pyplot as plt
+import matplotlib
+import numpy as np
+import pandas as pd
 
-    pandas_dataframe_styles = {
-        'font-family': 'monospace',
-        'white-space': 'pre'
-    }
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
+from sklearn.externals import joblib
+
+np.set_printoptions(precision=3, suppress=True)
+
+pandas_dataframe_styles = {
+    'font-family': 'monospace',
+    'white-space': 'pre'
+}
+
+def run(nn_file_name):
+
+    logger = logging.getLogger('optimizer')
+
+    logger.info('---------------------------')
+    logger.info(nn_file_name)
+    logger.info('---------------------------')
+    
+    
 
 
-    def init(csvFileName, targetVariable):
-        print( csvFileName, targetVariable)
 
-        inputCSVFile   = csvFileName
-        targetVariable = targetVariable
-
-        pass
-
-
-
+    # Declare variables
     inputCSVFile   = 'data/grafana_data_export_long_running_test.csv'
+    neuralCSVFile = nn_file_name
+    
     targetVariable = 'avg latency (quantile 0.5)'
 
 
@@ -46,24 +54,29 @@ def run():
 
     # In[3]:
 
-
     def readCSV(filename):
-        df = pd.read_csv(filename, sep=";", header="infer", skiprows=0, na_values="null" )
-
+        df = pd.read_csv(filename, sep=";", header="infer", skiprows=1, na_values="null")
         # Return DataFrame
         return df
 
-
-    # In[4]:
-
-
     # Read DataFrame
     df = readCSV(inputCSVFile)
-
-
-    # In[5]:
-
-
+    
+    def readNeuralCSV(filename):
+        df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null")
+        # Return DataFrame
+        return df
+        
+    
+    # Read nn_train_data
+    nf = readNeuralCSV(neuralCSVFile)
+    
+    
+    # Swap df to nf depends on which file will be used
+    df = nf
+    
+    
+    # Declare some functions
     def removeMissingData(df):
         cleanDF = df.dropna(axis=0)
         return cleanDF
@@ -78,44 +91,66 @@ def run():
         df = df.copy()
 
         # Drop Time
-        df = dropVariable(df, 'Time')
-        df = dropVariable(df, 'avg latency (quantile 0.9)')
-
-        # Debug
-        # printDF(df)
+        if( df.columns.contains('Time') ):
+            df = dropVariable(df, 'Time')
+            logger.info('Time column dropped from data frame')
+            
+        if( df.columns.contains('timestamp') ):
+            df = dropVariable(df, 'timestamp')
+            logger.info('timestamp column dropped from data frame')
+            
+        if( df.columns.contains('avg latency (quantile 0.9)') ):
+            df = dropVariable(df, 'avg latency (quantile 0.9)')
+            logger.info('avg latency (quantile 0.9) column dropped from data frame')
 
         # Remove cases with missing values
         df = removeMissingData(df)
         return df
 
+    
+    def dataFrameInfo(df):
+        logger.info('-------------DataFrame----------------------')
+        print(df.columns)
+        print(df.shape)
+        print(df.head())
+        logger.info('-------------DataFrame----------------------')
 
-    # In[6]:
 
-
-
+     
     # Preprecess DataFrame
-    preProcessedDF = preProcessing(df)
+    preProcessedDF = preProcessing(df)   
 
-
-    # In[7]:
-
-
+    # Print DataFrame Info
+    dataFrameInfo(preProcessedDF)
+    
+    # Set targetVariable
     targetVariable = targetVariable
+    logger.info(f'(target variable set = {targetVariable}')
 
 
-    # In[8]:
-
-
+    # Declare some functions
     def renameVariable(df, old_var_name, new_var_name):
         new_df = df.copy()
-        new_df.rename(columns={old_var_name: new_var_name}, inplace=True)
+        if( df.columns.contains(old_var_name) ):
+            new_df.rename(columns={old_var_name: new_var_name}, inplace=True)
+        else:
+            logger.info('--------------------- Wrong Column Name ---------------------')
         return new_df
 
 
-    # In[9]:
+    WorkerCountName = None
+    if( df.columns.contains('Worker count') ):
+        WorkerCountName = 'Worker count'
+    elif( df.columns.contains('vm_number') ):
+        WorkerCountName = 'vm_number'
+    else:
+        WorkerCountName = 'Worker count'
+        
+    logger.info(f'(WorkerCountName = {WorkerCountName}')
+    
 
-
-    preProcessedDF = renameVariable(preProcessedDF, 'Worker count', 'WorkerCount')
+    # Rename Worker count or vm_number to WorkerCount
+    preProcessedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
 
 
     # In[10]:

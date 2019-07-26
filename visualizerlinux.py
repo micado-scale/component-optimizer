@@ -92,7 +92,7 @@ def ScatterPlots(x, y, extendedMetricNames, ylabel):
     fig.savefig('images/InnerStateVariableVsTargetVariable.jpg')
 
     # plt.show()
-    # plt.close()
+    plt.close()
     pass
     
 
@@ -373,5 +373,5 @@ def ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricN
         j = j + 1
     
     # plt.show()
-    # plt.close()
+    plt.close()
     pass
