@@ -169,14 +169,14 @@ def sample():
                     
                     # TODO:
                     # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
-                    opt_trainer.run()
+                    # opt_trainer.run()
                     
                     
                     # TODO:
                     # Jó lenne ha ez a metodus tényleg csak az éppen aktuális adatokat kapná meg
                     # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
                     # Vagy akár megkaphatja a komplet adatokat is
-                    # opt_advisor.run()
+                    opt_advisor.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
 
