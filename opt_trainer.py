@@ -50,9 +50,10 @@ def run(nn_file_name):
     lead = 1                            # 1 default
 
     showPlots = True                    # True
+    explore = False                     # False
 
 
-    # In[3]:
+    # In[3]: Declare some functions
 
     def readCSV(filename):
         df = pd.read_csv(filename, sep=";", header="infer", skiprows=1, na_values="null")
@@ -71,10 +72,17 @@ def run(nn_file_name):
     # Read nn_train_data
     nf = readNeuralCSV(neuralCSVFile)
     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Here you can switch between the staitc csv and the live csv
+    # ## ------------------------------------------------------------------------------------------------------
     
     # Swap df to nf depends on which file will be used
     df = nf
-    
+
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## comment out above line if you want ot use static csv file
+    # ## ------------------------------------------------------------------------------------------------------
+
     
     # Declare some functions
     def removeMissingData(df):
@@ -116,7 +124,10 @@ def run(nn_file_name):
         logger.info('-------------DataFrame----------------------')
 
 
-     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Pre-processing
+    # ## ------------------------------------------------------------------------------------------------------
+    
     # Preprecess DataFrame
     preProcessedDF = preProcessing(df)   
 
@@ -153,125 +164,80 @@ def run(nn_file_name):
     preProcessedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
 
 
-    # In[10]:
-
+    # In[10]: Set Metrics Names
 
     def setMetricNames(names):
         new_metricNames = names.copy()
         return new_metricNames
 
-
-    # In[11]:
-
-
     metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
 
 
-    # In[12]:
-
+    # In[12]: Set Extended Metrics Names
 
     def setExtendedMetricNames(names):
         new_extendedMetricNames = names.copy()
         return new_extendedMetricNames
 
-
-    # In[13]:
-
-
     extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
-    extendedMetricNames
 
-
-    # In[14]:
-
+    # In[14]: Drop First Cases
 
     def dropFirstCases(df, n):
         new_df = df.copy()
         filteredDF = new_df[new_df.index > n]
         return filteredDF
 
-
-    # In[15]:
-
-
-    # because in the begining of the samples have a lot of outliers
-
+    # If in the begining of the samples have a lot of outliers
     filteredDF = dropFirstCases(preProcessedDF, cutFirstCases)
 
 
-    # In[16]:
-
+    # In[16]: preProcessedDF let filteredDF
 
     preProcessedDF = filteredDF
 
 
-    # ### Correlation Matrix
-
-    # In[17]:
-
+    # In[17]: Correlation matrix
 
     from visualizerlinux import CorrelationMatrixSave
+    if showPlots : CorrelationMatrixSave(preProcessedDF)
 
 
-    # In[18]:
-
-
-    CorrelationMatrixSave(preProcessedDF)
-
-
-    # In[19]:
-
+    # In[19]: Visualize the relationship between the target and independent variables
 
     from visualizerlinux import ScatterPlots
-
-
-    # In[20]:
-
-
     if showPlots : ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], extendedMetricNames, targetVariable)
 
 
-    # In[21]:
-
+    # In[21]: Visualize the relationship between the time and variables
 
     from visualizerlinux import TimeLinePlot
-
-
-    # In[22]:
-
-
     if showPlots : TimeLinePlot(preProcessedDF, targetVariable)
 
 
-    # In[23]:
-
+    # In[23]: Visualize the relationship between the time and variables
 
     from visualizerlinux import TimeLinePlots
-
-
-    # In[24]:
-
-
     if showPlots : TimeLinePlots(preProcessedDF, extendedMetricNames)
 
 
-    # In[25]:
+    # In[25]: Autoregression
+
+    if( explore ):
+        n = 1
+        for i in preProcessedDF.columns:
+            print('AC(1)      ', i, '\t= ', np.round(preProcessedDF[i].autocorr(lag=1), 2))
+            n = n+1
+            if( n == 10 ):
+                break
 
 
-
-    n = 1
-    for i in preProcessedDF.columns:
-        print('AC(1)      ', i, '\t= ', np.round(preProcessedDF[i].autocorr(lag=1), 2))
-        n = n+1
-        if( n == 10 ):
-            break
-
-
+    # ## ------------------------------------------------------------------------------------------------------            
     # ## Create a whole new DataFrame for Before After Data
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[26]:
-
 
     def createBeforeafterDF(df, lag):
         beforeafterDF = df.copy()
@@ -291,66 +257,54 @@ def run(nn_file_name):
         return beforeafterDF
 
 
-    # In[27]:
-
+    # In[27]: Create new dataframe with lags
 
     beforeafterDF = createBeforeafterDF(preProcessedDF, 1)
 
 
     # ### Set Features for Neural Network - these are the input variables
 
-    # In[28]:
-
+    # In[28]: Declare some functions
 
     def setFeaturesAndTheirLags(df):
         X = df.iloc[:,0:9]
         return X
 
 
-    # In[29]:
-
+    # In[29]: Set Features in other words this set will be the Input Variables
 
     X = setFeaturesAndTheirLags(beforeafterDF)
 
 
     # ### Set Target Variable for Neural Network - this is the target variable
 
-    # In[30]:
-
+    # In[30]: Declare some functions
 
     def setTarget(df, targetVariable):
         y = df[targetVariable]
         return y
 
 
-    # In[31]:
-
+    # In[31]: Set target variable
 
     y = setTarget(beforeafterDF, targetVariable)
 
-
-    # In[32]:
-
-
-    y.values[0:10]
-
-
+    
     # In[33]:
 
+    if( explore ):
+        logger.info(f'(y values from 0 to 10 = {y.values[0:10]}')
+        logger.info(f'(y head = {y.head()}')
+        logger.info(f'(y describe = {y.describe()}')
 
-    y.head()
-
-
-    # In[34]:
-
-
-    y.describe()
-
-
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Normalization
+    # ## ------------------------------------------------------------------------------------------------------
+    
     # ### Normalize the whole X
 
-    # In[35]:
-
+    # In[35]: Declare some functions
 
     def normalizeX(df):
         """Return a normalized value of df.
@@ -368,17 +322,14 @@ def run(nn_file_name):
         return normalized, scaler
 
 
-    # In[36]:
-
+    # In[36]: Normalize Features and Save Normalized values, Normalize input variables set
 
     X_normalized, X_normalized_MinMaxScaler = normalizeX(X)
 
 
     # ### Load MinMaxScalerXFull
-    # 
 
-    # In[37]:
-
+    # In[37]: Declare some functions
 
     def loadMinMaxScalerXFull():
         X_normalized_MinMaxScaler = joblib.load('models/scaler_normalizeX.save')
@@ -386,14 +337,12 @@ def run(nn_file_name):
         return X_normalized_MinMaxScaler
 
 
-    # In[38]:
-
+    # In[38]: Load Saved Normalized Data (Normalizer)
 
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
 
 
-    # In[39]:
-
+    # In[39]: Declare some functions
 
     def printNormalizedX(X_normalized):
         print("X_normalized type        = ", type(X_normalized))
@@ -406,38 +355,26 @@ def run(nn_file_name):
 
     # In[40]:
 
-
-    printNormalizedX(X_normalized)
-
-
-    # In[41]:
+    if( explore ):
+        printNormalizedX(X_normalized)
+        X_normalized[1]
 
 
-    X_normalized[1]
-
-
-    # In[42]:
-
+    # In[42]: De-normalize Features set
 
     X_denormalized = X_normalized_MinMaxScaler.inverse_transform(X_normalized)
 
 
     # In[43]:
 
-
-    X_denormalized[1]
-
-
-    # In[44]:
-
-
-    X_denormalized[-1]
+    if( explore ):
+        X_denormalized[1]
+        X_denormalized[-1]
 
 
     # ### Normalize the whole y
 
-    # In[45]:
-
+    # In[45]: Declare some functions
 
     def normalizeY(df):
         """Return a normalized value of df.
@@ -456,14 +393,12 @@ def run(nn_file_name):
         return normalizedY, scaler
 
 
-    # In[46]:
-
+    # In[46]: Normalize Target and Save Normalized values, Normalize target variable set
 
     y_normalized, y_normalized_MinMaxScaler = normalizeY(y)
 
 
-    # In[47]:
-
+    # In[47]: Declare some functions
 
     def printNormalizedY(y_normalized):
         """Void. Print normalizeY(df) values"""
@@ -477,21 +412,15 @@ def run(nn_file_name):
 
 
     # In[48]:
-
-
-    printNormalizedY(y_normalized)
-
-
-    # In[49]:
-
-
-    y_normalized[0:3]
+    
+    if( explore ):
+        printNormalizedY(y_normalized)
+        y_normalized[0:3]
 
 
     # ### Load MinMaxScalerYFull
 
-    # In[50]:
-
+    # In[50]: Declare some functions
 
     def loadMinMaxScalerYFull():
         y_normalized_MinMaxScaler = joblib.load('models/scaler_normalizeY.save')
@@ -499,58 +428,61 @@ def run(nn_file_name):
         return y_normalized_MinMaxScaler
 
 
-    # In[51]:
-
+    # In[51]: Load Saved Normalized Data (Normalizer)
 
     y_normalized_MinMaxScaler = loadMinMaxScalerYFull()
 
 
-    # In[52]:
-
+    # In[52]: De-normalize Features set
 
     y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
 
 
     # In[53]:
+    
+    if( explore ):
+        y_denormalized[0:3]
+        y_denormalized[-3:]
 
 
-    y_denormalized[0:3]
-
-
-    # In[54]:
-
-
-    y_denormalized[-3:]
-
-
+    # ## ------------------------------------------------------------------------------------------------------
     # ## Train Neural Network with Optimizer Class, trainMultiLayerRegressor method
+    # ## ------------------------------------------------------------------------------------------------------
 
-    # In[55]:
-
+    # In[55]: Declare some functions
 
     def trainMultiLayerRegressor(X_normalized, y_normalized, activation, neuronsWhole):
 
         # Train Neural Network
-        mlp = MLPRegressor(hidden_layer_sizes=neuronsWhole,                        max_iter=250,                        activation=activation,                        solver="lbfgs",                        learning_rate="constant",                        learning_rate_init=0.01,                        alpha=0.01,                        verbose=False,                        momentum=0.9,                        early_stopping=False,                        tol=0.00000001,                        shuffle=False,                        # n_iter_no_change=20, \
+        mlp = MLPRegressor(hidden_layer_sizes=neuronsWhole,
+                           max_iter=250,
+                           activation=activation,
+                           solver="lbfgs",
+                           learning_rate="constant",
+                           learning_rate_init=0.01,
+                           alpha=0.01,
+                           verbose=False,
+                           momentum=0.9,
+                           early_stopping=False,
+                           tol=0.00000001,
+                           shuffle=False,
+                           # n_iter_no_change=20, \
                            random_state=1234)
 
         mlp.fit(X_normalized, y_normalized)
 
-        # ide kéne beilleszteni a modell elmentését
+        # Save model on file system
         joblib.dump(mlp, 'models/saved_mlp_model.pkl')
 
         return mlp
 
 
-    # In[56]:
-
-
-    # Train Neural Network
+    # In[56]: Train Neural Network
+    
     mlp = trainMultiLayerRegressor(X_normalized, y_normalized, activation_function, neuronsWhole)
 
 
-    # In[57]:
-
+    # In[57]: Declare some funcitons
 
     def predictMultiLayerRegressor(mlp, X_normalized):
         y_predicted = mlp.predict(X_normalized)
@@ -558,49 +490,31 @@ def run(nn_file_name):
         return y_predicted
 
 
-    # In[58]:
+    # In[58]: Create prediction
 
-
-    # Create prediction
     y_predicted = predictMultiLayerRegressor(mlp, X_normalized)
 
 
-    # In[59]:
-
+    # In[59]: Evaluete the model
 
     from utils import evaluateGoodnessOfPrediction
-
-
-    # In[60]:
-
-
+    
     evaluateGoodnessOfPrediction(y_normalized, y_predicted)
 
 
-    # ### Visualize Data
-
-    # In[61]:
-
-
+    # In[61]: Visualize Data
+    
     from visualizerlinux import VisualizePredictedYScatter
+    
+    if showPlots : VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable)
 
-
-    # In[62]:
-
-
-    VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable)
-
-
-    # In[63]:
-
+        
+    # In[63]: Visualize Data
 
     from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYLineWithValues
 
+    if showPlots : VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable, 'Normalized')
 
-    # In[64]:
-
-
-    VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable, 'Normalized')
 
 
     # ### De-normlaize
@@ -609,26 +523,19 @@ def run(nn_file_name):
     # 
     # 
 
-    # In[65]:
-
+    # In[65]: De-normalize target variable and predicted target variable
 
     y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
 
     y_predicted_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_predicted.reshape(y_predicted.shape[0],1))
 
 
-    # ### Can I visualize the de-normalized data as well?
+    # In[66]: Visualize the de-normalized data as well
 
-    # In[66]:
-
-
-    VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
+    if showPlots : VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
 
 
-    # ### Compare the Original Target Variable and the mean of its Predicted Values
-
-    # In[67]:
-
+    # In[67]: Compare the Original Target Variable and the mean of its Predicted Values
 
     meanOfOriginalPandasDataframe = y.values.mean()
     meanOfOriginalTargetVariable  = y_denormalized.mean()
@@ -639,56 +546,35 @@ def run(nn_file_name):
     print('mean predicted target variable = ', meanOfPredictedTargetVariable)
 
 
-    # ### De-normalizer function
-
-    # In[68]:
-
+    # In[68]: Declare De-normalizer functions
 
     def denormalizeX(X_normalized, X_normalized_MinMaxScaler):
         X_denormalized = X_normalized_MinMaxScaler.inverse_transform(X_normalized)
         return X_denormalized
 
 
-    # In[69]:
-
+    # In[69]: De-normalize Features
 
     X_denormalized = denormalizeX(X_normalized, X_normalized_MinMaxScaler)
 
 
     # In[70]:
+    
+    if( explore ):
+        X_denormalized[1]
+        X_normalized[1]
+        X_denormalized[-1]
+        X_normalized[-1]
 
 
-    X_denormalized[1]
-
-
-    # In[71]:
-
-
-    X_normalized[1]
-
-
-    # In[72]:
-
-
-    X_denormalized[-1]
-
-
-    # In[73]:
-
-
-    X_normalized[-1]
-
-
-    # In[74]:
-
+    # In[74]: Declare De-normalizer functions
 
     def denormalizeY(y_normalized, y_normalized_MinMaxScaler):
         y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
         return y_denormalized
 
 
-    # In[75]:
-
+    # In[75]: De-normalize Target
 
     y_denormalized = denormalizeY(y_normalized, y_normalized_MinMaxScaler)
 
@@ -697,133 +583,85 @@ def run(nn_file_name):
 
     # In[76]:
 
+    if showPlots : VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
 
-    VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
 
-
+    # ## ------------------------------------------------------------------------------------------------------
     # ## Create Train-Test-Validation set
-    # 
+    # ## ------------------------------------------------------------------------------------------------------
+
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Begining of Train Test Experiment
+    # ## ------------------------------------------------------------------------------------------------------
+
+    
+    # na úgy vagyok vele, hogy ezt az egészet most beteszem egy if-be és kizárom az egészet, mert elvileg ez nem
+    # fog kelleni a tanuláshoz csak az exploration és a backtest használja
+    
+    # if( 0 > 1 ):
+        
     # ### Split Data
 
-    # In[77]:
-
+    # In[77]: Declare splitDataFrame funcition
 
     def splitDataFrame(X, y, testSize):
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=testSize,                                                         random_state=12345,                                                         shuffle=False,                                                         stratify=None)
+        X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                            test_size=testSize,
+                                                            random_state=12345,
+                                                            shuffle=False,
+                                                            stratify=None)
 
         return X_train, X_test, y_train, y_test
 
 
-    # In[78]:
-
-
-    # Split DataFrame
+    # In[78]: Split DataFrame
     X_train, X_test, y_train, y_test = splitDataFrame(X, y, train_test_ratio)
 
 
     # In[79]:
-
-
     print(X_train.count())
-
-
-    # In[80]:
-
-
     print(X_test.count())
-
-
-    # In[81]:
-
-
     print("y_train.count() = ", y_train.count())
     print("y_test.count()  = ", y_test.count())
 
 
-    # In[82]:
-
+    # In[82]: Compare Train Test Set by Variables
 
     from utils import compareTwoVariables
 
-
-    # In[83]:
-
-
     compareTwoVariables(X_train, X_test, 'CPU')
-
-
-    # In[84]:
-
-
     compareTwoVariables(X_train, X_test, 'CTXSW')
-
-
-    # In[85]:
-
-
     compareTwoVariables(X_train, X_test, 'AVG RR')
 
 
-    # In[86]:
+    # In[86]: Visualize Train Test Set
+    if showPlots : VisualizePredictedYLineWithValues(y.values, y_train.values, targetVariable, 'Denormalized')
+
+    if showPlots : VisualizePredictedYLineWithValues(y, y_train, targetVariable, 'Denormalized')
+
+    if showPlots : VisualizePredictedYLineWithValues(0, y_test, targetVariable, 'Denormalized')
+
+    if showPlots : VisualizePredictedYLineWithValues(0, y_test.values, targetVariable, 'Denormalized')
+
+    if showPlots : VisualizePredictedYLineWithValues(y_train, y_train.values, targetVariable, 'Denormalized')
 
 
-    VisualizePredictedYLineWithValues(y.values, y_train.values, targetVariable, 'Denormalized')
-
-
-    # In[87]:
-
-
-    VisualizePredictedYLineWithValues(y, y_train, targetVariable, 'Denormalized')
-
-
-    # In[88]:
-
-
-    VisualizePredictedYLineWithValues(0, y_test, targetVariable, 'Denormalized')
-
-
-    # In[89]:
-
-
-    VisualizePredictedYLineWithValues(0, y_test.values, targetVariable, 'Denormalized')
-
-
-    # In[90]:
-
-
-    VisualizePredictedYLineWithValues(y_train, y_train.values, targetVariable, 'Denormalized')
-
-
-    # ### Train Test set comparison
-
-    # In[91]:
-
+    # In[91]: Compare Train Test Set
 
     from utils import printInfoTrainTestSet
-
-
-    # In[92]:
-
 
     printInfoTrainTestSet(y_train, y_test)
 
 
     # In[93]:
-
-
-    y_train.values[0:10]
-
-
-    # In[94]:
-
-
-    y_test.values[10:20]
+    if( explore ):
+        y_train.values[0:10]
+        y_test.values[10:20]
 
 
     # ### Normalize Data - based on Train set - It is forbiden to use Test set
 
-    # In[95]:
-
+    # In[95]: Declare some functions
 
     def normalizeXTrainTest(X_train, X_test):
         scaler = MinMaxScaler(feature_range=(scaler_min, scaler_max))
@@ -834,23 +672,20 @@ def run(nn_file_name):
         return X_train_normalized, X_test_normalized, scaler
 
 
-    # In[96]:
-
+    # In[96]: Normalize Features - both Train and Test - based on Train set
 
     X_train_normalized, X_test_normalized, X_normalized_MinMaxScalerTrainTest = normalizeXTrainTest(X_train, X_test)
 
 
     # In[97]:
+    if( explore ):
+        print("X_train_normalized max = ", X_train_normalized.max())
+        print("X_train_normalized min = ", X_train_normalized.min())
+        print("X_test_normalized max  = ", X_test_normalized.max())
+        print("X_test_normalized min  = ", X_test_normalized.min())
 
 
-    print("X_train_normalized max = ", X_train_normalized.max())
-    print("X_train_normalized min = ", X_train_normalized.min())
-    print("X_test_normalized max  = ", X_test_normalized.max())
-    print("X_test_normalized min  = ", X_test_normalized.min())
-
-
-    # In[98]:
-
+    # In[98]: Declare some functions
 
     def normalizeYTrainTest(y_train, y_test):
         # Create numpy.array from pandas.series then reshape numpy array
@@ -869,41 +704,28 @@ def run(nn_file_name):
         return y_train_normalized, y_test_normalized, scaler
 
 
-    # In[99]:
-
+    # In[99]: Normalize Target set - both Train and Test - based on Train set
 
     y_train_normalized, y_test_normalized, y_normalized_MinMaxScalerTrainTest = normalizeYTrainTest(y_train, y_test)
 
 
     # In[100]:
-
-
-    print("y_train_normalized max = ", y_train_normalized.max())
-    print("y_train_normalized min = ", y_train_normalized.min())
-    print("y_test_normalized max  = ", y_test_normalized.max())
-    print("y_test_normalized min  = ", y_test_normalized.min())
+    if( explore ):
+        print("y_train_normalized max = ", y_train_normalized.max())
+        print("y_train_normalized min = ", y_train_normalized.min())
+        print("y_test_normalized max  = ", y_test_normalized.max())
+        print("y_test_normalized min  = ", y_test_normalized.min())
 
 
     # In[101]:
 
-
     from utils import printInfoNumpyArrays
 
-
-    # In[102]:
-
-
     printInfoNumpyArrays(y_train_normalized, y_test_normalized)
-
-
-    # In[103]:
-
-
     printInfoNumpyArrays(y_train, y_test)
 
 
-    # In[104]:
-
+    # In[104]: Compare Train and Test Variables one-by-one
 
     for i in range(0,9):
         print(X_test_normalized[:,i].min())
@@ -913,68 +735,58 @@ def run(nn_file_name):
 
     # In[105]:
 
-
     X_train_denormalized = denormalizeX(X_train_normalized, X_normalized_MinMaxScalerTrainTest)
-
-
-    # In[106]:
-
 
     X_test_denormalized = denormalizeX(X_test_normalized, X_normalized_MinMaxScalerTrainTest)
 
-
-    # In[107]:
-
-
+    
     y_train_denormalized = denormalizeY(y_train_normalized, y_normalized_MinMaxScalerTrainTest)
-
-
-    # In[108]:
-
 
     y_test_denormalized = denormalizeY(y_test_normalized, y_normalized_MinMaxScalerTrainTest)
 
 
-    # In[109]:
+    # In[109]: Visualize 
+
+    if showPlots :
+
+        VisualizePredictedYLineWithValues(y.values, y_train_denormalized, targetVariable, 'Denormalized')
+
+        VisualizePredictedYLineWithValues(y.values[len(y_train_denormalized):], y_test_denormalized, targetVariable, 'Denormalized')
 
 
-    VisualizePredictedYLineWithValues(y.values, y_train_denormalized, targetVariable, 'Denormalized')
-
-
-    # In[110]:
-
-
-    VisualizePredictedYLineWithValues(y.values[len(y_train_denormalized):], y_test_denormalized, targetVariable, 'Denormalized')
-
-
-    # In[111]:
-
-
-    # this is the same as did it before, when whole dataset was trained
+    # In[111]: this is the same Neural Network configuration as I did it before, when whole dataset was trained
 
     def trainMultiLayerRegressor(X_train_normalized, y_train_normalized, activation, neuronsTrainTest):
 
         # Train Neural Network
-        mlp = MLPRegressor(hidden_layer_sizes=neuronsTrainTest,                        max_iter=250,                        activation=activation,                        solver="lbfgs",                        learning_rate="constant",                        learning_rate_init=0.01,                        alpha=0.01,                        verbose=False,                        momentum=0.9,                        early_stopping=False,                        tol=0.00000001,                        shuffle=False,                        # n_iter_no_change=200, \
+        mlp = MLPRegressor(hidden_layer_sizes=neuronsTrainTest,
+                           max_iter=250,
+                           activation=activation,
+                           solver="lbfgs",
+                           learning_rate="constant",
+                           learning_rate_init=0.01,
+                           alpha=0.01,
+                           verbose=False,
+                           momentum=0.9,
+                           early_stopping=False,
+                           tol=0.00000001,
+                           shuffle=False,
+                           # n_iter_no_change=200,
                            random_state=1234)
 
         mlp.fit(X_train_normalized, y_train_normalized)
 
-        # ide kéne beilleszteni a modell elmentését
+        # Save model on file system
         joblib.dump(mlp, 'models/saved_mlp_model_train_test.pkl')
 
         return mlp
 
 
-    # In[112]:
-
-
-    # Train Neural Network
+    # In[112]: Train Neural Network
     mlp = trainMultiLayerRegressor(X_train_normalized, y_train_normalized, activation_function, neuronsTrainTest)
 
 
-    # In[113]:
-
+    # In[113]: Declare some fucntions
 
     def predictMultiLayerRegressor(mlp, X_normalized):
         y_predicted = mlp.predict(X_normalized)
@@ -982,26 +794,21 @@ def run(nn_file_name):
         return y_predicted
 
 
-    # In[114]:
-
-
-    # Create prediction
+    # In[114]: Create prediction
     y_train_predicted = predictMultiLayerRegressor(mlp, X_train_normalized)
 
     # Create prediction
     y_test_predicted = predictMultiLayerRegressor(mlp, X_test_normalized)
 
 
-    # In[115]:
-
-
+    # In[115]: Evaluate the model
+    
     evaluateGoodnessOfPrediction(y_train_normalized, y_train_predicted)
     print('---------------------')
     evaluateGoodnessOfPrediction(y_test_normalized, y_test_predicted)
 
 
-    # In[116]:
-
+    # In[116]: De-normlaize target variable and predicted target variable
 
     y_train_denormalized = denormalizeY(y_train_normalized, y_normalized_MinMaxScalerTrainTest)
 
@@ -1019,41 +826,45 @@ def run(nn_file_name):
 
 
     # In[118]:
-
-
-    ScatterPlotsTrainTest(y_train_denormalized, y_train_predicted_denormalized,                       y_test_denormalized, y_test_predicted_denormalized, targetVariable)
+    if showPlots :
+        ScatterPlotsTrainTest(y_train_denormalized, y_train_predicted_denormalized,
+                              y_test_denormalized, y_test_predicted_denormalized,
+                              targetVariable)
 
 
     # In[119]:
-
-
-    ScatterPlotsTrainTest(y_train_normalized, y_train_predicted,                       y_test_normalized, y_test_predicted, targetVariable)
+    if showPlots :
+        ScatterPlotsTrainTest(y_train_normalized, y_train_predicted,
+                              y_test_normalized, y_test_predicted,
+                              targetVariable)
 
 
     # In[120]:
-
-
-    VisualizePredictedYLine(y_train_denormalized, y_train_predicted_denormalized, targetVariable, lines = True)
+    if showPlots :
+        VisualizePredictedYLine(y_train_denormalized, y_train_predicted_denormalized, targetVariable, lines = True)
 
 
     # In[121]:
-
-
-    VisualizePredictedYLine(y_train_normalized, y_train_predicted, targetVariable, lines = True)
+    if showPlots :
+        VisualizePredictedYLine(y_train_normalized, y_train_predicted, targetVariable, lines = True)
 
 
     # In[122]:
-
-
-    VisualizePredictedYLine(y_test_denormalized, y_test_predicted_denormalized, targetVariable, lines = True)
+    if showPlots :
+        VisualizePredictedYLine(y_test_denormalized, y_test_predicted_denormalized, targetVariable, lines = True)
 
 
     # In[123]:
+    if showPlots :
+        VisualizePredictedYLine(y_test_normalized, y_test_predicted, targetVariable, lines = True)
 
 
-    VisualizePredictedYLine(y_test_normalized, y_test_predicted, targetVariable, lines = True)
-
-
+        
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## End of Train Test Experiment
+    # ## ------------------------------------------------------------------------------------------------------
+        
+        
     # In[124]:
 
 
