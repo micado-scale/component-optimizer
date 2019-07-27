@@ -1,5 +1,9 @@
 # MiCADO - Scaling Optimizer with Machine Learning Support
 
+## Don't forget to set environment
+From project rott run
+```source activate optimizer```
+
 ## Test program
 From project root run
 ```python pure.py```

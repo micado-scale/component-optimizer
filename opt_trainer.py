@@ -49,7 +49,7 @@ def run(nn_file_name):
 
     lead = 1                            # 1 default
 
-    showPlots = True                    # True
+    showPlots = False                    # True
     explore = False                     # False
 
 
@@ -197,7 +197,7 @@ def run(nn_file_name):
 
     preProcessedDF = filteredDF
 
-
+    
     # In[17]: Correlation matrix
 
     from visualizerlinux import CorrelationMatrixSave
