@@ -1,39 +1,40 @@
 import logging
 import logging.config
 
-import numpy as np
-import pandas as pd
-
-from utils import loadMinMaxScalerXFull, loadMinMaxScalerYFull
-from utils import loadNeuralNetworkModel
-from opt_utils import readCSV
-from opt_utils import preProcessing
-from opt_utils import renameVariable
-from opt_utils import dropFirstCases
-# from utils import renameVariable
-from utils import setMetricNames, setExtendedMetricNames
-
-from linearregression import calculateLinearRegressionTerms
-
-from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYWithWorkers
-
-from sklearn.externals import joblib
-
-pandas_dataframe_styles = {
-    'font-family': 'monospace',
-    'white-space': 'pre'
-}
-
-
 def run():
+    
+    logger = logging.getLogger('optimizer')
+    
+    logger.info('opt_adviser.run() started')
 
     # # Advice Phase - Production Phase
 
-    logger = logging.getLogger('optimizer')
-    
-    logger.info('-------------------------- Advice Phase --------------------------')
+    # In[156]:
+
+    import numpy as np
+    import pandas as pd
+
+    from utils import loadMinMaxScalerXFull, loadMinMaxScalerYFull
+    from utils import loadNeuralNetworkModel
+    from utils import readCSV
+    from utils import preProcessing
+    from utils import renameVariable, setMetricNames, setExtendedMetricNames, dropFirstCases
+
+    from linearregression import calculateLinearRegressionTerms
+
+    from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYWithWorkers
+
+    from sklearn.externals import joblib
+
+    pandas_dataframe_styles = {
+        'font-family': 'monospace',
+        'white-space': 'pre'
+    }
+
+
 
     # In[157]:
+
 
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
     y_normalized_MinMaxScaler = loadMinMaxScalerYFull()
@@ -49,7 +50,7 @@ def run():
     testFileName = 'data/test_data.csv'                                    # test data
     testFileName = 'data/test_data2.csv'                                   # test data
     # testFileName = 'data/micado0730715_v2.csv'
-    testFileName = 'data/nn_training_data.csv'
+    # testFileName = 'data/nn_train_data.csv'
     
     maximumNumberIncreasableNode = 6                                       # must be positive
     minimumNumberReducibleNode = -4                                        # must be negativ
@@ -60,49 +61,37 @@ def run():
 
     # In[159]:
 
-    df = readCSV(testFileName)
+    newDF = readCSV(testFileName)
 
-    print(df.head())
 
-    
+    print(newDF.head())
     # In[160]:
 
-    preProcessedDF = preProcessing(df)
+    newPreProcessedDF = preProcessing(newDF)
 
-    print(preProcessedDF.head())
-    
-    
-    WorkerCountName = None
-    if( preProcessedDF.columns.contains('Worker count') ):
-        WorkerCountName = 'Worker count'
-    elif( preProcessedDF.columns.contains('vm_number') ):
-        WorkerCountName = 'vm_number'
-    else:
-        WorkerCountName = 'Worker count'
-        
-    logger.info(f'(WorkerCountName = {WorkerCountName}')
-    
+    newRenamedDF = renameVariable(newPreProcessedDF, 'Worker count', 'WorkerCount')
 
-    # Rename Worker count or vm_number to WorkerCount
-    renamedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
-    
-    print(renamedDF.head())
-    
     metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
-   
-    filteredDF = dropFirstCases(renamedDF, cutFirstCases)
-   
+    newFilteredDF = dropFirstCases(newRenamedDF, cutFirstCases)
+
 
     # >#### Add new workers (increse the nuber of added Worker)
 
+    # In[161]:
+
+
+    metricNames
+
+
     # In[162]:
+
 
     def calculatePredictedLatencyWithVariousWorkers(modelNeuralNet, to):
 
-        newDFForRegression = filteredDF.copy()
-        nDD = filteredDF.copy()
+        newDFForRegression = newFilteredDF.copy()
+        nDD = newFilteredDF.copy()
 
         step = 0
 

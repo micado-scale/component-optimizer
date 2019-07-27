@@ -37,7 +37,7 @@ def dropVariable(df, column):
 
 
 def preProcessing(df):
-    df = df.cop
+    df = df.copy()
     # Drop Time
     if( df.columns.contains('Time') ):
         df = dropVariable(df, 'Time')
@@ -53,6 +53,23 @@ def preProcessing(df):
     # Remove cases with missing values
     df = removeMissingData(df)
     return df
+
+
+def renameVariable(df, old_var_name, new_var_name):
+    new_df = df.copy()
+    if( df.columns.contains(old_var_name) ):
+        new_df.rename(columns={old_var_name: new_var_name}, inplace=True)
+    else:
+        logger.info('--------------------- Wrong Column Name ---------------------')
+    return new_df
+
+
+def dropFirstCases(df, n):
+    new_df = df.copy()
+    filteredDF = new_df[new_df.index > n]
+    return filteredDF
+
+
 
 
 

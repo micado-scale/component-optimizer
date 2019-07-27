@@ -8,6 +8,7 @@ import opt_config
 import opt_utils
 import opt_trainer
 import opt_advisor
+import opt_advisor_old
 import opt_trainer_backtest
 import opt_advisor_backtest
 
@@ -164,10 +165,10 @@ def sample():
                     logger.info('----------Learning Neural Network and Linear Regression Phase----------')
                     
                     # training_result = opt_trainer.run()
+
+                    opt_trainer.run(config.nn_filename, visualize = False)
                     
-                    # opt_trainer.run(config.nn_filename, visualize = True)
-                    
-                    opt_trainer.run(config.nn_filename)
+                    # opt_trainer.run(config.nn_filename)
                     
                     
                     # TODO:
@@ -187,7 +188,16 @@ def sample():
                     # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
                     # Vagy akár megkaphatja a komplet adatokat is
                     
+                    # TODO:
+                    # Ez el fog hasalni ha kevés eset van ezért belevarni magába az opt_advisor--ba
+                    # hogyha még meg is hívják, akkor olvassa be a csv fájlt amiből dolgoznia kell
+                    # de ha annak hossza rövidebb egy megadott értéknék akkor ne hajtsa végre
+                    # és térjen vissza valamilyen üzenettel
                     opt_advisor.run()
+                    
+                    # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele
+                    
+                    # opt_advisor_old.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
 
