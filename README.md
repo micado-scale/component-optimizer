@@ -34,6 +34,10 @@ Send a new training sample.
 ```curl -X POST http://127.0.0.1:5000/optimizer/sample --data-binary @test_files/metrics_sample_example.yaml``` 
 
 ```curl -X POST http://193.224.59.115:5000/optimizer/sample --data-binary @test_files/metrics_sample_example.yaml```
+
+__POST /optimizer/backtest__    
+Test the performacne of the system on historical data.   
+```curl -X POST http://193.224.59.115:5000/optimizer/backtest --data-binary @test_files/metrics_sample_example.yaml```
   
 __GET /optimizer/advice__     
 Get scaling advice.  
