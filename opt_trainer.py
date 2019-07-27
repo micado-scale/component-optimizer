@@ -44,7 +44,7 @@ def run(nn_file_name, visualize = False):
     activation_function = 'tanh'        # tanh, relu, logistic
     neuronsWhole = 10                   # 10
     neuronsTrainTest = 4                # 4
-    cutFirstCases = 0                   # 10
+    cutFirstCases = 10                  # 10
 
     lead = 1                            # 1 default
 
