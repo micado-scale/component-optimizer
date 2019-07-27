@@ -126,14 +126,16 @@ def sample():
             # ahogy elnézem az opt_utils modul importálva van.
             # tehát írnom kéne bele egy függvényt(aminek paraméterként)
             # átadom az új adatokat és hozzáfüzi az nn_.csv-hez
-            
+            print('eeeeeeeeeeeeeeeeee')
             df = opt_utils.readCSV(config.nn_filename)
             logger.info('----------------------------------------------')
             logger.info(f'pandas dataframe df.columns = {df.columns}')
             logger.info('----------------------------------------------')
 
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
             # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
             tmp_df = df.append(pd.Series(timestamp_col+input_metrics+[vm_number]+target_metrics, index=df.columns ), ignore_index=True)
+            print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
             
             print(timestamp_col+input_metrics+target_metrics)
             print(tmp_df.values)
