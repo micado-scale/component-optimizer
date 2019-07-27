@@ -34,32 +34,27 @@ def run():
 
     # In[158]:
 
-
-    # Vigyázat ennek azonosnak kell lennie a korábbi értékkel különben para van (ezt valahogy ki kéne vezetni valami külső
-    # fájlba, vagy csinálni valamilyen osztályt amiben ez el van tárolva)
-
     cutFirstCases = 0                                                      # 10
     targetVariable = 'avg latency (quantile 0.5)'
     testFileName = 'data/grafana_data_export_long_running_test.csv'        # original data
     testFileName = 'data/test_data.csv'                                    # test data
     testFileName = 'data/test_data2.csv'                                   # test data
     # testFileName = 'data/micado0730715_v2.csv'
-
+    # testFileName = 'data/nn_train_data.csv'
+    
     maximumNumberIncreasableNode = 6                                       # must be positive
     minimumNumberReducibleNode = -4                                        # must be negativ
 
     upperLimit = 4000000                                                   # 6000000
-    lowerLimit = 3000000                                                   # 1000000
+    lowerLimit = 1000000                                                   # 1000000
 
 
     # In[159]:
-
 
     newDF = readCSV(testFileName)
 
 
     # In[160]:
-
 
     newPreProcessedDF = preProcessing(newDF)
 

@@ -20,7 +20,7 @@ pandas_dataframe_styles = {
     'white-space': 'pre'
 }
 
-def run(nn_file_name):
+def run(nn_file_name, visualize = False):
 
     logger = logging.getLogger('optimizer')
 
@@ -47,6 +47,7 @@ def run(nn_file_name):
     lead = 1                            # 1 default
 
     showPlots = False                   # True
+    showPlots = visualize               # This value comes as a parameter
     explore = False                     # False
 
 

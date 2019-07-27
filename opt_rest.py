@@ -25,7 +25,7 @@ config = None
 # TODO:
 # Átnézni, hogy ezekből mi kell és mi nem
 training_unit = None
-#advice = None
+
 training_result = []
 target_metrics = None
 constants = {}
@@ -168,7 +168,7 @@ def sample():
                     # TODO:
                     # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
                     
-                    opt_trainer.run(config.nn_filename)
+                    opt_trainer.run(config.nn_filename, visualize = True)
                     
                     
                     # TODO:
@@ -188,7 +188,7 @@ def sample():
                     # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
                     # Vagy akár megkaphatja a komplet adatokat is
                     
-                    # opt_advisor.run()
+                    opt_advisor.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
 
