@@ -8,6 +8,8 @@ import opt_config
 import opt_utils
 import opt_trainer
 import opt_advisor
+import opt_trainer_backtest
+import opt_advisor_backtest
 
 import pandas as pd
 
@@ -192,7 +194,7 @@ def sample():
                     # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
                     # Vagy akár megkaphatja a komplet adatokat is
                     
-                    # opt_advisor.run()
+                    opt_advisor.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
 
@@ -265,49 +267,26 @@ def backtest():
             logger.info(f'tmp_df.shape = {tmp_df.shape}')
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
             
-            # TRAINING
+            # TRAINING AND TESTING
             # if( tmp_df.shape[0] > constants.get('training_samples_required', 10) ):
             if( tmp_df.shape[0] > 10 ):
                 logger.info('There is enough data for start learning')
                 global training_result
                 # TODO:
-                # Kivezetni hogy hány mintánként tanuljon
-                # Comment: Nehogy már minden körben tanítsuk
-                if( tmp_df.shape[0] % 1 == 0 ):
-                    # TODO:
-                    # Csináljunk egy függvényt valahová akinek odaadhatom a tmp_df dataframet
-                    # az eredményt tároljuk el a global training_result változóban
-                    logger.info('----------Learning Neural Network and Linear Regression Phase----------')
-                    
-                    # training_result = opt_trainer.run()
-                    
-                    # TODO:
-                    # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
-                    
-                    opt_trainer.run(config.nn_filename)
-                    
-                    
-                    # TODO:
-                    # A traningin_results-ba leginkább a tanulást leíró metrikákat kéne tenni
-                    # semmi esetre sem az adatok becslését
-                    
-                    # TODO:
-                    # Más kérdés, hogy a metrikákat akár minden alkalommal el lehet kérni
-                    # Akár tanítás nélkül is, vagy azért mert el vannak tárolva
-                    # valahol a trainerben, vagy mert relatíve könnyű öket kiszámolni
-                    # de életszerűbbnek tartom azt a helyzetet, ha csak akkor kérjük el amikor
-                    # tanulás is történ vagy ezt is bizonyos időközönként és nem minden lépésben
-                    
-                    
-                    # TODO:
-                    # Jó lenne ha ez a metodus tényleg csak az éppen aktuális adatokat kapná meg
-                    # Ellenben back-test-hez kimondottan jó lenne ha komplet csv elérési utat adnék neki
-                    # Vagy akár megkaphatja a komplet adatokat is
-                    
-                    # opt_advisor.run()
-                    
-                    # opt_advisor.run(tmp_df[:-1])
+                # Csináljunk egy függvényt valahová akinek odaadhatom a tmp_df dataframet
+                # az eredményt tároljuk el a global training_result változóban
+                logger.info('----------Learning Neural Network and Linear Regression Phase----------')
 
+                # training_result = opt_trainer.run()
+
+                opt_trainer_backtest.run(config.nn_filename)
+
+                opt_advisor_backtest.run()
+
+                # TODO:
+                # A traningin_results-ba leginkább a tanulást leíró metrikákat kéne tenni
+                # semmi esetre sem az adatok becslését
+                    
             else:
                 logger.info('There is not enough data for start learning')
 
