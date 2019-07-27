@@ -22,20 +22,14 @@ app = Flask(__name__)
 
 logger = None
 config = None
+# TODO:
+# Átnézni, hogy ezekből mi kell és mi nem
 training_unit = None
 #advice = None
 training_result = []
-
 target_metrics = None
-
-# TODO:
-# Ezek sem kellenek
 constants = {}
-sample_number = 0
-vm_number_prev = 0
-vm_number_prev_kept = 0
-min_same_length = 3
-sample_data_temp = []
+
 
 def init_service(cfg):
     global logger

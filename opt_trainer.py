@@ -28,9 +28,6 @@ def run(nn_file_name):
     logger.info(nn_file_name)
     logger.info('---------------------------')
     
-    
-
-
 
     # Declare variables
     inputCSVFile   = 'data/grafana_data_export_long_running_test.csv'
@@ -49,7 +46,7 @@ def run(nn_file_name):
 
     lead = 1                            # 1 default
 
-    showPlots = False                    # True
+    showPlots = False                   # True
     explore = False                     # False
 
 
@@ -863,18 +860,22 @@ def run(nn_file_name):
     # ## ------------------------------------------------------------------------------------------------------
     # ## End of Train Test Experiment
     # ## ------------------------------------------------------------------------------------------------------
-        
-        
-    # In[124]:
 
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Learn
+    # ## ------------------------------------------------------------------------------------------------------
+
+        
+    # In[124]: Import dependencies
 
     from sklearn.linear_model import LinearRegression
     from sklearn import metrics
 
 
-    # In[125]:
+    # In[125]: Declare some functions
 
-
+    # TODO:
+    # Átvezetni valahogy, hogy a bemeneti változók fényében kezelje hogy hány változó van a dataframeben
     def createBeforeafterDFLags(df, lag):
         beforeafterDFLags = df.copy()
         inputVariables = np.flip(beforeafterDFLags.columns[0:10].ravel(), axis=-1)
@@ -883,7 +884,7 @@ def run(nn_file_name):
         index = 10
         for i in inputVariables:
             new_column = beforeafterDFLags[i].shift(lag)
-            new_column_name = (str('prev') + str(1) + i) # Todo: rename str(lag)
+            new_column_name = (str('prev') + str(1) + i)
             beforeafterDFLags.insert(loc=index, column=new_column_name, value=new_column)
 
         beforeafterDFLags = beforeafterDFLags[lag:]             # remove first row as we haven't got data in lag var
@@ -891,20 +892,17 @@ def run(nn_file_name):
         return beforeafterDFLags
 
 
-    # In[126]:
-
+    # In[126]: Create lag variables (see above -> 'prev1CPU', 'prev1Inter', etc)
 
     beforeafterDFLags = createBeforeafterDFLags(preProcessedDF, 1)
 
 
     # In[127]:
+    if( explore ):
+        beforeafterDFLags.columns
 
 
-    beforeafterDFLags.columns
-
-
-    # In[128]:
-
+    # In[128]: Declare some functions
 
     def createBeforeafterDFLeads(df, lead = 1):
         beforeafterDFLeads = df.copy()
@@ -917,30 +915,27 @@ def run(nn_file_name):
             new_column_name = (str('next') + str(1) + i) # Todo: rename str(lead)
             beforeafterDFLeads.insert(loc=index, column=new_column_name, value=new_column)
 
-        beforeafterDFLeads = beforeafterDFLeads[:-lead]             # remove last row as we haven't got data in lead var
+        beforeafterDFLeads = beforeafterDFLeads[:-lead]         # remove last row as we haven't got data in lead var
 
         beforeafterDFLeads = beforeafterDFLeads.iloc[:,:-1]     # remove last column - Latency
 
         return beforeafterDFLeads
 
 
-    # In[129]:
-
+    # In[129]: Create lead variables (see above -> 'next1CPU', 'next1Inter', etc)
 
     beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, lead = lead)
 
 
     # In[130]:
+    if( explore ):
+        beforeafterDF.columns
 
 
-    beforeafterDF.columns
+    # In[131]: Assert
 
-
-    # In[131]:
-
-
-    # assert
-
+    # TODO:
+    # Ez is csak akkor stimmel ha a cikkben leírt bemeneti változókat és azok számát használjuk
     a_colName = beforeafterDF.columns[-1]
     a_cols = beforeafterDF.shape[1]
 
@@ -948,8 +943,7 @@ def run(nn_file_name):
     assert a_cols == 30, "This column number is: {0} insted of 17".format(a_colName)
 
 
-    # In[132]:
-
+    # In[132]: Declare some functions
 
     def calculateWorkerCountDifferences(beforeafterDF):
         new_beforeafterDF = beforeafterDF.copy()
@@ -958,14 +952,12 @@ def run(nn_file_name):
         return new_beforeafterDF
 
 
-    # In[133]:
-
+    # In[133]: Explore data
 
     theBeforeAfterDF = calculateWorkerCountDifferences(beforeafterDF)
 
 
-    # In[134]:
-
+    # In[134]: Declare some functions
 
     def createScalingDF(theBeforeAfterDF):
         new_beforeafterDF = theBeforeAfterDF.copy()
@@ -974,14 +966,12 @@ def run(nn_file_name):
         return scalingDF
 
 
-    # In[135]:
-
+    # In[135]: Collect rows where 'WorkerCount != next1WorkerCount' -> If this condition is True that means scalling happened
 
     scalingDF = createScalingDF(theBeforeAfterDF)
 
 
-    # In[136]:
-
+    # In[136]: Calculate and store values of each metrics after scalling happened in new collumns
 
     beforeafterMetricsDF = scalingDF.copy()
 
@@ -991,49 +981,38 @@ def run(nn_file_name):
         beforeafterMetricsDF['changed1'+i] = changeInMetricAfterScale
 
 
-    # In[137]:
+    # In[137]: Explore
+    if( explore ):
+        beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
-    beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
+    # In[138]: Explore
+    if( explore ):
+        beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
-    # In[138]:
+    # In[139]: Explore
+    if( explore ):
+        beforeafterMetricsDF[['changed1CPU','changed1Inter', 'changed1CTXSW', 'changed1KBIn',
+                              'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
+                              'addedWorkerCount']]. groupby(['addedWorkerCount'], as_index=False).mean().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
-    beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
+    # In[140]: Explore
+    if( explore ):
+        beforeafterMetricsDF[['changed1CPU', 'changed1Inter', 'changed1CTXSW', 'changed1KBIn',
+                              'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
+                              'addedWorkerCount']].groupby(['addedWorkerCount'], as_index=False).count().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
-    # In[139]:
+    # In[141]: Explore
+    if( explore ):
+        print(theBeforeAfterDF.shape)
+        print(scalingDF.shape)
 
 
-    beforeafterMetricsDF[['changed1CPU', 'changed1Inter', 'changed1CTXSW', 'changed1KBIn',                       'changed1KBOut', 'changed1PktIn', 'changed1PktOut', 'addedWorkerCount']]. groupby(['addedWorkerCount'], as_index=False).mean().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-
-    # In[140]:
-
-
-    beforeafterMetricsDF[['changed1CPU', 'changed1Inter', 'changed1CTXSW', 'changed1KBIn',                       'changed1KBOut', 'changed1PktIn', 'changed1PktOut', 'addedWorkerCount']]. groupby(['addedWorkerCount'], as_index=False).count().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-
-    # In[141]:
-
-
-    print(theBeforeAfterDF.shape)
-
-    print(scalingDF.shape)
-
-
-    # In[142]:
-
-
-    metricNames
-
-
-    # In[143]:
-
-
-
-
+    # In[143]:Declare some functions
+    
     def calculateLinearRegressionTerms(metric, dataFrame):
         termDF = dataFrame.copy()
         termDF['metric'] = termDF[metric]
@@ -1078,25 +1057,18 @@ def run(nn_file_name):
         model.fit(X, y)
         y_predicted = model.predict(X)
 
-        # print('Score = ', model.score(X, y))
-        # print(metric, 'MAE \t=\t{:0.2f}'.format(metrics.mean_absolute_error(y, y_predicted)))
-
-        # todo: refactor
-        print(metric)
         evaluateGoodnessOfPrediction(y, y_predicted)
         print('-----------------------------------')
 
         return y_predicted
 
 
-    # In[144]:
-
+    # In[144]: Store scalingDF in a new DF ->
 
     temporaryScalingDF = scalingDF.copy()
 
 
-    # In[145]:
-
+    # In[145]: The format as I will store Linear Regression models for each metric
 
     d={}
     for i in metricNames:
@@ -1106,9 +1078,7 @@ def run(nn_file_name):
     d.get('modelCPU')
 
 
-    # In[146]:
-
-
+    # In[146]: Declare some functions, Calculate and store each Linear Regression model of each metrics
 
     def learningLinearRegression(scalingDF, temporaryScalingDF, metricNames):
         # linearRegressionModels = {}
@@ -1135,67 +1105,38 @@ def run(nn_file_name):
         return temporaryScalingDF, d
 
 
-    # In[147]:
-
+    # In[147]: Calculate and Store each Linear Regression model of each metrics. Predicted and Real values are stored in a new DF.
 
     temporaryScalingDF, linearRegressionModels = learningLinearRegression(scalingDF, temporaryScalingDF, metricNames)
 
 
-    # In[148]:
+    # In[148]: Explore
+    if( explore ):
+        linearRegressionModelNames = linearRegressionModels.keys()
+        print(linearRegressionModelNames)
+
+        modelCPU = linearRegressionModels.get('modelCPU')
+        print(type(modelCPU))
+
+        print(temporaryScalingDF.columns)
+        print(temporaryScalingDF.shape)
 
 
-    linearRegressionModelNames = linearRegressionModels.keys()
 
-    print(linearRegressionModelNames)
-
-    modelCPU = linearRegressionModels.get('modelCPU')
-
-    print(type(modelCPU))
-
-
-    # In[149]:
-
-
-    temporaryScalingDF.columns
-
-
-    # In[150]:
-
-
-    temporaryScalingDF.shape
-
-
-    # In[151]:
-
-
-    temporaryScalingDF.shape
-
-
-    # In[152]:
-
+    # In[152]: Visualize
 
     from visualizerlinux import ipythonPlotMetricsRealAgainstPredicted
 
-
-    # In[153]:
-
-
-    metricNames = ['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut']
-
-    ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames)
-
-
-    # In[154]:
+    if showPlots :
+        ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames)
 
 
     from visualizerlinux import ipythonPlotMetricsRealAgainstPredictedRegression
 
-
-    # In[155]:
-
-
-    ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
+    if showPlots :
+        ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
 
 
-    # ### End of Learning Phase
-
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## End of Learning Phase
+    # ## ------------------------------------------------------------------------------------------------------
