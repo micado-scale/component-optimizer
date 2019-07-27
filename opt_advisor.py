@@ -1,4 +1,12 @@
+import logging
+import logging.config
+
 def run():
+    
+    logger = logging.getLogger('optimizer')
+    
+    logger.info('opt_adviser.run() started')
+
     # # Advice Phase - Production Phase
 
     # In[156]:
@@ -9,7 +17,8 @@ def run():
     from utils import loadMinMaxScalerXFull, loadMinMaxScalerYFull
     from utils import loadNeuralNetworkModel
     from utils import readCSV
-    from utils import preProcessing, renameVariable, setMetricNames, setExtendedMetricNames, dropFirstCases
+    from utils import preProcessing
+    from utils import renameVariable, setMetricNames, setExtendedMetricNames, dropFirstCases
 
     from linearregression import calculateLinearRegressionTerms
 
@@ -21,6 +30,7 @@ def run():
         'font-family': 'monospace',
         'white-space': 'pre'
     }
+
 
 
     # In[157]:
@@ -45,7 +55,7 @@ def run():
     maximumNumberIncreasableNode = 6                                       # must be positive
     minimumNumberReducibleNode = -4                                        # must be negativ
 
-    upperLimit = 4000000                                                   # 6000000
+    upperLimit = 4000000                                                   # 4000000
     lowerLimit = 1000000                                                   # 1000000
 
 
@@ -54,6 +64,7 @@ def run():
     newDF = readCSV(testFileName)
 
 
+    print(newDF.head())
     # In[160]:
 
     newPreProcessedDF = preProcessing(newDF)
@@ -198,10 +209,48 @@ def run():
 
     # In[165]:
 
+    print('Error--------------------------------------------------------------------------------------------')
+    print('Mi a fenéért dobja el a változókat amikor az "investigationDFDeNormalizedDown" és a "investigationDFDeNormalizedUp"-ban')
+    print('is más változók vannak')
 
-    investigationDeNormalizedDF = pd.concat([investigationDFDeNormalizedDown, investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
+    investigationDeNormalizedDF = pd.concat([investigationDFDeNormalizedDown,
+                                             investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
 
-    investigationDeNormalizedDF.values.shape
+
+    print('------------------------------------------------------')
+    print('investigationDeNormalizedDF.values.shape')
+    print(investigationDeNormalizedDF.values.shape)
+    print('------------------------------------------------------')
+
+    print('------------------------------------------------------')
+    print('investigationDFDeNormalizedDown.values.shape')
+    print(investigationDFDeNormalizedDown.values.shape)
+    print('------------------------------------------------------')
+
+    print('------------------------------------------------------')
+    print('investigationDFDeNormalizedUp.values.shape')
+    print(investigationDFDeNormalizedUp.values.shape)
+    print('------------------------------------------------------')
+    
+    print('------------------------------------------------------')
+    print('investigationDFUp.values.shape')
+    print(investigationDFUp.values.shape)
+    print('------------------------------------------------------')
+    
+    print('------------------------------------------------------')
+    print('investigationDFDown.values.shape')
+    print(investigationDFDown.values.shape)
+    print('------------------------------------------------------')
+
+    print('------------------------------------------------------')
+    print('investigationDFDeNormalizedUp.head(2)')
+    print(investigationDFDeNormalizedUp.head(2))
+    print('------------------------------------------------------')
+    
+    print('------------------------------------------------------')
+    print('investigationDFDeNormalizedDown.head(2)')
+    print(investigationDFDeNormalizedDown.head(2))
+    print('------------------------------------------------------')
 
 
     # In[166]:
@@ -295,6 +344,13 @@ def run():
     advicedDF = investigationDeNormalizedDF.copy()
     advicedDF['advice'] = 0
     advicedDF['postScaledTargetVariable'] = np.nan
+    
+    logger.info('post advice init')
+    
+    print('------------------------------------------------------')
+    print('investigationDeNormalizedDF.columns')
+    print(investigationDeNormalizedDF.columns)
+    print('------------------------------------------------------')
 
     for i in investigationDeNormalizedDF.index:
         distance = 99999999999
@@ -340,7 +396,11 @@ def run():
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől
                     # kettő legyen az alsó limit fölött (utóbbi nem biztos, hogy teljesül)
                     varName = 'denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'
+                    print(varName)
+                    print('Error-------------nincs benne egy csomo oszlop-----------------------------------------------')
+                    print(investigationDeNormalizedDF.columns)
                     relatedTargetVariable = investigationDeNormalizedDF.get_value(i, varName)
+                    print('Error----------------------------------------------------------------------------------------')
                     calculateDistance = investigationDeNormalizedDF.get_value(i, varName)
                     if( calculateDistance > lowerLimit ):
                         distance = calculateDistance

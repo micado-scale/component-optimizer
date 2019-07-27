@@ -4,16 +4,54 @@ from ruamel import yaml
 import csv
 import zipfile
 import pandas as pd
+import numpy as np
+
+from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, r2_score
+from sklearn.externals import joblib
 
 import logging
 
 logger = logging.getLogger('optimizer')
 
+pandas_dataframe_styles = {
+    'font-family': 'monospace',
+    'white-space': 'pre'
+}
+
 
 def readCSV(filename):
-    df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null" )
+    df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null")
 
     # Return DataFrame
+    return df
+
+
+def removeMissingData(df):
+    cleanDF = df.dropna(axis=0)
+    return cleanDF
+
+
+def dropVariable(df, column):
+    del df[column]
+    return df
+
+
+def preProcessing(df):
+    df = df.cop
+    # Drop Time
+    if( df.columns.contains('Time') ):
+        df = dropVariable(df, 'Time')
+        logger.info('Time column dropped from data frame')
+        
+    if( df.columns.contains('timestamp') ):
+        df = dropVariable(df, 'timestamp')
+        logger.info('timestamp column dropped from data frame')
+        
+    if( df.columns.contains('avg latency (quantile 0.9)') ):
+        df = dropVariable(df, 'avg latency (quantile 0.9)')
+        logger.info('avg latency (quantile 0.9) column dropped from data frame')
+    # Remove cases with missing values
+    df = removeMissingData(df)
     return df
 
 

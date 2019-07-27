@@ -23,6 +23,8 @@ pandas_dataframe_styles = {
 def run(nn_file_name, visualize = False):
 
     logger = logging.getLogger('optimizer')
+    
+    logger.info('-----opt_trainer.run()-----')
 
     logger.info('---------------------------')
     logger.info(nn_file_name)
@@ -42,7 +44,7 @@ def run(nn_file_name, visualize = False):
     activation_function = 'tanh'        # tanh, relu, logistic
     neuronsWhole = 10                   # 10
     neuronsTrainTest = 4                # 4
-    cutFirstCases = 10                  # 10
+    cutFirstCases = 0                   # 10
 
     lead = 1                            # 1 default
 
@@ -169,6 +171,8 @@ def run(nn_file_name, visualize = False):
         return new_metricNames
 
     metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
+    
+    logger.info(f'metricNames = {metricNames}')
 
 
     # In[12]: Set Extended Metrics Names
@@ -236,6 +240,8 @@ def run(nn_file_name, visualize = False):
     # ## ------------------------------------------------------------------------------------------------------
 
     # In[26]:
+    
+    logger.info('CreateBeforeAfter method')
 
     def createBeforeafterDF(df, lag):
         beforeafterDF = df.copy()
@@ -259,6 +265,7 @@ def run(nn_file_name, visualize = False):
 
     beforeafterDF = createBeforeafterDF(preProcessedDF, 1)
 
+    logger.info('CreateBeforeAfter method done')
 
     # ### Set Features for Neural Network - these are the input variables
 
@@ -273,6 +280,7 @@ def run(nn_file_name, visualize = False):
 
     X = setFeaturesAndTheirLags(beforeafterDF)
 
+    logger.info('SetFeaturesAndTheirLags method done')
 
     # ### Set Target Variable for Neural Network - this is the target variable
 
@@ -323,6 +331,8 @@ def run(nn_file_name, visualize = False):
     # In[36]: Normalize Features and Save Normalized values, Normalize input variables set
 
     X_normalized, X_normalized_MinMaxScaler = normalizeX(X)
+    
+    logger.info('X_normalized done')
 
 
     # ### Load MinMaxScalerXFull
@@ -338,6 +348,8 @@ def run(nn_file_name, visualize = False):
     # In[38]: Load Saved Normalized Data (Normalizer)
 
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
+    
+    logger.info('X_normalized_MinMaxScaler load done')
 
 
     # In[39]: Declare some functions
@@ -442,10 +454,13 @@ def run(nn_file_name, visualize = False):
         y_denormalized[0:3]
         y_denormalized[-3:]
 
+    logger.info('Normalization done')
 
     # ## ------------------------------------------------------------------------------------------------------
     # ## Train Neural Network with Optimizer Class, trainMultiLayerRegressor method
     # ## ------------------------------------------------------------------------------------------------------
+    
+    logger.info('MLP start')
 
     # In[55]: Declare some functions
 
@@ -753,6 +768,8 @@ def run(nn_file_name, visualize = False):
 
 
     # In[111]: this is the same Neural Network configuration as I did it before, when whole dataset was trained
+    
+    logger.info('Split MLP start')
 
     def trainMultiLayerRegressor(X_train_normalized, y_train_normalized, activation, neuronsTrainTest):
 
@@ -805,6 +822,7 @@ def run(nn_file_name, visualize = False):
     print('---------------------')
     evaluateGoodnessOfPrediction(y_test_normalized, y_test_predicted)
 
+    logger.info('Split Evaluation done')
 
     # In[116]: De-normlaize target variable and predicted target variable
 
@@ -865,7 +883,8 @@ def run(nn_file_name, visualize = False):
     # ## ------------------------------------------------------------------------------------------------------
     # ## Linear Regression Learn
     # ## ------------------------------------------------------------------------------------------------------
-
+    
+    logger.info('Linear Regression start')
         
     # In[124]: Import dependencies
 
@@ -943,6 +962,7 @@ def run(nn_file_name, visualize = False):
     assert a_colName == 'prev1WorkerCount', "This column name is: {0} insted of prev1WorkerCount".format(a_colName)
     assert a_cols == 30, "This column number is: {0} insted of 17".format(a_colName)
 
+    logger.info('Assert variable number before-after done')
 
     # In[132]: Declare some functions
 
@@ -1014,11 +1034,18 @@ def run(nn_file_name, visualize = False):
 
     # In[143]:Declare some functions
     
+    # TODO:
+    # Mi az hogy üres a termDF
+    
     def calculateLinearRegressionTerms(metric, dataFrame):
+        print('________________________________________')
+        print(dataFrame)
+        print('________________________________________')
         termDF = dataFrame.copy()
         termDF['metric'] = termDF[metric]
         termDF['term1']  = termDF[metric] * termDF['WorkerCount'] / (termDF['WorkerCount'] + termDF['addedWorkerCount'])
         termDF['term2']  = termDF[metric] * termDF['addedWorkerCount'] / (termDF['WorkerCount'] + termDF['addedWorkerCount'])
+        print(termDF)
         return termDF
 
 
@@ -1054,7 +1081,6 @@ def run(nn_file_name, visualize = False):
 
     def calculateLinearRegressionPrediction(metric, dataFrame, model):
         X, y = createInputAndTargetToLinearRegression(metric, dataFrame)
-
         model.fit(X, y)
         y_predicted = model.predict(X)
 

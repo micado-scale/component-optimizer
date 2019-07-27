@@ -1,11 +1,9 @@
-from sklearn.externals import joblib
+
 import pandas as pd
 import numpy as np
 
-# from sklearn.preprocessing import MinMaxScaler
-# from sklearn.model_selection import train_test_split
-# from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, r2_score
+from sklearn.externals import joblib
 
 pandas_dataframe_styles = {
     'font-family': 'monospace',

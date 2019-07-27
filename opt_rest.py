@@ -126,7 +126,7 @@ def sample():
             # ahogy elnézem az opt_utils modul importálva van.
             # tehát írnom kéne bele egy függvényt(aminek paraméterként)
             # átadom az új adatokat és hozzáfüzi az nn_.csv-hez
-            
+
             df = opt_utils.readCSV(config.nn_filename)
             logger.info('----------------------------------------------')
             logger.info(f'pandas dataframe df.columns = {df.columns}')
@@ -165,10 +165,9 @@ def sample():
                     
                     # training_result = opt_trainer.run()
                     
-                    # TODO:
-                    # Azért jó lenne, ha tudná, hogy honnan kell kiolvasnia az adatokat
+                    # opt_trainer.run(config.nn_filename, visualize = True)
                     
-                    opt_trainer.run(config.nn_filename, visualize = True)
+                    opt_trainer.run(config.nn_filename)
                     
                     
                     # TODO:
