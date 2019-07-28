@@ -332,7 +332,7 @@ def get_advice():
                     
         # opt_trainer.run(config.nn_filename, visualize = False)
                     
-        opt_advisor.run(last = True)
+        opt_advisor.run(last = False)
                     
         # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
         # opt_advisor_old.run()

@@ -10,7 +10,6 @@ from opt_utils import readCSV
 from opt_utils import preProcessing
 from opt_utils import renameVariable
 from opt_utils import dropFirstCases
-# from utils import renameVariable
 from utils import setMetricNames, setExtendedMetricNames
 
 from linearregression import calculateLinearRegressionTerms
@@ -26,6 +25,12 @@ pandas_dataframe_styles = {
 
 
 def run(last = False):
+
+    showPlots = True
+    
+    if( last ):
+        showPlots = False
+        
 
     # # Advice Phase - Production Phase
 
@@ -112,11 +117,8 @@ def run(last = False):
    
     filteredDF = dropFirstCases(renamedDF, cutFirstCases)
     
-    print('---------------CCCCCCCCCCCCCCCCCCCCCCCCCCCC--------------------')
-    print(filteredDF.shape)
-    print(filteredDF.head())
-    print('---------------DDDDDDDDDDDDDDDDDDDDDDDDDDDD--------------------')
-   
+
+    
 
     # >#### Add new workers (increse the nuber of added Worker)
 
@@ -149,44 +151,35 @@ def run(last = False):
 
                 newDFForRegressionWithTerms = calculateLinearRegressionTerms(i, newDFForRegression)
 
-                print('-------------------------ZZZZZZZZZZZZZZZZ-----------------------------')
-                print('--------i-------- = ', i)
-                print('newDFForRegression.shape   = ', newDFForRegression.shape)
-                print('newDFForRegression.head()  = ', newDFForRegression.head())
-                print('newDFForRegressionWithTerms.type = ', type(newDFForRegressionWithTerms))
-                print('newDFForRegressionWithTerms.shape = ', newDFForRegressionWithTerms.shape)
-                print('newDFForRegressionWithTerms.columns = ', newDFForRegressionWithTerms.columns)
-                print('-------------------------OOOOOOOOOOOOOOOO-----------------------------')
+                # print('newDFForRegression.shape   = ', newDFForRegression.shape)
+                # print('newDFForRegression.head()  = ', newDFForRegression.head())
+                # print('newDFForRegressionWithTerms.type = ', type(newDFForRegressionWithTerms))
+                # print('newDFForRegressionWithTerms.shape = ', newDFForRegressionWithTerms.shape)
+                # print('newDFForRegressionWithTerms.columns = ', newDFForRegressionWithTerms.columns)
                 
-                
-                
-                print("------------     ", newDFForRegressionWithTerms.CPU.values[0], "     ------------")
-                print("------------     ", newDFForRegressionWithTerms.shape, "     ------------")
-                print("------------     ", newDFForRegressionWithTerms.columns, "     ------------")
+                # print("------------     ", newDFForRegressionWithTerms.CPU.values[0], "     ------------")
+                # print("------------     ", newDFForRegressionWithTerms.shape, "     ------------")
+                # print("------------     ", newDFForRegressionWithTerms.columns, "     ------------")
                 
 
                 # keep last three column - given metric, term1, term2
                 X = newDFForRegressionWithTerms.iloc[:, [-3, -2, -1]]
 
-                print("------------     ", X.shape, "     ------------")
-                print("------------     ", X.values[0], "     ------------") # Error ez az érték első eleme fix kéne hogy legyen
-                print("------------     ", X.values[-1], "     ------------")# ugyanakkor folyamatosan változik
+                # print("------------     ", X.shape, "     ------------")
+                # print("------------     ", X.values[0], "     ------------") # Error ez az érték első eleme fix kéne hogy legyen
+                # print("------------     ", X.values[-1], "     ------------")# ugyanakkor folyamatosan változik
 
                 # load the proper current metric model
                 modelForMetric = joblib.load('models/saved_linearregression_model_' + i + '.pkl')
 
-                print("------------     ", modelForMetric.get_params(), "     ------------")
+                # print("------------     ", modelForMetric.get_params(), "     ------------")
 
-                print('-------------------------FFFFFFFFFFFFFFFFFFFFF-----------------------------')
-                print(X)
-                print('-------------------------FFFFFFFFFFFFFFFFFFFFF-----------------------------')
                 if( np.isinf(X).any()[1] ):
                     X['term1'] = np.where(np.isinf(X['term1'].values), X['metric'], X['term1'])
                     X['term2'] = np.where(np.isinf(X['term2'].values), 0, X['term2'])
                     # print('-----------')
                     # print(X.to_string())
 
-                print('-------------------------GGGGGGGGGGGGGGGGGGGG-----------------------------')
                 # create prediction and store in a new numpy.array object
                 predictedMetric = modelForMetric.predict(X)
 
@@ -198,8 +191,8 @@ def run(last = False):
                 newDFForRegression[i] = predictedMetric
                 nDD[i] = predictedMetric
 
-                print("------------     ", newDFForRegression[['CPU']].values[0], "    ------------")
-                print("------------     ", nDD[['CPU']].values[0], "    ------------")
+                # print("------------     ", newDFForRegression[['CPU']].values[0], "    ------------")
+                # print("------------     ", nDD[['CPU']].values[0], "    ------------")
 
                 # print out the new data frame
                 newDFForRegression.head()
@@ -261,6 +254,7 @@ def run(last = False):
     print('Error--------------------------------------------------------------------------------------------')
     print('Mi a fenéért dobja el a változókat amikor az "investigationDFDeNormalizedDown" és a "investigationDFDeNormalizedUp"-ban')
     print('is más változók vannak')
+    print('Ha konstans értékek vannak minden változóban akkor a drop_duplicates().T miatt dobja őket')
 
     investigationDeNormalizedDF = pd.concat([investigationDFDeNormalizedDown,
                                              investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
@@ -514,4 +508,7 @@ def run(last = False):
 
 
     advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
-
+    
+    
+    
+    
