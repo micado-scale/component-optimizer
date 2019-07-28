@@ -46,6 +46,8 @@ Test the performacne of the system on historical data.
 __GET /optimizer/advice__     
 Get scaling advice.  
 ```curl -X GET http://127.0.0.1:5000/optimizer/advice```  
+
+```curl -X GET http://193.224.59.115:5000/optimizer/advice```
   
 __GET /optimizer/training_data__  
 Download zipped training data that contains both neural network and linear regression data.  
