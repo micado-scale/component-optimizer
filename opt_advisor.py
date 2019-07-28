@@ -25,7 +25,7 @@ pandas_dataframe_styles = {
 }
 
 
-def run():
+def run(last = False):
 
     # # Advice Phase - Production Phase
 
@@ -43,7 +43,7 @@ def run():
 
     # In[158]:
 
-    cutFirstCases = 0                                                      # 10
+    cutFirstCases = 0                                                      # 0
     targetVariable = 'avg latency (quantile 0.5)'
     testFileName = 'data/grafana_data_export_long_running_test.csv'        # original data
     testFileName = 'data/test_data.csv'                                    # test data
@@ -63,7 +63,25 @@ def run():
     df = readCSV(testFileName)
 
     print(df.head())
-
+    
+    
+    # In[x]:
+    
+    if( last == True ):
+        
+        # TODO:
+        # Assert
+        logger.info('-------- Last row will be processed --------')
+        pf = df[-1:]
+        logger.info(f'-------- pf head =\n {pf.head()}')
+        logger.info(f'-------- pf shape =\n {pf.shape}')
+        
+        # Assigne pf to df -> keep the code more coherent
+        df = pf.copy()
+        
+        logger.info('-------- Last row will be processed --------')
+        
+        
     
     # In[160]:
 
@@ -93,6 +111,11 @@ def run():
 
    
     filteredDF = dropFirstCases(renamedDF, cutFirstCases)
+    
+    print('---------------CCCCCCCCCCCCCCCCCCCCCCCCCCCC--------------------')
+    print(filteredDF.shape)
+    print(filteredDF.head())
+    print('---------------DDDDDDDDDDDDDDDDDDDDDDDDDDDD--------------------')
    
 
     # >#### Add new workers (increse the nuber of added Worker)
@@ -126,9 +149,21 @@ def run():
 
                 newDFForRegressionWithTerms = calculateLinearRegressionTerms(i, newDFForRegression)
 
-                print("------------     ", newDFForRegressionWithTerms.CPU.values[1], "     ------------")
+                print('-------------------------ZZZZZZZZZZZZZZZZ-----------------------------')
+                print('--------i-------- = ', i)
+                print('newDFForRegression.shape   = ', newDFForRegression.shape)
+                print('newDFForRegression.head()  = ', newDFForRegression.head())
+                print('newDFForRegressionWithTerms.type = ', type(newDFForRegressionWithTerms))
+                print('newDFForRegressionWithTerms.shape = ', newDFForRegressionWithTerms.shape)
+                print('newDFForRegressionWithTerms.columns = ', newDFForRegressionWithTerms.columns)
+                print('-------------------------OOOOOOOOOOOOOOOO-----------------------------')
+                
+                
+                
+                print("------------     ", newDFForRegressionWithTerms.CPU.values[0], "     ------------")
                 print("------------     ", newDFForRegressionWithTerms.shape, "     ------------")
                 print("------------     ", newDFForRegressionWithTerms.columns, "     ------------")
+                
 
                 # keep last three column - given metric, term1, term2
                 X = newDFForRegressionWithTerms.iloc[:, [-3, -2, -1]]
@@ -142,13 +177,16 @@ def run():
 
                 print("------------     ", modelForMetric.get_params(), "     ------------")
 
+                print('-------------------------FFFFFFFFFFFFFFFFFFFFF-----------------------------')
+                print(X)
+                print('-------------------------FFFFFFFFFFFFFFFFFFFFF-----------------------------')
                 if( np.isinf(X).any()[1] ):
                     X['term1'] = np.where(np.isinf(X['term1'].values), X['metric'], X['term1'])
                     X['term2'] = np.where(np.isinf(X['term2'].values), 0, X['term2'])
                     # print('-----------')
                     # print(X.to_string())
 
-                    
+                print('-------------------------GGGGGGGGGGGGGGGGGGGG-----------------------------')
                 # create prediction and store in a new numpy.array object
                 predictedMetric = modelForMetric.predict(X)
 
@@ -160,8 +198,8 @@ def run():
                 newDFForRegression[i] = predictedMetric
                 nDD[i] = predictedMetric
 
-                print("------------     ", newDFForRegression[['CPU']].values[1], "    ------------")
-                print("------------     ", nDD[['CPU']].values[1], "    ------------")
+                print("------------     ", newDFForRegression[['CPU']].values[0], "    ------------")
+                print("------------     ", nDD[['CPU']].values[0], "    ------------")
 
                 # print out the new data frame
                 newDFForRegression.head()

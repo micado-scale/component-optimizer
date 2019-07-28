@@ -1,8 +1,12 @@
 def calculateLinearRegressionTerms(metric, dataFrame):
+    # print('-----------calculateLinearRegressionTerms-----------')
     termDF = dataFrame.copy()
     termDF['metric'] = termDF[metric]
     termDF['term1']  = termDF[metric] * termDF['WorkerCount'] / (termDF['WorkerCount'] + termDF['addedWorkerCount'])
     termDF['term2']  = termDF[metric] * termDF['addedWorkerCount'] / (termDF['WorkerCount'] + termDF['addedWorkerCount'])
+    # print(termDF.shape)
+    # print(termDF.head())
+    # print('-----------calculateLinearRegressionTerms-----------')
     return termDF
 
 
