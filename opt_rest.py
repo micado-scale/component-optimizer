@@ -302,7 +302,49 @@ def backtest():
 
 @app.route('/optimizer/advice', methods=['GET'])
 def get_advice():
-    return 'Hello advice GET'
+
+    logger.info('Advisor get_advice() called')
+    
+    # Nos igazából ennek a modulnak semmilyen adatot nem kell kapnia
+    # ugyanis kiolvassa az adatokat egy korábban eltárolt fájlból
+    
+    # Ha a file tartalma kisebb mint egy előre meghatározott érték
+    # akkor nem fut le vagy olyan értékkel tér vissza amit a felhasználó
+    # értelmezni tud
+    
+    df = opt_utils.readCSV(config.nn_filename)
+    logger.info('----------------------------------------------')
+    logger.info(f'pandas dataframe df.columns = {df.columns}')
+    logger.info('----------------------------------------------')
+
+    print(df.values)
+    print(df.head())
+
+    # TODO:
+    # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
+    logger.info(f'df.shape = {df.shape}')
+    logger.info(f'df.shape[0] = {df.shape[0]}')
+            
+    # if( df.shape[0] > constants.get('training_samples_required', 10) ):
+    if( df.shape[0] > 300 ):
+        logger.info('There is enough data for get advice')
+        logger.info('---------Get Advice Phase----------')
+                    
+        # opt_trainer.run(config.nn_filename, visualize = False)
+                    
+        opt_advisor.run()
+                    
+        # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
+        # opt_advisor_old.run()
+        # opt_advisor.run(tmp_df[:-1])
+
+    else:
+        logger.info('There is not enough data for get advice')
+
+    logger.info('Get Advice recieved and processed.')   
+
+    return jsonify('OK'), 200
+    
 
 class RequestException(Exception):
     def __init__(self, status_code, reason, *args):
