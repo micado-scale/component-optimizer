@@ -95,6 +95,12 @@ def training_data():
 def sample():
     logger.info('Loading training sample...')
     
+    constants = opt_utils.read_yaml('data/constants.yaml')
+    logger.info('-------------------------- YAML --------------------------')
+    logger.info(f'Constants received: {constants}')
+    logger.info('-------------------------- YAML --------------------------')
+
+    
     sample_yaml = request.stream.read()
     if not sample_yaml:
         raise RequestException(400, 'Empty POST data')
@@ -149,12 +155,13 @@ def sample():
             # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
             logger.info(f'tmp_df.shape = {tmp_df.shape}')
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
-            
+                        
             # TRAINING
-            # if( tmp_df.shape[0] > constants.get('training_samples_required', 10) ):
-            if( tmp_df.shape[0] > 10 ):
+            if( tmp_df.shape[0] > constants.get('training_samples_required') ):
+            # if( tmp_df.shape[0] > 10 ):
                 logger.info('There is enough data for start learning')
                 global training_result
+
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
                 # Comment: Nehogy már minden körben tanítsuk
@@ -193,13 +200,18 @@ def sample():
                     # hogyha még meg is hívják, akkor olvassa be a csv fájlt amiből dolgoznia kell
                     # de ha annak hossza rövidebb egy megadott értéknék akkor ne hajtsa végre
                     # és térjen vissza valamilyen üzenettel
-                    opt_advisor.run()
+                    
+                    opt_advisor.run(last = True)
                     
                     # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele
                     
                     # opt_advisor_old.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
+                    
+                    print('---constans= ', constants.get('input_metrics'))
+                    print('---constans= ', constants)
+
 
             else:
                 logger.info('There is not enough data for start learning')
@@ -209,6 +221,63 @@ def sample():
         else:
             logger.error('Sample ignored because it contains empty value.')
     return jsonify('OK'), 200
+
+
+
+
+@app.route('/optimizer/advice', methods=['GET'])
+def get_advice():
+
+    logger.info('Advisor get_advice() called')
+
+    constants = opt_utils.read_yaml('data/constants.yaml')
+    logger.info('-------------------------- YAML --------------------------')
+    logger.info(f'Constants received: {constants}')
+    logger.info('-------------------------- YAML --------------------------')
+
+    # Nos igazából ennek a modulnak semmilyen adatot nem kell kapnia
+    # ugyanis kiolvassa az adatokat egy korábban eltárolt fájlból
+    
+    # Ha a file tartalma kisebb mint egy előre meghatározott érték
+    # akkor nem fut le vagy olyan értékkel tér vissza amit a felhasználó
+    # értelmezni tud
+    
+    df = opt_utils.readCSV(config.nn_filename)
+    logger.info('----------------------------------------------')
+    logger.info(f'pandas dataframe df.columns = {df.columns}')
+    logger.info('----------------------------------------------')
+
+    print(df.values)
+    print(df.head())
+
+    # TODO:
+    # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
+    logger.info(f'df.shape = {df.shape}')
+    logger.info(f'df.shape[0] = {df.shape[0]}')
+            
+    if( df.shape[0] > constants.get('training_samples_required') ):
+    # if( df.shape[0] > 400 ):
+        logger.info('There is enough data for get advice')
+        logger.info('---------Get Advice Phase----------')
+                    
+        # opt_trainer.run(config.nn_filename, visualize = False)
+                    
+        opt_advisor.run(last = True)
+                    
+        # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
+        # opt_advisor_old.run()
+        # opt_advisor.run(tmp_df[-1:])
+
+    else:
+        logger.info('There is not enough data for get advice')
+
+    print('---constans= ', constants.get('input_metrics'))
+    print('---constans= ', constants)
+        
+    logger.info('Get Advice recieved and processed.')   
+
+    return jsonify('OK'), 200
+    
 
 
 @app.route('/optimizer/backtest', methods=['POST'])
@@ -300,51 +369,9 @@ def backtest():
     return jsonify('OK'), 200
 
 
-@app.route('/optimizer/advice', methods=['GET'])
-def get_advice():
 
-    logger.info('Advisor get_advice() called')
-    
-    # Nos igazából ennek a modulnak semmilyen adatot nem kell kapnia
-    # ugyanis kiolvassa az adatokat egy korábban eltárolt fájlból
-    
-    # Ha a file tartalma kisebb mint egy előre meghatározott érték
-    # akkor nem fut le vagy olyan értékkel tér vissza amit a felhasználó
-    # értelmezni tud
-    
-    df = opt_utils.readCSV(config.nn_filename)
-    logger.info('----------------------------------------------')
-    logger.info(f'pandas dataframe df.columns = {df.columns}')
-    logger.info('----------------------------------------------')
 
-    print(df.values)
-    print(df.head())
 
-    # TODO:
-    # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
-    logger.info(f'df.shape = {df.shape}')
-    logger.info(f'df.shape[0] = {df.shape[0]}')
-            
-    # if( df.shape[0] > constants.get('training_samples_required', 10) ):
-    if( df.shape[0] > 300 ):
-        logger.info('There is enough data for get advice')
-        logger.info('---------Get Advice Phase----------')
-                    
-        # opt_trainer.run(config.nn_filename, visualize = False)
-                    
-        opt_advisor.run(last = False)
-                    
-        # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
-        # opt_advisor_old.run()
-        # opt_advisor.run(tmp_df[-1:])
-
-    else:
-        logger.info('There is not enough data for get advice')
-
-    logger.info('Get Advice recieved and processed.')   
-
-    return jsonify('OK'), 200
-    
 
 class RequestException(Exception):
     def __init__(self, status_code, reason, *args):

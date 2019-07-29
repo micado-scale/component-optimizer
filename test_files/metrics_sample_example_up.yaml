@@ -1,0 +1,35 @@
+sample:
+  timestamp: 1553263975
+  input_metrics:
+    - name: AVG RR
+      value: 51.06666666666667
+
+    - name: SUM RR
+      value: 155.06666666666667
+
+    - name: CPU
+      value: 93.88722053709326
+
+    - name: Inter
+      value: 6900.9393142450805
+
+    - name: CTXSW
+      value: 9940.44417519416
+
+    - name: KBIn
+      value: 1176.636697571778
+
+    - name: PktIn
+      value: 2155.273750986078
+
+    - name: KBOut
+      value: 222.00843363087984
+
+    - name: PktOut
+      value: 1875.391476839661
+
+  target_metrics: 
+    - name: avg latency (quantile 0.5)
+      value: 4614349.53
+
+  vm_number: 4
