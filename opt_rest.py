@@ -160,7 +160,6 @@ def sample():
             if( tmp_df.shape[0] > constants.get('training_samples_required') ):
             # if( tmp_df.shape[0] > 10 ):
                 logger.info('There is enough data for start learning')
-                global training_result
 
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
@@ -171,9 +170,11 @@ def sample():
                     # az eredményt tároljuk el a global training_result változóban
                     logger.info('----------Learning Neural Network and Linear Regression Phase----------')
                     
-                    # training_result = opt_trainer.run()
+                    global training_result
 
-                    opt_trainer.run(config.nn_filename, visualize = False)
+                    training_result = opt_trainer.run(config.nn_filename, visualize = False)
+                    
+                    logger.info(f'Training result = {training_result}')
                     
                     # opt_trainer.run(config.nn_filename)
                     
@@ -276,6 +277,10 @@ def get_advice():
         
     logger.info('Get Advice recieved and processed.')   
 
+    # TODO:
+    # Ne ezzel returnöljön, hanem azzal a dictionarivel amit a Józsi elvár
+    # Amit én visszakapok az opt_advisor.run(last = True) értékből
+    
     return jsonify('OK'), 200
     
 

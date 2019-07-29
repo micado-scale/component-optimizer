@@ -4,6 +4,8 @@ import logging.config
 import numpy as np
 import pandas as pd
 
+from flask import jsonify
+
 from utils import loadMinMaxScalerXFull, loadMinMaxScalerYFull
 from utils import loadNeuralNetworkModel
 from opt_utils import readCSV
@@ -22,6 +24,17 @@ pandas_dataframe_styles = {
     'font-family': 'monospace',
     'white-space': 'pre'
 }
+
+
+
+# TODO:
+# Csinálni egy init-et ahol beállítom a változókat
+
+def advice_msg(valid=False, phase='training', vm_number=0, error_msg = None):
+    if valid:
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, error_msg = '')), 200
+    else:
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, error_msg = error_msg)), 400
 
 
 def run(last = False):
@@ -87,6 +100,12 @@ def run(last = False):
         logger.info('-------- Last row will be processed --------')
         
         
+    # In[x]:
+    logger.info('Checking advisor data properties')
+    if df.shape[0] == 0:
+        error_msg = 'There are no training samples yet.'
+        logger.error(error_msg)
+        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
     
     # In[160]:
 
@@ -260,40 +279,41 @@ def run(last = False):
                                              investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
 
 
-    print('------------------------------------------------------')
-    print('investigationDeNormalizedDF.values.shape')
-    print(investigationDeNormalizedDF.values.shape)
-    print('------------------------------------------------------')
+    if( 0 > 1 ):
+        print('------------------------------------------------------')
+        print('investigationDeNormalizedDF.values.shape')
+        print(investigationDeNormalizedDF.values.shape)
+        print('------------------------------------------------------')
 
-    print('------------------------------------------------------')
-    print('investigationDFDeNormalizedDown.values.shape')
-    print(investigationDFDeNormalizedDown.values.shape)
-    print('------------------------------------------------------')
+        print('------------------------------------------------------')
+        print('investigationDFDeNormalizedDown.values.shape')
+        print(investigationDFDeNormalizedDown.values.shape)
+        print('------------------------------------------------------')
 
-    print('------------------------------------------------------')
-    print('investigationDFDeNormalizedUp.values.shape')
-    print(investigationDFDeNormalizedUp.values.shape)
-    print('------------------------------------------------------')
-    
-    print('------------------------------------------------------')
-    print('investigationDFUp.values.shape')
-    print(investigationDFUp.values.shape)
-    print('------------------------------------------------------')
-    
-    print('------------------------------------------------------')
-    print('investigationDFDown.values.shape')
-    print(investigationDFDown.values.shape)
-    print('------------------------------------------------------')
+        print('------------------------------------------------------')
+        print('investigationDFDeNormalizedUp.values.shape')
+        print(investigationDFDeNormalizedUp.values.shape)
+        print('------------------------------------------------------')
 
-    print('------------------------------------------------------')
-    print('investigationDFDeNormalizedUp.head(2)')
-    print(investigationDFDeNormalizedUp.head(2))
-    print('------------------------------------------------------')
-    
-    print('------------------------------------------------------')
-    print('investigationDFDeNormalizedDown.head(2)')
-    print(investigationDFDeNormalizedDown.head(2))
-    print('------------------------------------------------------')
+        print('------------------------------------------------------')
+        print('investigationDFUp.values.shape')
+        print(investigationDFUp.values.shape)
+        print('------------------------------------------------------')
+
+        print('------------------------------------------------------')
+        print('investigationDFDown.values.shape')
+        print(investigationDFDown.values.shape)
+        print('------------------------------------------------------')
+
+        print('------------------------------------------------------')
+        print('investigationDFDeNormalizedUp.head(2)')
+        print(investigationDFDeNormalizedUp.head(2))
+        print('------------------------------------------------------')
+
+        print('------------------------------------------------------')
+        print('investigationDFDeNormalizedDown.head(2)')
+        print(investigationDFDeNormalizedDown.head(2))
+        print('------------------------------------------------------')
 
 
     # In[166]:
@@ -335,7 +355,6 @@ def run(last = False):
 
     # In[174]:
 
-
     if showPlots :
         VisualizePredictedYWithWorkers(0, investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker',
                                                                          'denormalizedPredictedResponseTimeAdded1Worker',
@@ -346,7 +365,6 @@ def run(last = False):
 
 
     # In[175]:
-
 
     if showPlots :
         VisualizePredictedYLine(investigationDFDeNormalizedUp['avg latency (quantile 0.5)'],                         investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker','denormalizedPredictedResponseTimeAdded1Worker','denormalizedPredictedResponseTimeAdded2Worker','denormalizedPredictedResponseTimeAdded3Worker','denormalizedPredictedResponseTimeAdded4Worker','denormalizedPredictedResponseTimeAdded5Worker']], targetVariable)
@@ -413,7 +431,7 @@ def run(last = False):
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
                 for j in range(1, 6):
-                    print(distance)
+                    # print(distance)
                     advice = 0
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága a felső limittől
                     # kettő legyen a felső limit alatt (utóbbi nem biztos, hogy teljesül)
@@ -435,16 +453,16 @@ def run(last = False):
                 postScaledTargetVariable = np.nan # 0
                 distance = float('-inf')
                 for j in range(-1, -3, -1):
-                    print(distance)
+                    # print(distance)
                     advice = 0
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől
                     # kettő legyen az alsó limit fölött (utóbbi nem biztos, hogy teljesül)
                     varName = 'denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'
                     print(varName)
-                    print('Error-------------nincs benne egy csomo oszlop-----------------------------------------------')
-                    print(investigationDeNormalizedDF.columns)
+                    # print('Error-------------nincs benne egy csomo oszlop-----------------------------------------------')
+                    # print(investigationDeNormalizedDF.columns)
                     relatedTargetVariable = investigationDeNormalizedDF.get_value(i, varName)
-                    print('Error----------------------------------------------------------------------------------------')
+                    # print('Error----------------------------------------------------------------------------------------')
                     calculateDistance = investigationDeNormalizedDF.get_value(i, varName)
                     if( calculateDistance > lowerLimit ):
                         distance = calculateDistance
@@ -463,18 +481,16 @@ def run(last = False):
 
     # In[181]:
 
-
-    advicedDF.head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.0f}")
+    # advicedDF.head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.0f}")
 
 
     # In[182]:
 
-
-    VisualizePredictedXYLine(advicedDF[['advice']] * 2000000, advicedDF[[targetVariable]], targetVariable, lowerLimit, upperLimit)
+    if showPlots :
+        VisualizePredictedXYLine(advicedDF[['advice']] * 2000000, advicedDF[[targetVariable]], targetVariable, lowerLimit, upperLimit)
 
 
     # In[183]:
-
 
     print('countInRange      = ', countInRange)
     print('countViolatedDown = ', countViolatedDown)
@@ -483,33 +499,34 @@ def run(last = False):
 
     # In[184]:
 
-
-    VisualizePredictedXY2Line(advicedDF[[targetVariable]], advicedDF[['advice']], targetVariable, lowerLimit, upperLimit)
-
-
-    # In[185]:
-
-
-    from visualizerlinux import VisualizePredictedXY3Line
+    if showPlots :
+        VisualizePredictedXY2Line(advicedDF[[targetVariable]], advicedDF[['advice']], targetVariable, lowerLimit, upperLimit)
 
 
     # In[186]:
 
-
-    VisualizePredictedXY3Line(advicedDF[[targetVariable]],advicedDF[['postScaledTargetVariable']],advicedDF[['advice']],targetVariable, lowerLimit, upperLimit)
+    if showPlots :
+        from visualizerlinux import VisualizePredictedXY3Line
+        
+        VisualizePredictedXY3Line(advicedDF[[targetVariable]],advicedDF[['postScaledTargetVariable']],advicedDF[['advice']],targetVariable, lowerLimit, upperLimit)
 
 
     # In[187]:
 
-
-    advicedDF.style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
+    # advicedDF.style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
     # In[188]:
 
-
     advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
     
+    
+    # In[x]:
+    
+    phase = ''
+    nn_error_rate = 0
+    
+    # return advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate) 
     
     
     

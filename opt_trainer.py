@@ -51,6 +51,8 @@ def run(nn_file_name, visualize = False):
     showPlots = False                   # True
     showPlots = visualize               # This value comes as a parameter
     explore = False                     # False
+    
+    error_msg = 'No error'              # None
 
 
     # In[3]: Declare some functions
@@ -1159,6 +1161,9 @@ def run(nn_file_name, visualize = False):
     if showPlots :
         ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
 
+    
+    training_result = [error_msg]
+    return training_result
 
     # ## ------------------------------------------------------------------------------------------------------
     # ## End of Learning Phase
