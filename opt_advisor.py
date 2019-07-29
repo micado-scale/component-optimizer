@@ -30,15 +30,17 @@ pandas_dataframe_styles = {
 # TODO:
 # Csinálni egy init-et ahol beállítom a változókat
 
-def advice_msg(valid=False, phase='training', vm_number=0, error_msg = None):
+def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate = 1000, error_msg = None):
     if valid:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, error_msg = '')), 200
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = 'Def')), 200
     else:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, error_msg = error_msg)), 400
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = error_msg)), 400
 
 
-def run(last = False):
+def run(csfFileName, last = False):
 
+    return_msg = advice_msg(valid = False, phase = 'invalid', error_msg = 'Default message')
+    
     showPlots = True
     
     if( last ):
@@ -63,14 +65,15 @@ def run(last = False):
 
     cutFirstCases = 0                                                      # 0
     targetVariable = 'avg latency (quantile 0.5)'
-    testFileName = 'data/grafana_data_export_long_running_test.csv'        # original data
-    testFileName = 'data/test_data.csv'                                    # test data
-    testFileName = 'data/test_data2.csv'                                   # test data
+    # testFileName = 'data/grafana_data_export_long_running_test.csv'      # original data
+    # testFileName = 'data/test_data.csv'                                  # test data
+    # testFileName = 'data/test_data2.csv'                                 # test data
     # testFileName = 'data/micado0730715_v2.csv'
-    testFileName = 'data/nn_training_data.csv'
+    # testFileName = 'data/nn_training_data.csv'
+    testFileName = csfFileName                                             # from parameter
     
-    maximumNumberIncreasableNode = 6                                       # must be positive
-    minimumNumberReducibleNode = -4                                        # must be negativ
+    maximumNumberIncreasableNode = 6                                       # must be positive 6
+    minimumNumberReducibleNode = -4                                        # must be negativ -4
 
     upperLimit = 4000000                                                   # 4000000
     lowerLimit = 1000000                                                   # 1000000
@@ -386,13 +389,13 @@ def run(last = False):
 
     # In[178]:
 
-    from visualizerlinux import VisualizePredictedXYLine
-    from visualizerlinux import VisualizePredictedXY2Line
 
 
     # In[179]:
     
     if showPlots :
+        from visualizerlinux import VisualizePredictedXYLine
+        from visualizerlinux import VisualizePredictedXY2Line
         VisualizePredictedXYLine(0, investigationDFDeNormalizedUp[[targetVariable]], targetVariable, lowerLimit, upperLimit)
 
 
@@ -518,15 +521,20 @@ def run(last = False):
 
     # In[188]:
 
-    advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
+    if( last ):
+        advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
     
     
     # In[x]:
     
-    phase = ''
+    phase = 'production'
     nn_error_rate = 0
+    vm_number_total = advice
     
-    # return advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate) 
+    logger.info(f'advice = {advice}')
+    
+    return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
+    return return_msg
     
     
     

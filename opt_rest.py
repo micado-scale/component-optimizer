@@ -176,8 +176,6 @@ def sample():
                     
                     logger.info(f'Training result = {training_result}')
                     
-                    # opt_trainer.run(config.nn_filename)
-                    
                     
                     # TODO:
                     # A traningin_results-ba leginkább a tanulást leíró metrikákat kéne tenni
@@ -202,7 +200,7 @@ def sample():
                     # de ha annak hossza rövidebb egy megadott értéknék akkor ne hajtsa végre
                     # és térjen vissza valamilyen üzenettel
                     
-                    opt_advisor.run(last = True)
+                    # opt_advisor.run(config.nn_filename, last = True)
                     
                     # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele
                     
@@ -210,8 +208,8 @@ def sample():
                     
                     # opt_advisor.run(tmp_df[:-1])
                     
-                    print('---constans= ', constants.get('input_metrics'))
-                    print('---constans= ', constants)
+                    # print('---constans= ', constants.get('input_metrics'))
+                    # print('---constans= ', constants)
 
 
             else:
@@ -248,8 +246,8 @@ def get_advice():
     logger.info(f'pandas dataframe df.columns = {df.columns}')
     logger.info('----------------------------------------------')
 
-    print(df.values)
-    print(df.head())
+    # print(df.values)
+    # print(df.head())
 
     # TODO:
     # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
@@ -261,27 +259,41 @@ def get_advice():
         logger.info('There is enough data for get advice')
         logger.info('---------Get Advice Phase----------')
                     
-        # opt_trainer.run(config.nn_filename, visualize = False)
-                    
-        opt_advisor.run(last = True)
+        opt_advisor_return = opt_advisor.run(config.nn_filename, last = True)
+        
+        logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+        logger.info(opt_advisor_return)
+        logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
                     
         # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
         # opt_advisor_old.run()
-        # opt_advisor.run(tmp_df[-1:])
 
     else:
         logger.info('There is not enough data for get advice')
-
-    print('---constans= ', constants.get('input_metrics'))
-    print('---constans= ', constants)
         
-    logger.info('Get Advice recieved and processed.')   
+        # TODO:
+        # Elvileg mivel valamilyen returnt kell adnunk a megfelelő formában
+        # Ezért akkor is le kell hívnom az opt_advisor.run(config.nn_filename, last = True)
+        # függvényt, ha ez az ág nem teljesül
+        # különben nem lesz meg a return érték amit a Policy Keepernek visszaadok
+        opt_advisor_return = opt_advisor.run(config.nn_filename, last = False)
+        
+        logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
+        logger.info(opt_advisor_return)
+        logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
+                    
 
+    # print('---constans= ', constants.get('input_metrics'))
+    # print('---constans= ', constants)
+        
+    logger.info('Get Advice recieved and processed.')
+    
     # TODO:
     # Ne ezzel returnöljön, hanem azzal a dictionarivel amit a Józsi elvár
     # Amit én visszakapok az opt_advisor.run(last = True) értékből
     
-    return jsonify('OK'), 200
+    # return jsonify('OK'), 200
+    return opt_advisor_return
     
 
 
