@@ -433,7 +433,7 @@ def run(csfFileName, last = False):
                 advice = 0
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
-                for j in range(1, 6):
+                for j in range(1, maximumNumberIncreasableNode):
                     # print(distance)
                     advice = 0
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága a felső limittől
@@ -455,7 +455,10 @@ def run(csfFileName, last = False):
                 advice = 0
                 postScaledTargetVariable = np.nan # 0
                 distance = float('-inf')
-                for j in range(-1, -3, -1):
+                # TODO:
+                # Change to for j in range (-1, minimumNumberReducibleNode, -1):
+                # for j in range(-1, -3, -1):
+                for j in range(-1, minimumNumberReducibleNode, -1):
                     # print(distance)
                     advice = 0
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől

@@ -56,4 +56,10 @@ Get scaling advice.
 __GET /optimizer/training_data__  
 Download zipped training data that contains both neural network and linear regression data.  
 ```curl -X GET http://127.0.0.1:5000/optimizer/training_data```  
-  
+
+## TEST CSV  
+cd csv/csv_to_optimizer  
+source env/csv_to_optimizer/bin/activate  
+```python csv_to_optimizer.py```  
+
+
