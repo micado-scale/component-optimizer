@@ -246,9 +246,6 @@ def get_advice():
     logger.info(f'pandas dataframe df.columns = {df.columns}')
     logger.info('----------------------------------------------')
 
-    # print(df.values)
-    # print(df.head())
-
     # TODO:
     # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
     logger.info(f'df.shape = {df.shape}')
@@ -259,7 +256,7 @@ def get_advice():
         logger.info('There is enough data for get advice')
         logger.info('---------Get Advice Phase----------')
                     
-        opt_advisor_return = opt_advisor.run(config.nn_filename, last = True)
+        opt_advisor_return = opt_advisor.run(config.nn_filename, last = False)
         
         logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
         logger.info(opt_advisor_return)

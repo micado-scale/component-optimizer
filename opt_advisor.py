@@ -331,46 +331,29 @@ def run(csfFileName, last = False):
     # In[171]:
 
     if showPlots :
-        VisualizePredictedYWithWorkers(0, investigationDFDown[['predictedResponseTimeAdded0Worker',
-                                                               'predictedResponseTimeAdded-1Worker',
-                                                               'predictedResponseTimeAdded-2Worker',
-                                                               'predictedResponseTimeAdded-3Worker']], targetVariable)
+        visualisedData = investigationDFDown.columns[2:]
+        VisualizePredictedYWithWorkers(0, investigationDFDown[visualisedData], targetVariable)
 
 
     # In[172]:
 
     if showPlots :
-        VisualizePredictedYWithWorkers(0, investigationDFUp[['predictedResponseTimeAdded1Worker',
-                                                             'predictedResponseTimeAdded2Worker',
-                                                             'predictedResponseTimeAdded3Worker']], targetVariable)
-
-
-    # In[173]:
-
-    if showPlots :
-        VisualizePredictedYWithWorkers(0, investigationDFUp[['predictedResponseTimeAdded0Worker',
-                                                             'predictedResponseTimeAdded1Worker',
-                                                             'predictedResponseTimeAdded2Worker',
-                                                             'predictedResponseTimeAdded3Worker',
-                                                             'predictedResponseTimeAdded4Worker',
-                                                             'predictedResponseTimeAdded5Worker']], targetVariable)
+        visualisedColumns = investigationDFUp.columns[2:]
+        VisualizePredictedYWithWorkers(0, investigationDFUp[visualisedColumns], targetVariable)
 
 
     # In[174]:
 
     if showPlots :
-        VisualizePredictedYWithWorkers(0, investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker',
-                                                                         'denormalizedPredictedResponseTimeAdded1Worker',
-                                                                         'denormalizedPredictedResponseTimeAdded2Worker',
-                                                                         'denormalizedPredictedResponseTimeAdded3Worker',
-                                                                         'denormalizedPredictedResponseTimeAdded4Worker',
-                                                                         'denormalizedPredictedResponseTimeAdded5Worker']], targetVariable)
+        visualisedColumns = investigationDFDeNormalizedUp.columns[2:]
+        VisualizePredictedYWithWorkers(0, investigationDFDeNormalizedUp[visualisedColumns], targetVariable)
 
 
     # In[175]:
 
     if showPlots :
-        VisualizePredictedYLine(investigationDFDeNormalizedUp['avg latency (quantile 0.5)'],                         investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker','denormalizedPredictedResponseTimeAdded1Worker','denormalizedPredictedResponseTimeAdded2Worker','denormalizedPredictedResponseTimeAdded3Worker','denormalizedPredictedResponseTimeAdded4Worker','denormalizedPredictedResponseTimeAdded5Worker']], targetVariable)
+        visualisedColumns = investigationDFDeNormalizedUp.columns[2:]
+        VisualizePredictedYLine(investigationDFDeNormalizedUp['avg latency (quantile 0.5)'],                         investigationDFDeNormalizedUp[visualisedColumns], targetVariable)
 
 
     # In[176]:
