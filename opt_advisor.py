@@ -26,9 +26,33 @@ pandas_dataframe_styles = {
 }
 
 
+target_metric_min = None
+target_metric_max = None
+target_variable = None
 
-# TODO:
-# Csinálni egy init-et ahol beállítom a változókat
+
+
+def init(_target_metric):
+    
+    print('----------------------- init ----------------------')
+    
+    global target_metric_min 
+    target_metric_min = _target_metric[0].get('min_threshold')
+
+    global target_metric_max
+    target_metric_max = _target_metric[0].get('max_threshold')
+    
+    global target_variable
+    target_variable = _target_metric[0].get('name')
+    
+    print(target_metric_min)
+    print(target_metric_max)
+    print(target_variable)
+    print(_target_metric)
+    
+    print('----------------------- init end ----------------------')
+
+
 
 def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate = 1000, error_msg = None):
     if valid:
@@ -75,15 +99,19 @@ def run(csfFileName, last = False):
     maximumNumberIncreasableNode = 6                                       # must be positive 6
     minimumNumberReducibleNode = -4                                        # must be negativ -4
 
-    upperLimit = 4000000                                                   # 4000000
-    lowerLimit = 1000000                                                   # 1000000
-
+    upperLimit = target_metric_max                                                   # 4000000
+    lowerLimit = target_metric_min                                                   # 1000000
+    
+    print('oooooooooooooooooooooooooooooooooooooooooooooo')
+    print('upper = ', upperLimit)
+    print('lower = ', lowerLimit)
+    print('oooooooooooooooooooooooooooooooooooooooooooooo')
 
     # In[159]:
 
     df = readCSV(testFileName)
 
-    print(df.head())
+    # print(df.head())
     
     
     # In[x]:
@@ -94,13 +122,13 @@ def run(csfFileName, last = False):
         # Assert
         logger.info('-------- Last row will be processed --------')
         pf = df[-1:]
-        logger.info(f'-------- pf head =\n {pf.head()}')
-        logger.info(f'-------- pf shape =\n {pf.shape}')
+        # logger.debug(f'-------- pf head =\n {pf.head()}')
+        # logger.debug(f'-------- pf shape =\n {pf.shape}')
         
         # Assigne pf to df -> keep the code more coherent
         df = pf.copy()
         
-        logger.info('-------- Last row will be processed --------')
+        # logger.info('-------- Last row will be processed --------')
         
         
     # In[x]:
@@ -114,7 +142,7 @@ def run(csfFileName, last = False):
 
     preProcessedDF = preProcessing(df)
 
-    print(preProcessedDF.head())
+    # print(preProcessedDF.head())
     
     
     WorkerCountName = None
@@ -131,7 +159,7 @@ def run(csfFileName, last = False):
     # Rename Worker count or vm_number to WorkerCount
     renamedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
     
-    print(renamedDF.head())
+    # print(renamedDF.head())
     
     metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
@@ -173,23 +201,8 @@ def run(csfFileName, last = False):
 
                 newDFForRegressionWithTerms = calculateLinearRegressionTerms(i, newDFForRegression)
 
-                # print('newDFForRegression.shape   = ', newDFForRegression.shape)
-                # print('newDFForRegression.head()  = ', newDFForRegression.head())
-                # print('newDFForRegressionWithTerms.type = ', type(newDFForRegressionWithTerms))
-                # print('newDFForRegressionWithTerms.shape = ', newDFForRegressionWithTerms.shape)
-                # print('newDFForRegressionWithTerms.columns = ', newDFForRegressionWithTerms.columns)
-                
-                # print("------------     ", newDFForRegressionWithTerms.CPU.values[0], "     ------------")
-                # print("------------     ", newDFForRegressionWithTerms.shape, "     ------------")
-                # print("------------     ", newDFForRegressionWithTerms.columns, "     ------------")
-                
-
                 # keep last three column - given metric, term1, term2
                 X = newDFForRegressionWithTerms.iloc[:, [-3, -2, -1]]
-
-                # print("------------     ", X.shape, "     ------------")
-                # print("------------     ", X.values[0], "     ------------") # Error ez az érték első eleme fix kéne hogy legyen
-                # print("------------     ", X.values[-1], "     ------------")# ugyanakkor folyamatosan változik
 
                 # load the proper current metric model
                 modelForMetric = joblib.load('models/saved_linearregression_model_' + i + '.pkl')
@@ -199,8 +212,6 @@ def run(csfFileName, last = False):
                 if( np.isinf(X).any()[1] ):
                     X['term1'] = np.where(np.isinf(X['term1'].values), X['metric'], X['term1'])
                     X['term2'] = np.where(np.isinf(X['term2'].values), 0, X['term2'])
-                    # print('-----------')
-                    # print(X.to_string())
 
                 # create prediction and store in a new numpy.array object
                 predictedMetric = modelForMetric.predict(X)
@@ -212,9 +223,7 @@ def run(csfFileName, last = False):
                 # store predicted value pretend as would be the original. for example predictedCPU will be CPU
                 newDFForRegression[i] = predictedMetric
                 nDD[i] = predictedMetric
-
-                # print("------------     ", newDFForRegression[['CPU']].values[0], "    ------------")
-                # print("------------     ", nDD[['CPU']].values[0], "    ------------")
+                
 
                 # print out the new data frame
                 newDFForRegression.head()
@@ -250,10 +259,6 @@ def run(csfFileName, last = False):
 
             investigationDF['predictedResponseTimeAdded' + str(j) + 'Worker'] = newDFForNerualNetworkPrediction[['predictedResponseTimeAdded' + str(j) + 'Worker']]
             investigationDFDeNormalized['denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'] = newDFForNerualNetworkPrediction[['denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker']]
-
-        # print(newDFForNerualNetworkPrediction.columns)
-
-        # print(investigationDFDeNormalized.columns)
 
         return investigationDF, investigationDFDeNormalized
 
@@ -319,15 +324,6 @@ def run(csfFileName, last = False):
         print('------------------------------------------------------')
 
 
-    # In[166]:
-
-    # investigationDeNormalizedDF.head().style.set_properties(**pandas_dataframe_styles).format("{:0.3f}")
-    # investigationDFUp.head().style.set_properties(**pandas_dataframe_styles).format("{:0.3f}")
-    # investigationDFDown.head().style.set_properties(**pandas_dataframe_styles).format("{:0.3f}")
-    # investigationDFDeNormalizedUp.head().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-    # investigationDFDeNormalizedDown.head().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-
     # In[171]:
 
     if showPlots :
@@ -368,12 +364,6 @@ def run(csfFileName, last = False):
         VisualizePredictedYLine(investigationDFDeNormalizedUp[[targetVariable]],                         investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker']], targetVariable)
 
 
-    # ### Get Advice
-
-    # In[178]:
-
-
-
     # In[179]:
     
     if showPlots :
@@ -381,6 +371,10 @@ def run(csfFileName, last = False):
         from visualizerlinux import VisualizePredictedXY2Line
         VisualizePredictedXYLine(0, investigationDFDeNormalizedUp[[targetVariable]], targetVariable, lowerLimit, upperLimit)
 
+        
+        
+        
+    # ### Get Advice
 
     # In[180]:
 
@@ -412,7 +406,7 @@ def run(csfFileName, last = False):
             print("threshold violation at index " + str(i))
             if( upperLimit < real ):
                 countViolatedUp += 1
-                print("threshold up violation")
+                # print("threshold up violation")
                 advice = 0
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
@@ -429,7 +423,7 @@ def run(csfFileName, last = False):
                         advice = j
                         postScaledTargetVariable = relatedTargetVariable
                         break
-                    print(calculatedDistance)
+                    # print(calculatedDistance)
                 advicedDF.ix[i,'advice'] = advice
                 advicedDF.ix[i, 'postScaledTargetVariable'] = postScaledTargetVariable
             elif( lowerLimit > real ):
@@ -463,7 +457,7 @@ def run(csfFileName, last = False):
                             postScaledTargetVariable = relatedTargetVariable
                             break
                         # break
-                    print(calculateDistance)
+                    # print(calculateDistance)
                 advicedDF.ix[i, 'advice'] = advice
                 advicedDF.ix[i, 'postScaledTargetVariable'] = postScaledTargetVariable
 
@@ -507,8 +501,9 @@ def run(csfFileName, last = False):
 
     # In[188]:
 
-    if( last ):
+    if( last == False ):
         advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
+        logger.info('outputs/adviceDF.csv saved')
     
     
     # In[x]:

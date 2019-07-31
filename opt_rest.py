@@ -14,17 +14,11 @@ import opt_advisor_backtest
 
 import pandas as pd
 
-# import advice
-# from advice_oop import Advice
-# from train import TrainingUnit
-
 
 app = Flask(__name__)
 
 logger = None
 config = None
-# TODO:
-# Átnézni, hogy ezekből mi kell és mi nem
 training_unit = None
 
 training_result = []
@@ -38,16 +32,6 @@ def init_service(cfg):
 
     global config
     config = opt_config.OptimizerConfig(cfg, 'optimizer')
-
-
-@app.route('/', methods=['GET'])
-def index():
-    return 'MiCado Optimizer Modul'
-
-
-@app.route('/optimizer/hello', methods=['GET'])
-def hello():
-    return 'Hello Optimizer'
 
 
 @app.route('/optimizer/init', methods=['POST'])
@@ -68,6 +52,7 @@ def init():
         logger.info('Preparing database for training data...')
         input_metrics = [metric.get('name')
                          for metric in constants.get('input_metrics')]
+        
         global target_metrics
         target_metrics = [metric.get('name')
                           for metric in constants.get('target_metrics')]
@@ -76,9 +61,14 @@ def init():
         worker_count = ['vm_number']
 
         logger.info('Creating a .csv file for neural network...')
+        
         opt_utils.persist_data(
             config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
+        
         logger.info('File created')
+        
+        global opt_advisor
+        opt_advisor.init(constants.get('target_metrics'))
 
         logger.info('Optimizer REST initialized successfully ')
     return jsonify('OK'), 200
@@ -107,13 +97,19 @@ def sample():
     else:
         sample = yaml.safe_load(sample_yaml)
         logger.info(f'New sample received: {sample}')
+        
         logger.info('Getting sample data...')
+
         input_metrics = [metric.get('value')
                          for metric in sample.get('sample').get('input_metrics')]
+        
         target_metrics = [metric.get('value')
                           for metric in sample.get('sample').get('target_metrics')]
+        
         vm_number = sample.get('sample').get('vm_number')
+        
         timestamp_col = [sample.get('sample').get('timestamp')]
+        
         logger.info('Sample data stored in corresponding variables.')
         logger.info('----------------------------------------------')
         logger.info(f'input_metrics = {input_metrics}')
@@ -122,7 +118,7 @@ def sample():
         logger.info(f'timestamp_col = {timestamp_col}')
         logger.info('----------------------------------------------')
 
-        print(timestamp_col+input_metrics+target_metrics+[vm_number])
+        # print(timestamp_col+input_metrics+target_metrics+[vm_number])
         
         if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
             logger.debug('Sample accepted.')
@@ -142,9 +138,9 @@ def sample():
             # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
             tmp_df = df.append(pd.Series(timestamp_col+input_metrics+[vm_number]+target_metrics, index=df.columns ), ignore_index=True)
             
-            print(timestamp_col+input_metrics+target_metrics)
-            print(tmp_df.values)
-            print(tmp_df.head())
+            # print(timestamp_col+input_metrics+target_metrics)
+            # print(tmp_df.values)
+            # print(tmp_df.head())
 
             # Elmenteni ezt a tmp_df pandas dataframet ugyan abba a csv fájlba
             # tmp_df.to_csv('data/nn_training_data.csv', sep=',', encoding='utf-8', index=False)
@@ -158,16 +154,14 @@ def sample():
                         
             # TRAINING
             if( tmp_df.shape[0] > constants.get('training_samples_required') ):
-            # if( tmp_df.shape[0] > 10 ):
+
                 logger.info('There is enough data for start learning')
 
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
                 # Comment: Nehogy már minden körben tanítsuk
                 if( tmp_df.shape[0] % 1 == 0 ):
-                    # TODO:
-                    # Csináljunk egy függvényt valahová akinek odaadhatom a tmp_df dataframet
-                    # az eredményt tároljuk el a global training_result változóban
+
                     logger.info('----------Learning Neural Network and Linear Regression Phase----------')
                     
                     global training_result
@@ -226,13 +220,18 @@ def sample():
 
 @app.route('/optimizer/advice', methods=['GET'])
 def get_advice():
+    _last = request.args.get('last', default = True)
+    
+    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    print(_last)
+    print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
 
     logger.info('Advisor get_advice() called')
 
     constants = opt_utils.read_yaml('data/constants.yaml')
-    logger.info('-------------------------- YAML --------------------------')
-    logger.info(f'Constants received: {constants}')
-    logger.info('-------------------------- YAML --------------------------')
+    # logger.debug('-------------------------- YAML --------------------------')
+    # logger.debug(f'Constants received: {constants}')
+    # logger.debug('-------------------------- YAML --------------------------')
 
     # Nos igazából ennek a modulnak semmilyen adatot nem kell kapnia
     # ugyanis kiolvassa az adatokat egy korábban eltárolt fájlból
@@ -242,25 +241,25 @@ def get_advice():
     # értelmezni tud
     
     df = opt_utils.readCSV(config.nn_filename)
-    logger.info('----------------------------------------------')
-    logger.info(f'pandas dataframe df.columns = {df.columns}')
-    logger.info('----------------------------------------------')
+    # logger.debug('----------------------------------------------')
+    # logger.debug(f'pandas dataframe df.columns = {df.columns}')
+    # logger.debug('----------------------------------------------')
 
     # TODO:
     # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
-    logger.info(f'df.shape = {df.shape}')
-    logger.info(f'df.shape[0] = {df.shape[0]}')
+    # logger.debug(f'df.shape = {df.shape}')
+    # logger.debug(f'df.shape[0] = {df.shape[0]}')
             
     if( df.shape[0] > constants.get('training_samples_required') ):
-    # if( df.shape[0] > 400 ):
-        logger.info('There is enough data for get advice')
-        logger.info('---------Get Advice Phase----------')
+
+        # logger.info('There is enough data for get advice')
+        # logger.info('---------Get Advice Phase----------')
                     
-        opt_advisor_return = opt_advisor.run(config.nn_filename, last = False)
+        opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
         
-        logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
-        logger.info(opt_advisor_return)
-        logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+        # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+        # logger.info(opt_advisor_return)
+        # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
                     
         # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
         # opt_advisor_old.run()
@@ -273,11 +272,12 @@ def get_advice():
         # Ezért akkor is le kell hívnom az opt_advisor.run(config.nn_filename, last = True)
         # függvényt, ha ez az ág nem teljesül
         # különben nem lesz meg a return érték amit a Policy Keepernek visszaadok
+
         opt_advisor_return = opt_advisor.run(config.nn_filename, last = False)
         
-        logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
-        logger.info(opt_advisor_return)
-        logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
+        # logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
+        # logger.info(opt_advisor_return)
+        # logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
                     
 
     # print('---constans= ', constants.get('input_metrics'))
@@ -285,11 +285,6 @@ def get_advice():
         
     logger.info('Get Advice recieved and processed.')
     
-    # TODO:
-    # Ne ezzel returnöljön, hanem azzal a dictionarivel amit a Józsi elvár
-    # Amit én visszakapok az opt_advisor.run(last = True) értékből
-    
-    # return jsonify('OK'), 200
     return opt_advisor_return
     
 
@@ -385,6 +380,14 @@ def backtest():
 
 
 
+@app.route('/', methods=['GET'])
+def index():
+    return 'MiCado Optimizer Modul'
+
+
+@app.route('/optimizer/hello', methods=['GET'])
+def hello():
+    return 'Hello Optimizer'
 
 
 class RequestException(Exception):
