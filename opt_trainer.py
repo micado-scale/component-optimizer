@@ -127,14 +127,6 @@ def run(nn_file_name, visualize = False):
     # ## comment out above line if you want ot use static csv file
     # ## ------------------------------------------------------------------------------------------------------
     
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    print(df.values)
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    print(df.head())
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    
-
-    
     # Declare some functions
     def removeMissingData(df):
         cleanDF = df.dropna(axis=0)
@@ -185,9 +177,6 @@ def run(nn_file_name, visualize = False):
     # Print DataFrame Info
     dataFrameInfo(preProcessedDF)
 
-    
-    print('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-    
     # Set targetVariable
     targetVariable = _target_variable
     logger.info(f'target variable set = {targetVariable}')
@@ -204,30 +193,14 @@ def run(nn_file_name, visualize = False):
 
 
     WorkerCountName = _worker_count
-    #if( df.columns.contains('Worker count') ):
-    #    WorkerCountName = 'Worker count'
-    #elif( df.columns.contains('vm_number') ):
-    #    WorkerCountName = 'vm_number'
-    #else:
-    #    WorkerCountName = 'Worker count'
         
     logger.info(f'WorkerCountName = {WorkerCountName}')
     
-    print('3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333')
     
 
     # Rename Worker count or vm_number to WorkerCount
     preProcessedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
 
-    print(preProcessedDF.columns)
-    print(preProcessedDF.shape)
-    print(preProcessedDF.head())
-    print('ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt')
-
-    
-    print(_input_metrics)
-    
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
 
     # In[10]: Set Metrics Names
 
@@ -242,8 +215,6 @@ def run(nn_file_name, visualize = False):
     
     logger.info(f'metricNames = {metricNames}')
     
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
-
 
     # In[12]: Set Extended Metrics Names
 
@@ -255,9 +226,6 @@ def run(nn_file_name, visualize = False):
     extendedMetricNames = setExtendedMetricNames(metricNames + ['WorkerCount'])
     
     logger.info(f'extendedMetricNames = {extendedMetricNames}')
-
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
-
 
 
     # In[14]: Drop First Cases
@@ -279,6 +247,8 @@ def run(nn_file_name, visualize = False):
     print(preProcessedDF.columns)
     print(preProcessedDF.head())
     print('nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn')
+    
+    ## itt a preProcessedDF shape még minden jó volt aztátn egyszer csak valamiért 1 soros lesz az egsész
 
 
 
@@ -324,6 +294,10 @@ def run(nn_file_name, visualize = False):
 
     # In[26]:
     
+    print('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
+    print(preProcessedDF.shape)
+    print('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
+    
     logger.info('CreateBeforeAfter method')
     logger.debug(preProcessedDF.columns)
     logger.debug(len(inputMetrics))
@@ -354,6 +328,13 @@ def run(nn_file_name, visualize = False):
 
     logger.info('CreateBeforeAfter method done')
 
+    
+    ## Talán még idáig is jó csak több minta kell neki??
+    
+    
+    
+    
+    
     # ### Set Features for Neural Network - these are the input variables
 
     # In[28]: Declare some functions
@@ -369,6 +350,17 @@ def run(nn_file_name, visualize = False):
 
     logger.info('SetFeaturesAndTheirLags method done')
 
+    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
+    
+    print(X)
+    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
+    
+    
+    
+    
+    
+    
+    
     # ### Set Target Variable for Neural Network - this is the target variable
 
     # In[30]: Declare some functions
