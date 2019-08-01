@@ -86,7 +86,7 @@ def run(nn_file_name, visualize = False):
     activation_function = 'tanh'        # tanh, relu, logistic
     neuronsWhole = 10                   # 10
     neuronsTrainTest = 4                # 4
-    cutFirstCases = 0                   # 0
+    cutFirstCases = 10                  # 10
 
     lead = 1                            # 1 default
 
@@ -126,13 +126,6 @@ def run(nn_file_name, visualize = False):
     # ## ------------------------------------------------------------------------------------------------------
     # ## comment out above line if you want ot use static csv file
     # ## ------------------------------------------------------------------------------------------------------
-    
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    print(df.values)
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    print(df.head())
-    print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-    
 
     
     # Declare some functions
@@ -184,12 +177,9 @@ def run(nn_file_name, visualize = False):
 
     # Print DataFrame Info
     dataFrameInfo(preProcessedDF)
-
-    
-    print('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
     
     # Set targetVariable
-    targetVariable = _target_variable
+    targetVariable = targetVariable
     logger.info(f'target variable set = {targetVariable}')
 
 
@@ -203,31 +193,20 @@ def run(nn_file_name, visualize = False):
         return new_df
 
 
-    WorkerCountName = _worker_count
-    #if( df.columns.contains('Worker count') ):
-    #    WorkerCountName = 'Worker count'
-    #elif( df.columns.contains('vm_number') ):
-    #    WorkerCountName = 'vm_number'
-    #else:
-    #    WorkerCountName = 'Worker count'
+    WorkerCountName = None
+    if( df.columns.contains('Worker count') ):
+        WorkerCountName = 'Worker count'
+    elif( df.columns.contains('vm_number') ):
+        WorkerCountName = 'vm_number'
+    else:
+        WorkerCountName = 'Worker count'
         
-    logger.info(f'WorkerCountName = {WorkerCountName}')
-    
-    print('3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333')
+    logger.info(f'(WorkerCountName = {WorkerCountName}')
     
 
     # Rename Worker count or vm_number to WorkerCount
     preProcessedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
 
-    print(preProcessedDF.columns)
-    print(preProcessedDF.shape)
-    print(preProcessedDF.head())
-    print('ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt')
-
-    
-    print(_input_metrics)
-    
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
 
     # In[10]: Set Metrics Names
 
@@ -235,14 +214,12 @@ def run(nn_file_name, visualize = False):
         new_metricNames = names.copy()
         return new_metricNames
 
-    # metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
+    metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     
     # Ezeeket az értékeket az init-ben adom át neki, annyi a különbség, hogy az első két változóra nincs szükségünk
-    metricNames = _input_metrics[2:]
+    metricNames = inputMetrics[2:]
     
     logger.info(f'metricNames = {metricNames}')
-    
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
 
 
     # In[12]: Set Extended Metrics Names
@@ -255,8 +232,6 @@ def run(nn_file_name, visualize = False):
     extendedMetricNames = setExtendedMetricNames(metricNames + ['WorkerCount'])
     
     logger.info(f'extendedMetricNames = {extendedMetricNames}')
-
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
 
 
 
@@ -274,13 +249,6 @@ def run(nn_file_name, visualize = False):
     # In[16]: preProcessedDF let filteredDF
 
     preProcessedDF = filteredDF
-    
-    print(preProcessedDF.shape)
-    print(preProcessedDF.columns)
-    print(preProcessedDF.head())
-    print('nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn')
-
-
 
     
     # In[17]: Correlation matrix
@@ -377,18 +345,10 @@ def run(nn_file_name, visualize = False):
         y = df[targetVariable]
         return y
 
-    
-    print(beforeafterDF.columns)
-    print(beforeafterDF.values)
-    print('---------------------------zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz---------------------------')
-    print(targetVariable)
 
     # In[31]: Set target variable
 
     y = setTarget(beforeafterDF, targetVariable)
-    
-    print('---------------------------uuuuuuuuuuuuuuuuuuuuuuuuuu---------------------------')
-    print(y)
 
     
     # In[33]:
@@ -726,6 +686,12 @@ def run(nn_file_name, visualize = False):
     X_train, X_test, y_train, y_test = splitDataFrame(X, y, train_test_ratio)
 
 
+    # In[79]:
+    print(X_train.count())
+    print(X_test.count())
+    print("y_train.count() = ", y_train.count())
+    print("y_test.count()  = ", y_test.count())
+
 
     # In[82]: Compare Train Test Set by Variables
 
@@ -735,6 +701,12 @@ def run(nn_file_name, visualize = False):
     # Nem biztos, hogy ezek lesznek a változónevek
     
     print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+    print( inputMetrics[0] )
+    print( inputMetrics[1] )
+    # compareTwoVariables(X_train, X_test, 'CPU')
+    # compareTwoVariables(X_train, X_test, 'CTXSW')
+    # compareTwoVariables(X_train, X_test, 'AVG RR')
+
 
     # In[86]: Visualize Train Test Set
     if showPlots : VisualizePredictedYLineWithValues(y.values, y_train.values, targetVariable, 'Denormalized')

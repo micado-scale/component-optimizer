@@ -115,7 +115,7 @@ def run(csfFileName, last = False):
     
     
     # Ha a df rövidebb mint egy előre megadott szám akkor azonal térjen vissza valid=False üzenettel
-    if(df.shape[0] < 200 ):
+    if(df.shape[0] < 1 ):
         return return_msg
     
     
@@ -292,7 +292,7 @@ def run(csfFileName, last = False):
                                              investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
 
 
-    if( 0 > 1 ):
+    if( 10 > 1 ):
         print('------------------------------------------------------')
         print('investigationDeNormalizedDF.values.shape')
         print(investigationDeNormalizedDF.values.shape)

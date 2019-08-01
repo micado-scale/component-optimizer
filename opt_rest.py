@@ -152,7 +152,8 @@ def sample():
                         
             # TRAINING
             logger.info(constants.get('training_samples_required'))
-            if( tmp_df.shape[0] > constants.get('training_samples_required') ):
+            # if( tmp_df.shape[0] > constants.get('training_samples_required') ):
+            if( tmp_df.shape[0] > 2 ):
 
                 logger.info('There is enough data for start learning')
 
