@@ -294,10 +294,6 @@ def run(nn_file_name, visualize = False):
 
     # In[26]:
     
-    print('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
-    print(preProcessedDF.shape)
-    print('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
-    
     logger.info('CreateBeforeAfter method')
     logger.debug(preProcessedDF.columns)
     logger.debug(len(inputMetrics))
@@ -350,14 +346,9 @@ def run(nn_file_name, visualize = False):
 
     logger.info('SetFeaturesAndTheirLags method done')
 
+    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')    
+    print(X.head())
     print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
-    
-    print(X)
-    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
-    
-    
-    
-    
     
     
     
@@ -369,17 +360,12 @@ def run(nn_file_name, visualize = False):
         y = df[targetVariable]
         return y
 
-    
-    print(beforeafterDF.columns)
-    print(beforeafterDF.values)
-    print('---------------------------zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz---------------------------')
-    print(targetVariable)
 
     # In[31]: Set target variable
 
     y = setTarget(beforeafterDF, targetVariable)
     
-    print('---------------------------uuuuuuuuuuuuuuuuuuuuuuuuuu---------------------------')
+    print('--------------------------- Y target variable as a pandas.series -> numpy.array ---------------------------')
     print(y)
 
     
@@ -641,9 +627,9 @@ def run(nn_file_name, visualize = False):
     meanOfOriginalTargetVariable  = y_denormalized.mean()
     meanOfPredictedTargetVariable = y_predicted_denormalized.mean()
 
-    print('mean original pandas dataframe = ', meanOfOriginalPandasDataframe)
-    print('mean original target variable  = ', meanOfOriginalTargetVariable)
-    print('mean predicted target variable = ', meanOfPredictedTargetVariable)
+    print('mean original pandas dataframe y value = ', meanOfOriginalPandasDataframe)
+    print('mean original target variable y denormalized = ', meanOfOriginalTargetVariable)
+    print('mean predicted target variable y denormalized = ', meanOfPredictedTargetVariable)
 
 
     # In[68]: Declare De-normalizer functions
@@ -687,281 +673,6 @@ def run(nn_file_name, visualize = False):
 
 
     # ## ------------------------------------------------------------------------------------------------------
-    # ## Create Train-Test-Validation set
-    # ## ------------------------------------------------------------------------------------------------------
-
-    # ## ------------------------------------------------------------------------------------------------------
-    # ## Begining of Train Test Experiment
-    # ## ------------------------------------------------------------------------------------------------------
-
-    
-    # na úgy vagyok vele, hogy ezt az egészet most beteszem egy if-be és kizárom az egészet, mert elvileg ez nem
-    # fog kelleni a tanuláshoz csak az exploration és a backtest használja
-    
-    # if( 0 > 1 ):
-        
-    # ### Split Data
-
-    # In[77]: Declare splitDataFrame funcition
-
-    def splitDataFrame(X, y, testSize):
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=testSize,
-                                                            random_state=12345,
-                                                            shuffle=False,
-                                                            stratify=None)
-
-        return X_train, X_test, y_train, y_test
-
-
-    # In[78]: Split DataFrame
-    X_train, X_test, y_train, y_test = splitDataFrame(X, y, train_test_ratio)
-
-
-
-    # In[82]: Compare Train Test Set by Variables
-
-    from utils import compareTwoVariables
-
-    # TODO:
-    # Nem biztos, hogy ezek lesznek a változónevek
-    
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
-
-    # In[86]: Visualize Train Test Set
-    if showPlots : VisualizePredictedYLineWithValues(y.values, y_train.values, targetVariable, 'Denormalized')
-
-    if showPlots : VisualizePredictedYLineWithValues(y, y_train, targetVariable, 'Denormalized')
-
-    if showPlots : VisualizePredictedYLineWithValues(0, y_test, targetVariable, 'Denormalized')
-
-    if showPlots : VisualizePredictedYLineWithValues(0, y_test.values, targetVariable, 'Denormalized')
-
-    if showPlots : VisualizePredictedYLineWithValues(y_train, y_train.values, targetVariable, 'Denormalized')
-
-
-    # In[91]: Compare Train Test Set
-
-    from utils import printInfoTrainTestSet
-
-    printInfoTrainTestSet(y_train, y_test)
-
-
-    # In[93]:
-    if( explore ):
-        y_train.values[0:10]
-        y_test.values[10:20]
-
-
-    # ### Normalize Data - based on Train set - It is forbiden to use Test set
-
-    # In[95]: Declare some functions
-
-    def normalizeXTrainTest(X_train, X_test):
-        scaler = MinMaxScaler(feature_range=(scaler_min, scaler_max))
-        scaler.fit(X_train)
-        X_train_normalized = scaler.transform(X_train)
-        X_test_normalized = scaler.transform(X_test)
-
-        return X_train_normalized, X_test_normalized, scaler
-
-
-    # In[96]: Normalize Features - both Train and Test - based on Train set
-
-    X_train_normalized, X_test_normalized, X_normalized_MinMaxScalerTrainTest = normalizeXTrainTest(X_train, X_test)
-
-
-    # In[97]:
-    if( explore ):
-        print("X_train_normalized max = ", X_train_normalized.max())
-        print("X_train_normalized min = ", X_train_normalized.min())
-        print("X_test_normalized max  = ", X_test_normalized.max())
-        print("X_test_normalized min  = ", X_test_normalized.min())
-
-
-    # In[98]: Declare some functions
-
-    def normalizeYTrainTest(y_train, y_test):
-        # Create numpy.array from pandas.series then reshape numpy array
-        y_train_input = y_train.values.reshape(-1, 1)
-        y_test_input = y_test.values.reshape(-1, 1)
-        # Scaler
-        scaler = MinMaxScaler(feature_range=(scaler_min, scaler_max))
-        scaler.fit(y_train_input)
-        # Scale
-        y_train_normalized_tmp = scaler.transform(y_train_input)
-        y_test_normalized_tmp = scaler.transform(y_test_input)
-        # Flat numpy.array
-        y_train_normalized = y_train_normalized_tmp.flatten()
-        y_test_normalized = y_test_normalized_tmp.flatten()
-
-        return y_train_normalized, y_test_normalized, scaler
-
-
-    # In[99]: Normalize Target set - both Train and Test - based on Train set
-
-    y_train_normalized, y_test_normalized, y_normalized_MinMaxScalerTrainTest = normalizeYTrainTest(y_train, y_test)
-
-
-    # In[100]:
-    if( explore ):
-        print("y_train_normalized max = ", y_train_normalized.max())
-        print("y_train_normalized min = ", y_train_normalized.min())
-        print("y_test_normalized max  = ", y_test_normalized.max())
-        print("y_test_normalized min  = ", y_test_normalized.min())
-
-
-    # In[101]:
-
-    from utils import printInfoNumpyArrays
-
-    printInfoNumpyArrays(y_train_normalized, y_test_normalized)
-    printInfoNumpyArrays(y_train, y_test)
-
-
-    # In[104]: Compare Train and Test Variables one-by-one
-
-    for i in range(0, len(inputMetrics)):
-        print(X_test_normalized[:,i].min())
-        print(X_test_normalized[:,i].max())
-        print('--------------------------')
-
-
-    # In[105]:
-
-    X_train_denormalized = denormalizeX(X_train_normalized, X_normalized_MinMaxScalerTrainTest)
-
-    X_test_denormalized = denormalizeX(X_test_normalized, X_normalized_MinMaxScalerTrainTest)
-
-    
-    y_train_denormalized = denormalizeY(y_train_normalized, y_normalized_MinMaxScalerTrainTest)
-
-    y_test_denormalized = denormalizeY(y_test_normalized, y_normalized_MinMaxScalerTrainTest)
-
-
-    # In[109]: Visualize 
-
-    if showPlots :
-
-        VisualizePredictedYLineWithValues(y.values, y_train_denormalized, targetVariable, 'Denormalized')
-
-        VisualizePredictedYLineWithValues(y.values[len(y_train_denormalized):], y_test_denormalized, targetVariable, 'Denormalized')
-
-
-    # In[111]: this is the same Neural Network configuration as I did it before, when whole dataset was trained
-    
-    logger.info('Split MLP start')
-
-    def trainMultiLayerRegressor(X_train_normalized, y_train_normalized, activation, neuronsTrainTest):
-
-        # Train Neural Network
-        mlp = MLPRegressor(hidden_layer_sizes=neuronsTrainTest,
-                           max_iter=250,
-                           activation=activation,
-                           solver="lbfgs",
-                           learning_rate="constant",
-                           learning_rate_init=0.01,
-                           alpha=0.01,
-                           verbose=False,
-                           momentum=0.9,
-                           early_stopping=False,
-                           tol=0.00000001,
-                           shuffle=False,
-                           # n_iter_no_change=200,
-                           random_state=1234)
-
-        mlp.fit(X_train_normalized, y_train_normalized)
-
-        # Save model on file system
-        joblib.dump(mlp, 'models/saved_mlp_model_train_test.pkl')
-
-        return mlp
-
-
-    # In[112]: Train Neural Network
-    mlp = trainMultiLayerRegressor(X_train_normalized, y_train_normalized, activation_function, neuronsTrainTest)
-
-
-    # In[113]: Declare some fucntions
-
-    def predictMultiLayerRegressor(mlp, X_normalized):
-        y_predicted = mlp.predict(X_normalized)
-
-        return y_predicted
-
-
-    # In[114]: Create prediction
-    y_train_predicted = predictMultiLayerRegressor(mlp, X_train_normalized)
-
-    # Create prediction
-    y_test_predicted = predictMultiLayerRegressor(mlp, X_test_normalized)
-
-
-    # In[115]: Evaluate the model
-    
-    evaluateGoodnessOfPrediction(y_train_normalized, y_train_predicted)
-    print('---------------------')
-    evaluateGoodnessOfPrediction(y_test_normalized, y_test_predicted)
-
-    logger.info('Split Evaluation done')
-
-    # In[116]: De-normlaize target variable and predicted target variable
-
-    y_train_denormalized = denormalizeY(y_train_normalized, y_normalized_MinMaxScalerTrainTest)
-
-    y_test_denormalized = denormalizeY(y_test_normalized, y_normalized_MinMaxScalerTrainTest)
-
-    y_train_predicted_denormalized = denormalizeY(y_train_predicted, y_normalized_MinMaxScalerTrainTest)
-
-    y_test_predicted_denormalized = denormalizeY(y_test_predicted, y_normalized_MinMaxScalerTrainTest)
-
-
-    # In[117]:
-
-
-    from visualizerlinux import ScatterPlotsTrainTest
-
-
-    # In[118]:
-    if showPlots :
-        ScatterPlotsTrainTest(y_train_denormalized, y_train_predicted_denormalized,
-                              y_test_denormalized, y_test_predicted_denormalized,
-                              targetVariable)
-
-
-    # In[119]:
-    if showPlots :
-        ScatterPlotsTrainTest(y_train_normalized, y_train_predicted,
-                              y_test_normalized, y_test_predicted,
-                              targetVariable)
-
-
-    # In[120]:
-    if showPlots :
-        VisualizePredictedYLine(y_train_denormalized, y_train_predicted_denormalized, targetVariable, lines = True)
-
-
-    # In[121]:
-    if showPlots :
-        VisualizePredictedYLine(y_train_normalized, y_train_predicted, targetVariable, lines = True)
-
-
-    # In[122]:
-    if showPlots :
-        VisualizePredictedYLine(y_test_denormalized, y_test_predicted_denormalized, targetVariable, lines = True)
-
-
-    # In[123]:
-    if showPlots :
-        VisualizePredictedYLine(y_test_normalized, y_test_predicted, targetVariable, lines = True)
-
-
-        
-    # ## ------------------------------------------------------------------------------------------------------
-    # ## End of Train Test Experiment
-    # ## ------------------------------------------------------------------------------------------------------
-
-    # ## ------------------------------------------------------------------------------------------------------
     # ## Linear Regression Learn
     # ## ------------------------------------------------------------------------------------------------------
     
@@ -993,6 +704,13 @@ def run(nn_file_name, visualize = False):
         return beforeafterDFLags
 
 
+    
+    print(preProcessedDF.shape)
+    print(preProcessedDF.head())
+    print('Naaaaaaaaaaaaaa itt törik el valami -xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    
+    
+    
     # In[126]: Create lag variables (see above -> 'prev1CPU', 'prev1Inter', etc)
 
     beforeafterDFLags = createBeforeafterDFLags(preProcessedDF, 1)
@@ -1032,6 +750,12 @@ def run(nn_file_name, visualize = False):
     if( explore ):
         beforeafterDF.columns
 
+    
+    print(beforeafterDF.columns)
+    print(beforeafterDF.shape)
+    print(beforeafterDF.head())
+    print('Naaaaaaaaaaaaaa itt törik el valami -xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    
 
     # In[131]: Assert
 
@@ -1039,9 +763,15 @@ def run(nn_file_name, visualize = False):
     # Ez is csak akkor stimmel ha a cikkben leírt bemeneti változókat és azok számát használjuk
     a_colName = beforeafterDF.columns[-1]
     a_cols = beforeafterDF.shape[1]
+    
+    print('Naaaaaaaa---------------------------')
+    print(a_colName)
+    print(a_cols)
+    print('Naaaaaaaaa---------------------------')
+    
 
-    assert a_colName == 'prev1WorkerCount', "This column name is: {0} insted of prev1WorkerCount".format(a_colName)
-    assert a_cols == 30, "This column number is: {0} insted of 17".format(a_colName)
+    #assert a_colName == 'prev1WorkerCount', "This column name is: {0} insted of prev1WorkerCount".format(a_colName)
+    #assert a_cols == 30, "This column number is: {0} insted of 17".format(a_colName)
 
     logger.info('Assert variable number before-after done')
 
@@ -1117,6 +847,14 @@ def run(nn_file_name, visualize = False):
     
     # TODO:
     # Mi az hogy üres a termDF
+    
+    
+    print(theBeforeAfterDF.shape)
+    print(theBeforeAfterDF.head())
+    print(scalingDF.shape)
+    print(scalingDF.head())
+    print('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+    
     
     def calculateLinearRegressionTerms(metric, dataFrame):
         termDF = dataFrame.copy()

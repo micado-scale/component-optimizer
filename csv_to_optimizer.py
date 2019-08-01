@@ -4,26 +4,26 @@ import dateutil.parser as dp
 import time
 
 ''' PLEASE, UPDATE THE VARIABLES BELOW! '''
-inputcsvfilepath = 'grafana_data_export_long_running_test.csv' #input
+inputcsvfilepath = 'grafana_data_export_long_running_test-short.csv' #input
 outputcsvfilepath = 'result_for_grafana_data_export_long_running_test.csv' # ebbe tolja bele az output
 separator=';' #updated automatically if file starts with sep= string
 max_number_of_rows_to_process = 20000 # parameter ennyit dolgozhat fel
 column_index_of_time = 0
 column_index_of_nodecount = 10
-config={'optimizer_endpoint':'http://localhost:2345',
+config={'optimizer_endpoint':'http://193.224.59.115:5000',
         'wait_after_rest_call':1}
 init_params = {
   "constants": {
     "min_vm_number": 1,
     "max_vm_number": 10,
     "max_delta_vm" : 2,
-    "training_samples_required": 20,
+    "training_samples_required": 300,
     "max_number_of_scaling_activity": 100,
     "nn_stop_error_rate": 10.0,
     "input_metrics": list(), #will be inserted by the code
     "target_metrics": [ { "name": "avg latency (quantile 0.5)", 
-                          "min_threshold" : 2000000, 
-                          "max_threshold" : 3000000 } ]
+                          "min_threshold" : 1000000, 
+                          "max_threshold" : 4000000 } ]
     }
   }
 
@@ -198,4 +198,4 @@ def test_optimizer_with_csv():
 
 
 train_optimizer_with_csv()
-test_optimizer_with_csv()
+# test_optimizer_with_csv()
