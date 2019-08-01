@@ -32,4 +32,4 @@ sample:
     - name: avg latency (quantile 0.5)
       value: 4614349.53
 
-  vm_number: 4
+  vm_number: 3

@@ -114,6 +114,11 @@ def run(csfFileName, last = False):
     # print(df.head())
     
     
+    # Ha a df rövidebb mint egy előre megadott szám akkor azonal térjen vissza valid=False üzenettel
+    if(df.shape[0] < 200 ):
+        return return_msg
+    
+    
     # In[x]:
     
     if( last == True ):
@@ -379,6 +384,7 @@ def run(csfFileName, last = False):
     # In[180]:
 
     advice = 0
+    advicedVM = 0
     countInRange = 0
     countViolatedUp = 0
     countViolatedDown = 0
@@ -386,6 +392,7 @@ def run(csfFileName, last = False):
     advicedDF = investigationDeNormalizedDF.copy()
     advicedDF['advice'] = 0
     advicedDF['postScaledTargetVariable'] = np.nan
+    advicedDF['advicedVM'] = 0
     
     logger.info('post advice init')
     
@@ -399,7 +406,10 @@ def run(csfFileName, last = False):
         real = investigationDeNormalizedDF[[targetVariable]].get_value(i, targetVariable)
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
+            advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            # Ne a javaslatot, hanem a konkrét gép számot adja vissza
             advicedDF.ix[i,'advice'] = 0
+            # advicedDF.ix[i,'advice'] = investigationDeNormalizedDF[['WorkerCount']]
             countInRange += 1
             print("ok")
         else:
@@ -408,6 +418,7 @@ def run(csfFileName, last = False):
                 countViolatedUp += 1
                 # print("threshold up violation")
                 advice = 0
+                advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
                 for j in range(1, maximumNumberIncreasableNode):
@@ -421,6 +432,7 @@ def run(csfFileName, last = False):
                     if( calculatedDistance < upperLimit ):
                         distance = calculatedDistance
                         advice = j
+                        advicedVM = advicedVM + advice
                         postScaledTargetVariable = relatedTargetVariable
                         break
                     # print(calculatedDistance)
@@ -430,6 +442,7 @@ def run(csfFileName, last = False):
                 countViolatedDown += 1
                 print("threshold down violation")
                 advice = 0
+                advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('-inf')
                 # TODO:
@@ -438,6 +451,7 @@ def run(csfFileName, last = False):
                 for j in range(-1, minimumNumberReducibleNode, -1):
                     # print(distance)
                     advice = 0
+                    advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől
                     # kettő legyen az alsó limit fölött (utóbbi nem biztos, hogy teljesül)
                     varName = 'denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'
@@ -450,10 +464,12 @@ def run(csfFileName, last = False):
                     if( calculateDistance > lowerLimit ):
                         distance = calculateDistance
                         advice = j
+                        advicedVM = advicedVM + advice
                         postScaledTargetVariable = relatedTargetVariable
                         if( calculateDistance < upperLimit ):
                             distance = calculateDistance
                             advice = j
+                            advicedVM = advicedVM + advice
                             postScaledTargetVariable = relatedTargetVariable
                             break
                         # break
@@ -510,9 +526,13 @@ def run(csfFileName, last = False):
     
     phase = 'production'
     nn_error_rate = 0
+    # Ez volt az egyéni javaslat, hogy mennyit adjon hozzá
     vm_number_total = advice
+    # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
+    vm_number_total = advicedVM
     
     logger.info(f'advice = {advice}')
+    
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
     return return_msg

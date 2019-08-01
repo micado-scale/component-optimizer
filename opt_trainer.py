@@ -20,11 +20,29 @@ pandas_dataframe_styles = {
     'white-space': 'pre'
 }
 
+_target_variable = None
+_input_metrics = None
+_worker_count = None
+
+def init(target_variable, input_metrics, worker_count):
+    global _target_variable
+    _target_variable = target_variable[0]
+    
+    global _input_metrics
+    _input_metrics = input_metrics
+    
+    global _worker_count
+    _worker_count = worker_count[0]
+
+
 def run(nn_file_name, visualize = False):
 
     logger = logging.getLogger('optimizer')
     
     logger.info('-----opt_trainer.run()-----')
+    
+    logger.info(f'_target_variable = {_target_variable}')
+    logger.info(f'_input_metrics = {_input_metrics}')
 
     logger.info('---------------------------')
     logger.info(nn_file_name)
@@ -35,9 +53,33 @@ def run(nn_file_name, visualize = False):
     inputCSVFile   = 'data/grafana_data_export_long_running_test.csv'
     neuralCSVFile = nn_file_name
     
-    targetVariable = 'avg latency (quantile 0.5)'
+    # targetVariable = 'avg latency (quantile 0.5)'
+    targetVariable = _target_variable
+    
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info(f'targetVariable = {targetVariable}')
+    logger.info(f'_target_variable = {_target_variable}')
+    logger.info('---------------------------------------------------------------------------------')
 
+    inputMetrics = _input_metrics
+    
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info(f'inputMetrics = {inputMetrics}')
+    logger.info(f'_input_metrics = {_input_metrics}')
+    logger.info('---------------------------------------------------------------------------------')
 
+    workerCount = _worker_count
+    
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info(f'workerCount = {workerCount}')
+    logger.info(f'_worker_count = {_worker_count}')
+    logger.info('---------------------------------------------------------------------------------')
+
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Don't touch it if you don't know what you do
+    # ## ------------------------------------------------------------------------------------------------------
+    
     scaler_min = -1                     # 0
     scaler_max = 1                      # 1
     train_test_ratio = 0.3              # 0.3
@@ -120,9 +162,9 @@ def run(nn_file_name, visualize = False):
     
     def dataFrameInfo(df):
         logger.info('-------------DataFrame----------------------')
-        print(df.columns)
-        print(df.shape)
-        print(df.head())
+        logger.info(f'df.columns  = {df.columns}')
+        logger.info(f'df.shape    = {df.shape}')
+        logger.info(f'df.head()   = {df.head()}')
         logger.info('-------------DataFrame----------------------')
 
 
@@ -138,7 +180,7 @@ def run(nn_file_name, visualize = False):
     
     # Set targetVariable
     targetVariable = targetVariable
-    logger.info(f'(target variable set = {targetVariable}')
+    logger.info(f'target variable set = {targetVariable}')
 
 
     # Declare some functions
@@ -174,6 +216,9 @@ def run(nn_file_name, visualize = False):
 
     metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     
+    # Ezeeket az értékeket az init-ben adom át neki, annyi a különbség, hogy az első két változóra nincs szükségünk
+    metricNames = inputMetrics[2:]
+    
     logger.info(f'metricNames = {metricNames}')
 
 
@@ -183,7 +228,11 @@ def run(nn_file_name, visualize = False):
         new_extendedMetricNames = names.copy()
         return new_extendedMetricNames
 
-    extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
+    # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])    
+    extendedMetricNames = setExtendedMetricNames(metricNames + ['WorkerCount'])
+    
+    logger.info(f'extendedMetricNames = {extendedMetricNames}')
+
 
 
     # In[14]: Drop First Cases
@@ -244,13 +293,17 @@ def run(nn_file_name, visualize = False):
     # In[26]:
     
     logger.info('CreateBeforeAfter method')
+    logger.debug(preProcessedDF.columns)
+    logger.debug(len(inputMetrics))
+    logger.debug(inputMetrics)
 
-    def createBeforeafterDF(df, lag):
+    def createBeforeafterDF(df, lag, inputMetrics):
         beforeafterDF = df.copy()
-        inputVariables = np.flip(beforeafterDF.columns[0:9].ravel(), axis=-1)
+        length = len(inputMetrics)
+        inputVariables = np.flip(beforeafterDF.columns[0:length].ravel(), axis=-1)
         print('Input Variablels : ', inputVariables)
 
-        index = 9
+        index = length
         for i in inputVariables:
             new_column = beforeafterDF[i].shift(lag)
             new_column_name = (i + str(1)) # Todo: rename str(lag)
@@ -265,7 +318,7 @@ def run(nn_file_name, visualize = False):
 
     # In[27]: Create new dataframe with lags
 
-    beforeafterDF = createBeforeafterDF(preProcessedDF, 1)
+    beforeafterDF = createBeforeafterDF(preProcessedDF, 1, inputMetrics)
 
     logger.info('CreateBeforeAfter method done')
 
@@ -644,9 +697,15 @@ def run(nn_file_name, visualize = False):
 
     from utils import compareTwoVariables
 
-    compareTwoVariables(X_train, X_test, 'CPU')
-    compareTwoVariables(X_train, X_test, 'CTXSW')
-    compareTwoVariables(X_train, X_test, 'AVG RR')
+    # TODO:
+    # Nem biztos, hogy ezek lesznek a változónevek
+    
+    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+    print( inputMetrics[0] )
+    print( inputMetrics[1] )
+    # compareTwoVariables(X_train, X_test, 'CPU')
+    # compareTwoVariables(X_train, X_test, 'CTXSW')
+    # compareTwoVariables(X_train, X_test, 'AVG RR')
 
 
     # In[86]: Visualize Train Test Set
@@ -742,7 +801,7 @@ def run(nn_file_name, visualize = False):
 
     # In[104]: Compare Train and Test Variables one-by-one
 
-    for i in range(0,9):
+    for i in range(0, len(inputMetrics)):
         print(X_test_normalized[:,i].min())
         print(X_test_normalized[:,i].max())
         print('--------------------------')

@@ -20,6 +20,7 @@ app = Flask(__name__)
 logger = None
 config = None
 training_unit = None
+_last = True
 
 training_result = []
 target_metrics = None
@@ -58,6 +59,7 @@ def init():
                           for metric in constants.get('target_metrics')]
 
         timestamp_col = ['timestamp']
+        
         worker_count = ['vm_number']
 
         logger.info('Creating a .csv file for neural network...')
@@ -69,16 +71,12 @@ def init():
         
         global opt_advisor
         opt_advisor.init(constants.get('target_metrics'))
+        
+        global opt_trainer
+        opt_trainer.init(target_metrics, input_metrics, worker_count)
 
         logger.info('Optimizer REST initialized successfully ')
     return jsonify('OK'), 200
-
-
-@app.route('/optimizer/training_data', methods=['GET', 'POST'])
-def training_data():
-    if request.method == 'GET':
-        logger.info('Sending zipped training data...')
-        return 'Hello training_data GET'
 
 
 @app.route('/optimizer/sample', methods=['POST'])
@@ -130,12 +128,13 @@ def sample():
             # tehát írnom kéne bele egy függvényt(aminek paraméterként)
             # átadom az új adatokat és hozzáfüzi az nn_.csv-hez
 
+            # itt csak beolvassa a csv fájlt és csinál belőle egy data framet
             df = opt_utils.readCSV(config.nn_filename)
             logger.info('----------------------------------------------')
             logger.info(f'pandas dataframe df.columns = {df.columns}')
             logger.info('----------------------------------------------')
 
-            # Ne csak appendálja az adatokat hanem írja is vissza a csv-be
+            # Hozzáfűzöm az új adatokat a beolvasott csv-ből csinált data framehez
             tmp_df = df.append(pd.Series(timestamp_col+input_metrics+[vm_number]+target_metrics, index=df.columns ), ignore_index=True)
             
             # print(timestamp_col+input_metrics+target_metrics)
@@ -147,12 +146,12 @@ def sample():
             tmp_df.to_csv(config.nn_filename, sep=',', encoding='utf-8', index=False)
             logger.info('----------Data has been added and saved to csv file----------')
             
-            # TODO:
             # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
             logger.info(f'tmp_df.shape = {tmp_df.shape}')
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
                         
             # TRAINING
+            logger.info(constants.get('training_samples_required'))
             if( tmp_df.shape[0] > constants.get('training_samples_required') ):
 
                 logger.info('There is enough data for start learning')
@@ -201,10 +200,6 @@ def sample():
                     # opt_advisor_old.run()
                     
                     # opt_advisor.run(tmp_df[:-1])
-                    
-                    # print('---constans= ', constants.get('input_metrics'))
-                    # print('---constans= ', constants)
-
 
             else:
                 logger.info('There is not enough data for start learning')
@@ -220,11 +215,10 @@ def sample():
 
 @app.route('/optimizer/advice', methods=['GET'])
 def get_advice():
+    global _last
     _last = request.args.get('last', default = True)
     
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-    print(_last)
-    print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
+    logger.info(f'_last variable set = {_last}')
 
     logger.info('Advisor get_advice() called')
 
@@ -232,6 +226,9 @@ def get_advice():
     # logger.debug('-------------------------- YAML --------------------------')
     # logger.debug(f'Constants received: {constants}')
     # logger.debug('-------------------------- YAML --------------------------')
+    
+    global opt_advisor
+    opt_advisor.init(constants.get('target_metrics'))
 
     # Nos igazából ennek a modulnak semmilyen adatot nem kell kapnia
     # ugyanis kiolvassa az adatokat egy korábban eltárolt fájlból
@@ -249,36 +246,21 @@ def get_advice():
     # Ha egy megadott számnál hosszabb a dataframe akkor adjon tanácsot különben ne
     # logger.debug(f'df.shape = {df.shape}')
     # logger.debug(f'df.shape[0] = {df.shape[0]}')
+    # logger.debug(f'constants.get("training_samples_required") = {constants.get("training_samples_required")})
             
-    if( df.shape[0] > constants.get('training_samples_required') ):
 
-        # logger.info('There is enough data for get advice')
-        # logger.info('---------Get Advice Phase----------')
-                    
-        opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
-        
-        # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
-        # logger.info(opt_advisor_return)
-        # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
-                    
-        # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
-        # opt_advisor_old.run()
+    # logger.info('There is enough data for get advice')
+    # logger.info('---------Get Advice Phase----------')
 
-    else:
-        logger.info('There is not enough data for get advice')
-        
-        # TODO:
-        # Elvileg mivel valamilyen returnt kell adnunk a megfelelő formában
-        # Ezért akkor is le kell hívnom az opt_advisor.run(config.nn_filename, last = True)
-        # függvényt, ha ez az ág nem teljesül
-        # különben nem lesz meg a return érték amit a Policy Keepernek visszaadok
+    opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
 
-        opt_advisor_return = opt_advisor.run(config.nn_filename, last = False)
-        
-        # logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
-        # logger.info(opt_advisor_return)
-        # logger.info('---------------------------------------- opt_advisor_return else ----------------------------------------')
-                    
+    # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+    # logger.info(opt_advisor_return)
+    # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+
+    # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele                    
+    # opt_advisor_old.run()
+
 
     # print('---constans= ', constants.get('input_metrics'))
     # print('---constans= ', constants)

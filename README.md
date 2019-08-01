@@ -16,9 +16,12 @@ From project root run
 From project root run  
 ```python optimizer.py --cfg path/to_config_file```
 
-```python optimizer.py --cfg config/config.yaml```
+```python optimizer.py --cfg config/config.yaml```  
 
-```python optimizer.py --cfg config/config.yaml --host=192.168.0.60```
+```python optimizer.py --cfg config/config.yaml --host=192.168.0.60```  
+
+```python optimizer.py --cfg config/config.yaml --host 0.0.0.0 --port 5000```
+
 
 ## Test REST API 
 __GET /optimizer/hello__  
