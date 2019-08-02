@@ -8,7 +8,6 @@ input_metrics:
 - name: PktIn
 - name: KBOut
 - name: PktOut
-- name: avg latency (quantile 0.9)
 max_delta_vm: 2
 max_number_of_scaling_activity: 100
 max_vm_number: 10
@@ -18,4 +17,4 @@ target_metrics:
 - max_threshold: 4000000
   min_threshold: 1000000
   name: avg latency (quantile 0.5)
-training_samples_required: 100
+training_samples_required: 10

@@ -91,9 +91,6 @@ def run(csfFileName, last = False):
     targetVariable = 'avg latency (quantile 0.5)'
     # testFileName = 'data/grafana_data_export_long_running_test.csv'      # original data
     # testFileName = 'data/test_data.csv'                                  # test data
-    # testFileName = 'data/test_data2.csv'                                 # test data
-    # testFileName = 'data/micado0730715_v2.csv'
-    # testFileName = 'data/nn_training_data.csv'
     testFileName = csfFileName                                             # from parameter
     
     maximumNumberIncreasableNode = 6                                       # must be positive 6
@@ -114,12 +111,18 @@ def run(csfFileName, last = False):
     # print(df.head())
     
     
-    # Ha a df rövidebb mint egy előre megadott szám akkor azonal térjen vissza valid=False üzenettel
-    if(df.shape[0] < 1 ):
-        return return_msg
-    
+   
     
     # In[x]:
+
+        
+    # In[x]:
+    logger.info('Checking advisor data properties')
+    if df.shape[0] <= 0:
+        error_msg = 'There are no training samples yet.'
+        logger.error(error_msg)
+        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
+
     
     if( last == True ):
         
@@ -135,14 +138,7 @@ def run(csfFileName, last = False):
         
         # logger.info('-------- Last row will be processed --------')
         
-        
-    # In[x]:
-    logger.info('Checking advisor data properties')
-    if df.shape[0] == 0:
-        error_msg = 'There are no training samples yet.'
-        logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
-    
+
     # In[160]:
 
     preProcessedDF = preProcessing(df)
@@ -529,7 +525,7 @@ def run(csfFileName, last = False):
     # Ez volt az egyéni javaslat, hogy mennyit adjon hozzá
     vm_number_total = advice
     # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
-    vm_number_total = advicedVM
+    # vm_number_total = advicedVM
     
     logger.info(f'advice = {advice}')
     
