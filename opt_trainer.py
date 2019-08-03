@@ -25,6 +25,9 @@ _input_metrics = None
 _worker_count = None
 
 def init(target_variable, input_metrics, worker_count):
+    
+    print('----------------------- trainer init ----------------------')
+    
     global _target_variable
     _target_variable = target_variable[0]
     
@@ -33,6 +36,8 @@ def init(target_variable, input_metrics, worker_count):
     
     global _worker_count
     _worker_count = worker_count[0]
+    
+    print('----------------------- trainer init end ----------------------')
 
 
 def run(nn_file_name, visualize = False):

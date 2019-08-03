@@ -70,7 +70,7 @@ def init():
         logger.info('File created')
         
         global opt_advisor
-        opt_advisor.init(constants.get('target_metrics'))
+        opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count)
         
         global opt_trainer
         opt_trainer.init(target_metrics, input_metrics, worker_count)
@@ -241,8 +241,8 @@ def get_advice():
     logger.info('------------------------ ADVISOR -------------------------')
     logger.info('----------------------------------------------------------')
     
-    global opt_advisor
-    opt_advisor.init(constants.get('target_metrics'))
+    # global opt_advisor
+    # opt_advisor.init(constants.get('target_metrics'))
 
     
     logger.info('----------------------------------------------------------')
@@ -259,8 +259,6 @@ def get_advice():
     logger.info('------------------------ ADVISOR -------------------------')
     logger.info('----------------------------------------------------------')
 
-
-
     # Tehát igazából abban sem vagyok biztos, hogy az Adviser API
     # hívásánaál be kellene e olvasnaom a CSV-t
     # lehet, hogy ezt megtehetné maga az advisor is
@@ -270,13 +268,13 @@ def get_advice():
     # akkor ad javaslatot, ha nincs akkor a józsinak megfelelően
     # visszadja, hogy False
     
-    ## opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
-
-    opt_advisor_return = 'Semmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmiii'
+    opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
     
-    # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
-    # logger.info(opt_advisor_return)
-    # logger.info('---------------------------------------- opt_advisor_return ----------------------------------------')
+    logger.info('----------------------------------------------------------')
+    logger.info('------------------ opt_advisor_return --------------------')
+    logger.info(f'opt_advisor_return with message: {opt_advisor_return}')
+    logger.info('------------------ opt_advisor_return --------------------')
+    logger.info('----------------------------------------------------------')
 
 
     # print('---constans= ', constants.get('input_metrics'))

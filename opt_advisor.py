@@ -15,9 +15,7 @@ from opt_utils import dropFirstCases
 from utils import setMetricNames, setExtendedMetricNames
 
 from linearregression import calculateLinearRegressionTerms
-
 from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYWithWorkers
-
 from sklearn.externals import joblib
 
 pandas_dataframe_styles = {
@@ -25,16 +23,32 @@ pandas_dataframe_styles = {
     'white-space': 'pre'
 }
 
-
+    
+# ## ------------------------------------------------------------------------------------------------------
+# ## Define some variables
+# ## ------------------------------------------------------------------------------------------------------
+    
 target_metric_min = None
 target_metric_max = None
 target_variable = None
+input_variables = None
+worker_count_name = None
 
 
 
-def init(_target_metric):
+# ## ------------------------------------------------------------------------------------------------------
+# ## Define init method
+# ## ------------------------------------------------------------------------------------------------------
     
-    print('----------------------- init ----------------------')
+def init(_target_metric, input_metrics, worker_count):
+    
+    print('----------------------- advisor init ----------------------')
+    
+    global input_variables
+    input_variables = input_metrics
+    
+    global worker_count_name
+    worker_count_name = worker_count[0]
     
     global target_metric_min 
     target_metric_min = _target_metric[0].get('min_threshold')
@@ -49,46 +63,69 @@ def init(_target_metric):
     print(target_metric_max)
     print(target_variable)
     print(_target_metric)
+    print(input_metrics)
+    print(worker_count_name)
     
-    print('----------------------- init end ----------------------')
+    print('----------------------- advisor init end ----------------------')
 
 
 
+# ## ------------------------------------------------------------------------------------------------------
+# ## Define init advice_msg
+# ## ------------------------------------------------------------------------------------------------------
+    
 def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate = 1000, error_msg = None):
     if valid:
         return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = 'Def')), 200
     else:
         return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = error_msg)), 400
 
+    
+    
+    
+# ## ------------------------------------------------------------------------------------------------------
+# ## Define run
+# ## ------------------------------------------------------------------------------------------------------
 
 def run(csfFileName, last = False):
-
-    return_msg = advice_msg(valid = False, phase = 'invalid', error_msg = 'Default message')
     
+
+    # Set the default message False
+    return_msg = advice_msg(valid = False, phase = 'invalid', error_msg = 'Default message')
+  
+    # Set showPlots True
     showPlots = True
     
+    # Set showPlot False if we intrested in only the last value, in this case there is no reasaon to create plot
     if( last ):
         showPlots = False
         
 
-    # # Advice Phase - Production Phase
-
+    # Set logger
     logger = logging.getLogger('optimizer')
     
-    logger.info('-------------------------- Advice Phase --------------------------')
+    logger.info('     ----------------------------------------------')
+    logger.info('     ------------ ADVICE PAHSE STARTED ------------')
+    logger.info('     ----------------------------------------------')
 
-    # In[157]:
-
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Load models which were saved until the training pahse
+    # ## ------------------------------------------------------------------------------------------------------
+    
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
     y_normalized_MinMaxScaler = loadMinMaxScalerYFull()
-
     modelNeuralNet = loadNeuralNetworkModel()
+    
+    logger.info('--------------------- MODELS LOADED ----------------------')
 
 
-    # In[158]:
-
-    cutFirstCases = 0                                                      # 0
-    targetVariable = 'avg latency (quantile 0.5)'
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Do not touch this if you don't know what you do
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    # targetVariable = 'avg latency (quantile 0.5)'
+    targetVariable = target_variable
     # testFileName = 'data/grafana_data_export_long_running_test.csv'      # original data
     # testFileName = 'data/test_data.csv'                                  # test data
     testFileName = csfFileName                                             # from parameter
@@ -98,52 +135,83 @@ def run(csfFileName, last = False):
 
     upperLimit = target_metric_max                                                   # 4000000
     lowerLimit = target_metric_min                                                   # 1000000
-    
-    print('oooooooooooooooooooooooooooooooooooooooooooooo')
-    print('upper = ', upperLimit)
-    print('lower = ', lowerLimit)
-    print('oooooooooooooooooooooooooooooooooooooooooooooo')
 
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'lowerLimit parameter variable set = {lowerLimit}')
+    logger.info(f'upperLimit parameter variable set = {upperLimit}')
+    logger.info('----------------------------------------------------------')
+    
+    
     # In[159]:
 
     df = readCSV(testFileName)
 
-    # print(df.head())
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------- DF LOADED ------------------------')
+    logger.info(f'df.shape               = {df.shape}')
+    logger.info('------------------------ ADVISOR -------------------------')
+    logger.info('----------------------------------------------------------')
     
-    
-   
-    
-    # In[x]:
 
-        
-    # In[x]:
-    logger.info('Checking advisor data properties')
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## If there is not enough data in dataframe then return error message
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] <= 0:
         error_msg = 'There are no training samples yet.'
         logger.error(error_msg)
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
 
     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## If there is not enough data in dataframe then return error message this part wont run at all
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('----------- Checking advisor data properties -------------')
+    if df.shape[0] < 20:
+        logger.info('----------------------------------------------------------')
+        logger.info('------- There are not enough training samples yet. -------')
+        logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
+        error_msg = 'There are no training samples yet.'
+        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
+
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## If there is not enough data in dataframe then return error message this part wont run at all
+    # ## ------------------------------------------------------------------------------------------------------
+    
+
     if( last == True ):
         
-        # TODO:
-        # Assert
-        logger.info('-------- Last row will be processed --------')
+        logger.info('----------------------------------------------------------')
+        logger.info('--------- There are enough training samples yet ----------')
+        logger.info('--------------- Last row will be processed ---------------')
+        
         pf = df[-1:]
-        # logger.debug(f'-------- pf head =\n {pf.head()}')
-        # logger.debug(f'-------- pf shape =\n {pf.shape}')
+        
+        logger.info('----------------------------------------------------------')
+        logger.info(f'pf shape               = {pf.shape}')
+        for m in pf.columns:
+            logger.info(f'Column names are = {m}, {pf[m].values}')
         
         # Assigne pf to df -> keep the code more coherent
         df = pf.copy()
         
-        # logger.info('-------- Last row will be processed --------')
-        
 
-    # In[160]:
 
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## preProcessing() comes from opt_utis modul
+    # ## ------------------------------------------------------------------------------------------------------
+    
     preProcessedDF = preProcessing(df)
 
-    # print(preProcessedDF.head())
+    logger.info('----------------------------------------------------------')
+    logger.info('------------------ preProcessing done --------------------')
     
     
     WorkerCountName = None
@@ -153,22 +221,40 @@ def run(csfFileName, last = False):
         WorkerCountName = 'vm_number'
     else:
         WorkerCountName = 'Worker count'
-        
-    logger.info(f'(WorkerCountName = {WorkerCountName}')
-    
 
+        
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Better if WorkerCountName comes from init()
+    # ## ------------------------------------------------------------------------------------------------------
+        
+    WorkerCountName = worker_count_name
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'WorkerCountName         = {WorkerCountName}')
+    logger.info('----------------------------------------------------------')
+
+    
     # Rename Worker count or vm_number to WorkerCount
     renamedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
-    
-    # print(renamedDF.head())
-    
-    metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
-    extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
+    filteredDF = renamedDF
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Better if WorkerCountName comes from init()
+    # ## ------------------------------------------------------------------------------------------------------
    
-    filteredDF = dropFirstCases(renamedDF, cutFirstCases)
-    
+    # metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
+    metricNames         = setMetricNames(input_variables[2:])
+    # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
+        
+    logger.info('----------------------------------------------------------')
+    logger.info(f'metricNames              = {metricNames}')
+    # logger.info(f'extendedMetricNames      = {extendedMetricNames}')
+    logger.info(f'input_variables          = {input_variables}')
+    logger.info('----------------------------------------------------------')
+    
+    
     
 
     # >#### Add new workers (increse the nuber of added Worker)
@@ -184,7 +270,7 @@ def run(csfFileName, last = False):
 
         if( to == 0 ):
             print("")
-            assert to != 0,"This value can not be 0. Error in calculatePredictedLatencyWithVariousWorkers method set maximum number of scalable nodes."
+            assert to != 0,"This value can not be 0."
         elif( to > 0 ):
             step = 1
             print('............. up maximum vm = ' + str(to) + ' ...........')
