@@ -173,7 +173,7 @@ def run(csfFileName, last = False):
     
     logger.info('----------------------------------------------------------')
     logger.info('----------- Checking advisor data properties -------------')
-    if df.shape[0] < 20:
+    if df.shape[0] < 1:
         logger.info('----------------------------------------------------------')
         logger.info('------- There are not enough training samples yet. -------')
         logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
@@ -243,8 +243,8 @@ def run(csfFileName, last = False):
     # ## Better if WorkerCountName comes from init()
     # ## ------------------------------------------------------------------------------------------------------
    
-    # metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
-    metricNames         = setMetricNames(input_variables[2:])
+    metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
+    # metricNames         = setMetricNames(input_variables[2:])
     # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
         

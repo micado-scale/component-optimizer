@@ -149,7 +149,7 @@ def sample():
             # TRAINING
             logger.info(constants.get('training_samples_required'))
             # if( tmp_df.shape[0] > constants.get('training_samples_required') ):
-            _min_training = 300
+            _min_training = 10
 
             logger.info('----------------------------------------------')
             logger.info(f'Now we have rows = {tmp_df.shape[0]}')

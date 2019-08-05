@@ -775,8 +775,6 @@ def run(nn_file_name, visualize = False):
     print('Naaaaaaaaa---------------------------')
     
 
-    #assert a_colName == 'prev1WorkerCount', "This column name is: {0} insted of prev1WorkerCount".format(a_colName)
-    #assert a_cols == 30, "This column number is: {0} insted of 17".format(a_colName)
 
     logger.info('Assert variable number before-after done')
 
