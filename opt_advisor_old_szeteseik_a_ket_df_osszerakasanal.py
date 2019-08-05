@@ -500,7 +500,7 @@ def run(csfFileName, last = False):
                 countViolatedUp += 1
                 # print("threshold up violation")
                 advice = 0
-                actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+                advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
                 for j in range(1, maximumNumberIncreasableNode):
@@ -514,7 +514,7 @@ def run(csfFileName, last = False):
                     if( calculatedDistance < upperLimit ):
                         distance = calculatedDistance
                         advice = j
-                        advicedVM = actual_worker_number + advice
+                        advicedVM = advicedVM + advice
                         postScaledTargetVariable = relatedTargetVariable
                         break
                     # print(calculatedDistance)
@@ -524,7 +524,7 @@ def run(csfFileName, last = False):
                 countViolatedDown += 1
                 print("threshold down violation")
                 advice = 0
-                actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+                advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('-inf')
                 # TODO:
@@ -533,7 +533,7 @@ def run(csfFileName, last = False):
                 for j in range(-1, minimumNumberReducibleNode, -1):
                     # print(distance)
                     advice = 0
-                    actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+                    advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől
                     # kettő legyen az alsó limit fölött (utóbbi nem biztos, hogy teljesül)
                     varName = 'denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'
@@ -546,12 +546,12 @@ def run(csfFileName, last = False):
                     if( calculateDistance > lowerLimit ):
                         distance = calculateDistance
                         advice = j
-                        advicedVM = actual_worker_number + advice
+                        advicedVM = advicedVM + advice
                         postScaledTargetVariable = relatedTargetVariable
                         if( calculateDistance < upperLimit ):
                             distance = calculateDistance
                             advice = j
-                            advicedVM = actual_worker_number + advice
+                            advicedVM = advicedVM + advice
                             postScaledTargetVariable = relatedTargetVariable
                             break
                         # break
@@ -561,26 +561,31 @@ def run(csfFileName, last = False):
 
 
     # In[181]:
+
     # advicedDF.head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.0f}")
 
 
     # In[182]:
+
     if showPlots :
         VisualizePredictedXYLine(advicedDF[['advice']] * 2000000, advicedDF[[targetVariable]], targetVariable, lowerLimit, upperLimit)
 
 
     # In[183]:
+
     print('countInRange      = ', countInRange)
     print('countViolatedDown = ', countViolatedDown)
     print('countVilolatedUp  = ', countViolatedUp)
 
 
     # In[184]:
+
     if showPlots :
         VisualizePredictedXY2Line(advicedDF[[targetVariable]], advicedDF[['advice']], targetVariable, lowerLimit, upperLimit)
 
 
     # In[186]:
+
     if showPlots :
         from visualizerlinux import VisualizePredictedXY3Line
         
@@ -588,6 +593,7 @@ def run(csfFileName, last = False):
 
 
     # In[187]:
+
     # advicedDF.style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
@@ -603,15 +609,15 @@ def run(csfFileName, last = False):
     phase = 'production'
     nn_error_rate = 0
     # Ez volt az egyéni javaslat, hogy mennyit adjon hozzá
-    # vm_number_total = advice
+    vm_number_total = advice
     # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
-    vm_number_total = advicedVM
+    # vm_number_total = advicedVM
     
-    logger.info('----------------------------------------------')
     logger.info(f'advice = {advice}')
-    logger.info('----------------------------------------------')
     
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
     return return_msg
+    
+    
     
