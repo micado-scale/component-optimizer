@@ -70,9 +70,6 @@ def dropFirstCases(df, n):
     return filteredDF
 
 
-
-
-
 def read_yaml(yaml_file):
     global logger
     with open(yaml_file, 'r') as stream:
@@ -103,7 +100,7 @@ def write_yaml(yaml_file, data):
         except (IOError, yaml.YAMLError) as e:
             logger.error(e)
 
-#TODO refactor
+
 def read_data(filename, skip_header=False):
     global logger
     with open(filename, 'r') as csv_file:

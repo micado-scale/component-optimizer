@@ -18,4 +18,5 @@ constants:
     target_metrics: 
       - name: avg latency (quantile 0.5)
         min_threshold: 1000000
-        max_threshold: 4000000
+        max_threshold: 3000000
+    knowledge_base: use_existing
