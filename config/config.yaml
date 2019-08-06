@@ -5,7 +5,6 @@ directories:
 
 optimizer: 
     nn_filename: 'data/nn_training_data.csv'
-    lr_filename: 'data/lr_training_data.csv'
     constants_filename: 'data/constants.yaml'
     training_data_filename: 'data/training_data.zip'
 

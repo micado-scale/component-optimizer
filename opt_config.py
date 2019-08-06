@@ -18,14 +18,6 @@ class OptimizerConfig(Config):
         self._nn_filename = nn_filename
 
     @property
-    def lr_filename(self):
-        return self.get_property('lr_filename')
-
-    @lr_filename.setter
-    def lr_filename(self, lr_filename):
-        self._lr_filename = lr_filename
-
-    @property
     def constants_filename(self):
         return self.get_property('constants_filename')
 

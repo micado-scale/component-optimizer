@@ -8,7 +8,7 @@ input_metrics:
 - name: PktIn
 - name: KBOut
 - name: PktOut
-knowledge_base: build_new
+knowledge_base: use_existing
 max_delta_vm: 2
 max_number_of_scaling_activity: 100
 max_vm_number: 10
