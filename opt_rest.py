@@ -64,10 +64,22 @@ def init():
 
         logger.info('Creating a .csv file for neural network...')
         
-        opt_utils.persist_data(
-            config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
-        
-        logger.info('File created')
+        # TODO:
+        logger.info('-------------- GET CONSTANTS --------------')
+        logger.info(f'constansts = {constants}')
+        logger.info('-------------------------------------------')
+        # TODO:
+        # IF "use_existing" then do nothing else create
+        if( constants.get('knowledge_base') == 'use_existing' ):
+            # opt_utils.persist_data( config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
+
+            logger.info('File NOT created')
+            
+        elif( constants.get('knowledge_base') == 'build_new' ):
+            opt_utils.persist_data( config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
+
+            logger.info('File created')
+            
         
         global opt_advisor
         opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count)
