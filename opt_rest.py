@@ -8,7 +8,7 @@ import opt_config
 import opt_utils
 import opt_trainer
 import opt_advisor
-import opt_advisor_old
+# import opt_advisor_old
 import opt_trainer_backtest
 import opt_advisor_backtest
 
@@ -33,6 +33,8 @@ def init_service(cfg):
 
     global config
     config = opt_config.OptimizerConfig(cfg, 'optimizer')
+
+
 
 
 @app.route('/optimizer/init', methods=['POST'])

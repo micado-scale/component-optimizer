@@ -3,6 +3,8 @@ import logging.config
 
 import opt_config
 
+from utils import printNormalizedX, printNormalizedY
+
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
@@ -22,6 +24,7 @@ pandas_dataframe_styles = {
 
 _target_variable = None
 _input_metrics = None
+_outsource_metrics = ['AVG RR', 'SUM RR']
 _worker_count = None
 
 def init(target_variable, input_metrics, worker_count):
@@ -165,11 +168,12 @@ def run(nn_file_name, visualize = False):
 
     
     def dataFrameInfo(df):
-        logger.info('-------------DataFrame----------------------')
+        logger.info('---------------------------------------------------------------------------------')
+        logger.info('                   --------------- DataFrame ------------------                  ')
         logger.info(f'df.columns  = {df.columns}')
         logger.info(f'df.shape    = {df.shape}')
-        logger.info(f'df.head()   = {df.head()}')
-        logger.info('-------------DataFrame----------------------')
+        # logger.info(f'df.head()   = {df.head()}')
+        logger.info('                   --------------- DataFrame ------------------                  ')
 
 
     # ## ------------------------------------------------------------------------------------------------------
@@ -215,26 +219,38 @@ def run(nn_file_name, visualize = False):
 
     # metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     
+    
+    
+    
+    
+    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    logger.info('----------------------------------------------------------')
+    logger.info('------------------- set metricNames ----------------------')
+    logger.info('----------------------------------------------------------')
+    # na itt lesz majd az alapvető probléma az inputMetric és a metricNames között
+    # ugyanis igazából nem tudjuk, hogy az első kettő az amit le kell vágnunk a listából
+    # ezért dirty ha szóval itt kell leválogatnom, hogy
+    # a metrics names-ben
+    # dobjuk el azt a két fránya AVR_RR SUM_RR oszlopot 
+    
     # Ezeeket az értékeket az init-ben adom át neki, annyi a különbség, hogy az első két változóra nincs szükségünk
-    metricNames = _input_metrics[2:]
+    # metricNames = _input_metrics[2:]
+    metricNames = _input_metrics.copy()
+
+    for i in _outsource_metrics:
+        logger.info(f'removed elements of the metricNames list = {i}')
+        metricNames.remove(i)
     
     logger.info(f'metricNames = {metricNames}')
+    logger.info(f'_input_metrics = {_input_metrics}')
+    
+    logger.info('----------------------------------------------------------')
+    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    
     
 
-    # In[12]: Set Extended Metrics Names
-
-    def setExtendedMetricNames(names):
-        new_extendedMetricNames = names.copy()
-        return new_extendedMetricNames
-
-    # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])    
-    extendedMetricNames = setExtendedMetricNames(metricNames + ['WorkerCount'])
     
-    logger.info(f'extendedMetricNames = {extendedMetricNames}')
-
-
     # In[14]: Drop First Cases
-
     def dropFirstCases(df, n):
         new_df = df.copy()
         filteredDF = new_df[new_df.index > n]
@@ -244,65 +260,34 @@ def run(nn_file_name, visualize = False):
     filteredDF = dropFirstCases(preProcessedDF, cutFirstCases)
 
 
-    # In[16]: preProcessedDF let filteredDF
-
+    # In[16]:
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## preProcessedDF let filteredDF
+    # ## ------------------------------------------------------------------------------------------------------
     preProcessedDF = filteredDF
     
-    print(preProcessedDF.shape)
-    print(preProcessedDF.columns)
-    print(preProcessedDF.head())
-    print('nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn')
+    logger.info('------------------- preProcessedDF -----------------------')
+    logger.info('----------------------------------------------------------')
+    logger.info(f'preProcessedDF.shape = {preProcessedDF.shape}')
+    logger.info(f'preProcessedDF.columns = {preProcessedDF.columns}')
+    # logger.info(f'preProcessedDF.head(2) = {preProcessedDF.head(2)}')
+    logger.info('----------------------------------------------------------')
     
     ## itt a preProcessedDF shape még minden jó volt aztátn egyszer csak valamiért 1 soros lesz az egsész
 
 
 
-    
-    # In[17]: Correlation matrix
-
-    from visualizerlinux import CorrelationMatrixSave
-    if showPlots : CorrelationMatrixSave(preProcessedDF)
 
 
-    # In[19]: Visualize the relationship between the target and independent variables
-
-    from visualizerlinux import ScatterPlots
-    if showPlots : ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], extendedMetricNames, targetVariable)
-
-
-    # In[21]: Visualize the relationship between the time and variables
-
-    from visualizerlinux import TimeLinePlot
-    if showPlots : TimeLinePlot(preProcessedDF, targetVariable)
-
-
-    # In[23]: Visualize the relationship between the time and variables
-
-    from visualizerlinux import TimeLinePlots
-    if showPlots : TimeLinePlots(preProcessedDF, extendedMetricNames)
-
-
-    # In[25]: Autoregression
-
-    if( explore ):
-        n = 1
-        for i in preProcessedDF.columns:
-            print('AC(1)      ', i, '\t= ', np.round(preProcessedDF[i].autocorr(lag=1), 2))
-            n = n+1
-            if( n == 10 ):
-                break
-
-
+    # In[26]:
     # ## ------------------------------------------------------------------------------------------------------            
     # ## Create a whole new DataFrame for Before After Data
     # ## ------------------------------------------------------------------------------------------------------
 
-    # In[26]:
-    
     logger.info('CreateBeforeAfter method')
-    logger.debug(preProcessedDF.columns)
-    logger.debug(len(inputMetrics))
-    logger.debug(inputMetrics)
+    logger.info(f'preProcessedDF.columns = {preProcessedDF.columns}')
+    logger.info(f'len(inputMetrics) = {len(inputMetrics)}')
+    logger.info(f'inputMetrics = {inputMetrics}')
 
     def createBeforeafterDF(df, lag, inputMetrics):
         beforeafterDF = df.copy()
@@ -323,59 +308,74 @@ def run(nn_file_name, visualize = False):
         return beforeafterDF
 
 
-    # In[27]: Create new dataframe with lags
+    
+    # In[27]:
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Create new dataframe with lags
+    # ## ------------------------------------------------------------------------------------------------------
 
     beforeafterDF = createBeforeafterDF(preProcessedDF, 1, inputMetrics)
 
     logger.info('CreateBeforeAfter method done')
 
-    
-    ## Talán még idáig is jó csak több minta kell neki??
-    
+
     
     
     
-    
-    # ### Set Features for Neural Network - these are the input variables
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Set Features for Neural Network - these are the input variables
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[28]: Declare some functions
 
-    def setFeaturesAndTheirLags(df):
-        X = df.iloc[:,0:9]
+    logger.info('----------------------------------------------------------')
+    logger.info(f'_input_metrics {_input_metrics}')
+    logger.info(f'inputMetrics {inputMetrics}')
+    logger.info('----------------------------------------------------------')
+
+    def setFeaturesAndTheirLags(df, columnNames):
+        # X = df.iloc[:,0:9]
+        X = df[columnNames]
         return X
 
 
-    # In[29]: Set Features in other words this set will be the Input Variables
+    # In[29]:
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Set Features in other words this set will be the Input Variables
+    # ## ------------------------------------------------------------------------------------------------------
 
-    X = setFeaturesAndTheirLags(beforeafterDF)
+    X = setFeaturesAndTheirLags(beforeafterDF, inputMetrics)
 
-    logger.info('SetFeaturesAndTheirLags method done')
+    logger.info('--------- SetFeaturesAndTheirLags method done ------------')
+    logger.info('-------------------------- X -----------------------------')
+    logger.info('----------------------------------------------------------')
 
-    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')    
-    print(X.head())
-    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
+    logger.info('----------------------------------------------------------')
+    logger.info(X.head(3))
+    logger.info('----------------------------------------------------------')
     
     
     
-    # ### Set Target Variable for Neural Network - this is the target variable
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Set Target Variable for Neural Network - this is the target variable
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[30]: Declare some functions
-
     def setTarget(df, targetVariable):
         y = df[targetVariable]
         return y
 
 
     # In[31]: Set target variable
-
     y = setTarget(beforeafterDF, targetVariable)
     
-    print('--------------------------- Y target variable as a pandas.series -> numpy.array ---------------------------')
-    print(y)
+    logger.info('   Y target variable as a pandas.series -> numpy.array    ')
+    logger.info('----------------------------------------------------------')
+    logger.info(y.head())
+    logger.info(f'(y describe = {y.describe()}')
 
     
     # In[33]:
-
     if( explore ):
         logger.info(f'(y values from 0 to 10 = {y.values[0:10]}')
         logger.info(f'(y head = {y.head()}')
@@ -389,7 +389,6 @@ def run(nn_file_name, visualize = False):
     # ### Normalize the whole X
 
     # In[35]: Declare some functions
-
     def normalizeX(df):
         """Return a normalized value of df.
         Save MinMaxScaler normalizer for X variable"""
@@ -407,16 +406,17 @@ def run(nn_file_name, visualize = False):
 
 
     # In[36]: Normalize Features and Save Normalized values, Normalize input variables set
-
     X_normalized, X_normalized_MinMaxScaler = normalizeX(X)
     
     logger.info('X_normalized done')
 
 
-    # ### Load MinMaxScalerXFull
-
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Load MinMaxScalerXFull
+    # ## ------------------------------------------------------------------------------------------------------
+    
     # In[37]: Declare some functions
-
     def loadMinMaxScalerXFull():
         X_normalized_MinMaxScaler = joblib.load('models/scaler_normalizeX.save')
 
@@ -424,37 +424,23 @@ def run(nn_file_name, visualize = False):
 
 
     # In[38]: Load Saved Normalized Data (Normalizer)
-
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
     
     logger.info('X_normalized_MinMaxScaler load done')
 
 
-    # In[39]: Declare some functions
-
-    def printNormalizedX(X_normalized):
-        print("X_normalized type        = ", type(X_normalized))
-        print("X_normalizde dtype       = ", X_normalized.dtype)
-        print("X_normalized shape       = ", X_normalized.shape)
-        print("X_normalized ndim        = ", X_normalized.ndim)
-        print("X_normalized[:,0].max()  = ", X_normalized[:,0].max())
-        print("X_normalized[:,0].min()  = ", X_normalized[:,0].min())
-
 
     # In[40]:
-
     if( explore ):
         printNormalizedX(X_normalized)
         X_normalized[1]
 
 
     # In[42]: De-normalize Features set
-
     X_denormalized = X_normalized_MinMaxScaler.inverse_transform(X_normalized)
 
 
     # In[43]:
-
     if( explore ):
         X_denormalized[1]
         X_denormalized[-1]
@@ -463,7 +449,6 @@ def run(nn_file_name, visualize = False):
     # ### Normalize the whole y
 
     # In[45]: Declare some functions
-
     def normalizeY(df):
         """Return a normalized value of df.
         Save MinMaxScaler normalizer for Y variable"""
@@ -481,35 +466,22 @@ def run(nn_file_name, visualize = False):
         return normalizedY, scaler
 
 
+    
     # In[46]: Normalize Target and Save Normalized values, Normalize target variable set
-
     y_normalized, y_normalized_MinMaxScaler = normalizeY(y)
 
 
-    # In[47]: Declare some functions
-
-    def printNormalizedY(y_normalized):
-        """Void. Print normalizeY(df) values"""
-
-        print("y_normalized type        = ", type(y_normalized))
-        print("y_normalized dtype       = ", y_normalized.dtype)
-        print("y_normalized shape       = ", y_normalized.shape)
-        print("y_normalized ndim        = ", y_normalized.ndim)
-        print("y_normalized[:].max()    = ", y_normalized[:].max())
-        print("y_normalized[:].min()    = ", y_normalized[:].min())
-
-
     # In[48]:
-    
     if( explore ):
         printNormalizedY(y_normalized)
         y_normalized[0:3]
 
 
-    # ### Load MinMaxScalerYFull
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Load MinMaxScalerYFull
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[50]: Declare some functions
-
     def loadMinMaxScalerYFull():
         y_normalized_MinMaxScaler = joblib.load('models/scaler_normalizeY.save')
 
@@ -517,31 +489,31 @@ def run(nn_file_name, visualize = False):
 
 
     # In[51]: Load Saved Normalized Data (Normalizer)
-
     y_normalized_MinMaxScaler = loadMinMaxScalerYFull()
 
 
     # In[52]: De-normalize Features set
-
     y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
 
 
     # In[53]:
-    
     if( explore ):
         y_denormalized[0:3]
         y_denormalized[-3:]
 
     logger.info('Normalization done')
 
+    
+    
     # ## ------------------------------------------------------------------------------------------------------
     # ## Train Neural Network with Optimizer Class, trainMultiLayerRegressor method
     # ## ------------------------------------------------------------------------------------------------------
     
-    logger.info('MLP start')
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------- MLP start ------------------------')
+    logger.info('----------------------------------------------------------')
 
     # In[55]: Declare some functions
-
     def trainMultiLayerRegressor(X_normalized, y_normalized, activation, neuronsWhole):
 
         # Train Neural Network
@@ -569,12 +541,10 @@ def run(nn_file_name, visualize = False):
 
 
     # In[56]: Train Neural Network
-    
     mlp = trainMultiLayerRegressor(X_normalized, y_normalized, activation_function, neuronsWhole)
 
 
     # In[57]: Declare some funcitons
-
     def predictMultiLayerRegressor(mlp, X_normalized):
         y_predicted = mlp.predict(X_normalized)
 
@@ -582,106 +552,62 @@ def run(nn_file_name, visualize = False):
 
 
     # In[58]: Create prediction
-
     y_predicted = predictMultiLayerRegressor(mlp, X_normalized)
 
 
     # In[59]: Evaluete the model
-
     from utils import evaluateGoodnessOfPrediction
-    
     evaluateGoodnessOfPrediction(y_normalized, y_predicted)
 
-
-    # In[61]: Visualize Data
-    
-    from visualizerlinux import VisualizePredictedYScatter
-    
-    if showPlots : VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable)
-
-        
-    # In[63]: Visualize Data
-
-    from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYLineWithValues
-
-    if showPlots : VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable, 'Normalized')
 
 
 
     # ### De-normlaize
-    # 
-    # I want to see the result in original scale. I don't care about the X but the y_normalized and y_predcited.
-    # 
-    # 
 
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## I want to see the result in original scale. I don't care about the X but the y_normalized and y_predcited.
+    # ## ------------------------------------------------------------------------------------------------------
+    
     # In[65]: De-normalize target variable and predicted target variable
-
     y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
-
     y_predicted_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_predicted.reshape(y_predicted.shape[0],1))
 
 
-    # In[66]: Visualize the de-normalized data as well
-
-    if showPlots : VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
-
-
-    # In[67]: Compare the Original Target Variable and the mean of its Predicted Values
-
-    meanOfOriginalPandasDataframe = y.values.mean()
-    meanOfOriginalTargetVariable  = y_denormalized.mean()
-    meanOfPredictedTargetVariable = y_predicted_denormalized.mean()
-
-    print('mean original pandas dataframe y value = ', meanOfOriginalPandasDataframe)
-    print('mean original target variable y denormalized = ', meanOfOriginalTargetVariable)
-    print('mean predicted target variable y denormalized = ', meanOfPredictedTargetVariable)
-
 
     # In[68]: Declare De-normalizer functions
-
     def denormalizeX(X_normalized, X_normalized_MinMaxScaler):
         X_denormalized = X_normalized_MinMaxScaler.inverse_transform(X_normalized)
         return X_denormalized
 
 
     # In[69]: De-normalize Features
-
     X_denormalized = denormalizeX(X_normalized, X_normalized_MinMaxScaler)
 
 
-    # In[70]:
-    
-    if( explore ):
-        X_denormalized[1]
-        X_normalized[1]
-        X_denormalized[-1]
-        X_normalized[-1]
-
-
     # In[74]: Declare De-normalizer functions
-
     def denormalizeY(y_normalized, y_normalized_MinMaxScaler):
         y_denormalized = y_normalized_MinMaxScaler.inverse_transform(y_normalized.reshape(y_normalized.shape[0],1))
         return y_denormalized
 
 
     # In[75]: De-normalize Target
-
     y_denormalized = denormalizeY(y_normalized, y_normalized_MinMaxScaler)
-
     y_predicted_denormalized = denormalizeY(y_predicted, y_normalized_MinMaxScaler)
 
 
-    # In[76]:
 
-    if showPlots : VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
-
+    
+    
+    
+    
 
     # ## ------------------------------------------------------------------------------------------------------
     # ## Linear Regression Learn
     # ## ------------------------------------------------------------------------------------------------------
     
-    logger.info('Linear Regression start')
+    logger.info('----------------------------------------------------------')
+    logger.info('-------------- Linear Regression start -------------------')
+    logger.info('----------------------------------------------------------')
         
     # In[124]: Import dependencies
 
@@ -693,12 +619,72 @@ def run(nn_file_name, visualize = False):
 
     # TODO:
     # Átvezetni valahogy, hogy a bemeneti változók fényében kezelje hogy hány változó van a dataframeben
+    
+    # na itt is van valami fos
+    # egyrészt kiprintelem az Input Variables nevü inputVariables-t amiből úgy látom hogy
+    # úgy vettem hogy 10 darab van, de miért és mik ezek az inputVariables-ek?
+    
+    # az inputVariables a függvényen belül lesz megcsinálva és annyi előnye van, hogy
+    # a preProcessedDF vagy ami bemegy abból veszi az oszlop neveket
+    
+    # viszont csak 0-10-ig mivel de a preProcessedDF-nek 11 oszlopa van,
+    # sajnos itt úgy veszem, hogy azért 0-10-ig mert a 11-ik a target változó
+    # és arra minek csináljuk meg a lag-et.
+    
+    # Egyébként akár meg is csinálhatnánk talán kevesebb lenne úgy a baj?
+    
+    # Ilyen szempontból meg kurvárna nem konzisztens a programom
+    # mert itt átírom akkor melyik másik helyen hasal el?
+    # Müködni fog-e az advice, ott miért nem ezt a függvényt hívom, vagy ott is ezt hívom meg?
+    
+    # Ugy látom, hogy az advice-ban sehol nem szerepel a trainer aminek az az oka
+    # hogy az Advice-nak semmi szüksége nincs a lag-ok-ra se a lead-ek-re
+    # Ugyanis miután meg van tanulva egy model, az már csak a model beolvasásával törödik
+    # és abban egyáltalán nem szerepelnek a lagok meg a lagek,
+    
+    # Ugyanakkor elszomorító, hogy ezt a függvényt, sőt ezeket a függvényeket nem szerveztem ki.
+    # Mindegy ennek is megvolt a maga prakitus oka, a traineren kívül senkinek nincs rá szüksége.
+    
+    #
+    
+    # probléma ott kezdődik hogy már arra sem emlékezem, hogy kezelem le a bejövő adatokat?
+    # hogy kerülnek azok be a csv-be?
+    # a yaml amit kapok az egy dictionarry eddig világos elég ha belenézek, de kezdek én
+    # egyáltalán valamit a sorrendel?
+    
+    # az opt_rest.py 116-ik sorában van az input adatok beolvasása, tehát még csak nem is
+    # a train-ben, ez jó,
+    # de mi van ha nem ugyan abban a sorrendben vannak az adatok a yaml-ben egy egy minta között?
+    
+    # ha valahol le kell kezelnem ezt a sorrendet akkor az az opt_rest 136-ik sora lesz.
+    # ott van egy input_metrics változóm, ami úgy áll elő, hogy végig iterálok a sample változón
+    # ami egy dictionary és annak a sample input_metrics részén ami egy lista key value párokból.
+    
+    # ha az a helyzet, hogy az egyes minták között a sorrend változik, akkor ezt ott kell kezelenem
+    # úgy, hogy minden key value párt eltárolok és a megfelelő sorrendbe állítom és ugy irom át
+    # egy pandas dataframebe azt pedig egy csv-be
+    
+    # szóval annyi jó hírem van, hogy amikor összerakom a pandasDataFramet és kiirom CSV-be
+    # akkor én határozom meg a sorrendet és úgy láttam, hogy a target változót a legutolsó
+    # helyre, a legutolsó oszlopba rakom.
+    # Tehát beolvasásnál is a legutolsó lesz.
+    
+    # ezért itt a createBeforeafterDFLags függvényben mivel megkapja a DF-t
+    # ezért igazából csak az utolsó elötti sorig kell elszámolnom
+    
+    
     def createBeforeafterDFLags(df, lag):
         beforeafterDFLags = df.copy()
-        inputVariables = np.flip(beforeafterDFLags.columns[0:10].ravel(), axis=-1)
-        print('Input Variablels : ', inputVariables)
+        dfColumnsNumber = beforeafterDFLags.shape[1]
+        print('dfColumnsNumber = ', dfColumnsNumber)
+        # index = 10
+        index = dfColumnsNumber - 1
+        
+        # inputVariables = np.flip(beforeafterDFLags.columns[0:10].ravel(), axis=-1)
+        inputVariables = np.flip(beforeafterDFLags.columns[0:index].ravel(), axis=-1)
+        print('Input Variables in createBeforeafterDFLags: ', inputVariables)
 
-        index = 10
+        # index = 10
         for i in inputVariables:
             new_column = beforeafterDFLags[i].shift(lag)
             new_column_name = (str('prev') + str(1) + i)
@@ -706,34 +692,42 @@ def run(nn_file_name, visualize = False):
 
         beforeafterDFLags = beforeafterDFLags[lag:]             # remove first row as we haven't got data in lag var
 
-        return beforeafterDFLags
+        return beforeafterDFLags, index                         # return not just the df but an int as well
 
 
+    logger.info('----------------------------------------------------------')
+    logger.info('------------ Linear Regression diagnosis -----------------')
+    logger.info('----------------------------------------------------------')
+    logger.info('preProcessedDF is the input of the createBeforeafterDFLags()')
+    logger.info('ez a függvény elvileg semmi mást nem csinál mint a lagokat')
+    logger.info('nem mellesleg a lagokat nem is használom, de ennek az eredménye megy')
+    logger.info('be a createBeforeafterDFLeads(df, lead = 1) függvénybe')
+    logger.info('A createBeforeafterDFLags(df, lag)-ben szokott eltörni valami ooooooooooooooooooooooooooooooooooo')
+    logger.info('')
     
-    print(preProcessedDF.shape)
-    print(preProcessedDF.head())
-    print('Naaaaaaaaaaaaaa itt törik el valami -xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info(f'preProcessedDF.shape = {preProcessedDF.shape}')
+    logger.info(preProcessedDF.head(3))
+    
     
     
     
     # In[126]: Create lag variables (see above -> 'prev1CPU', 'prev1Inter', etc)
+    beforeafterDFLags, index = createBeforeafterDFLags(preProcessedDF, 1)
 
-    beforeafterDFLags = createBeforeafterDFLags(preProcessedDF, 1)
 
-
-    # In[127]:
-    if( explore ):
-        beforeafterDFLags.columns
 
 
     # In[128]: Declare some functions
 
-    def createBeforeafterDFLeads(df, lead = 1):
+    # Na itt viszont már para van itt viszont már tudnia kell, hogy mi is tulajdonképen
+    # változók hossza
+    def createBeforeafterDFLeads(df, index, lead = 1):
         beforeafterDFLeads = df.copy()
-        inputVariables = np.flip(beforeafterDFLeads.columns[0:10].ravel(), axis=-1)
-        print('Input Variablels : ', inputVariables)
+        # inputVariables = np.flip(beforeafterDFLeads.columns[0:10].ravel(), axis=-1)
+        inputVariables = np.flip(beforeafterDFLeads.columns[0:index].ravel(), axis=-1)
+        print('Input Variables in createBeforeafterDFLeads: ', inputVariables)
 
-        index = 10
+        # index = 10
         for i in inputVariables:
             new_column = beforeafterDFLeads[i].shift(-lead)
             new_column_name = (str('next') + str(1) + i) # Todo: rename str(lead)
@@ -748,37 +742,42 @@ def run(nn_file_name, visualize = False):
 
     # In[129]: Create lead variables (see above -> 'next1CPU', 'next1Inter', etc)
 
-    beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, lead = lead)
+    beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, index, lead = lead)
 
-
-    # In[130]:
-    if( explore ):
-        beforeafterDF.columns
-
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('------------ Create Before After Diagnosis ---------------')
+    logger.info('----------------------------------------------------------')
     
     print(beforeafterDF.columns)
     print(beforeafterDF.shape)
-    print(beforeafterDF.head())
-    print('Naaaaaaaaaaaaaa itt törik el valami -xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    print(beforeafterDF.head(2))
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Create Before After Columns Done
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('---------- Create Before After Columns Done --------------')
+    logger.info('----------------------------------------------------------')
     
 
     # In[131]: Assert
-
-    # TODO:
-    # Ez is csak akkor stimmel ha a cikkben leírt bemeneti változókat és azok számát használjuk
-    a_colName = beforeafterDF.columns[-1]
-    a_cols = beforeafterDF.shape[1]
+    logger.info('----------------------------------------------------------')
+    logger.info('----------               Assert             --------------')
+    logger.info('----------------------------------------------------------')
     
-    print('Naaaaaaaa---------------------------')
-    print(a_colName)
-    print(a_cols)
-    print('Naaaaaaaaa---------------------------')
+    print('---------------- original _input_metrics length = ', len(_input_metrics))
+    print('---------------- beforeafterDF.shape[1] = ', beforeafterDF.shape[1])
+    print('---------------- ', len(_input_metrics), ' + 1 * 3')
+
+    logger.info('----------------------------------------------------------')
+
+
     
-
-
-    logger.info('Assert variable number before-after done')
-
-    # In[132]: Declare some functions
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Calculate before-after differencies
+    # ## ------------------------------------------------------------------------------------------------------
 
     def calculateWorkerCountDifferences(beforeafterDF):
         new_beforeafterDF = beforeafterDF.copy()
@@ -788,12 +787,15 @@ def run(nn_file_name, visualize = False):
 
 
     # In[133]: Explore data
-
     theBeforeAfterDF = calculateWorkerCountDifferences(beforeafterDF)
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Filter rows where actual WorkerCount != next1WorkerCount
+    # ## ------------------------------------------------------------------------------------------------------
 
 
     # In[134]: Declare some functions
-
     def createScalingDF(theBeforeAfterDF):
         new_beforeafterDF = theBeforeAfterDF.copy()
         scalingDF = new_beforeafterDF[new_beforeafterDF.WorkerCount != new_beforeafterDF.next1WorkerCount]
@@ -802,39 +804,34 @@ def run(nn_file_name, visualize = False):
 
 
     # In[135]: Collect rows where 'WorkerCount != next1WorkerCount' -> If this condition is True that means scalling happened
-
     scalingDF = createScalingDF(theBeforeAfterDF)
 
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## This is only for exploration purposes
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[136]: Calculate and store values of each metrics after scalling happened in new collumns
+    if( explore ):
+        beforeafterMetricsDF = scalingDF.copy()
 
-    beforeafterMetricsDF = scalingDF.copy()
-
-    for i in metricNames:
-        # print(i)
-        changeInMetricAfterScale = beforeafterMetricsDF['next1'+i]-beforeafterMetricsDF[i]
-        beforeafterMetricsDF['changed1'+i] = changeInMetricAfterScale
+        for i in metricNames:
+            print(i)
+            changeInMetricAfterScale = beforeafterMetricsDF['next1'+i]-beforeafterMetricsDF[i]
+            beforeafterMetricsDF['changed1'+i] = changeInMetricAfterScale
 
 
     # In[137]: Explore
     if( explore ):
         beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
-
-    # In[138]: Explore
-    if( explore ):
         beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
-
-    # In[139]: Explore
-    if( explore ):
         beforeafterMetricsDF[['changed1CPU','changed1Inter', 'changed1CTXSW', 'changed1KBIn',
                               'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
                               'addedWorkerCount']]. groupby(['addedWorkerCount'], as_index=False).mean().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
 
 
-    # In[140]: Explore
-    if( explore ):
         beforeafterMetricsDF[['changed1CPU', 'changed1Inter', 'changed1CTXSW', 'changed1KBIn',
                               'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
                               'addedWorkerCount']].groupby(['addedWorkerCount'], as_index=False).count().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
@@ -844,19 +841,21 @@ def run(nn_file_name, visualize = False):
     if( explore ):
         print(theBeforeAfterDF.shape)
         print(scalingDF.shape)
+        print('theBeforeAfterDF.shape = ', theBeforeAfterDF.shape)
+        print(theBeforeAfterDF.head())
 
-
-    # In[143]:Declare some functions
     
-    # TODO:
-    # Mi az hogy üres a termDF
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## This is the end of before-after data preparation
+    # ## ------------------------------------------------------------------------------------------------------
     
-    
-    print(theBeforeAfterDF.shape)
-    print(theBeforeAfterDF.head())
     print(scalingDF.shape)
     print(scalingDF.head())
-    print('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+    logger.info('---------------------------------------------------------------------------------------------')
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('--------- End of before-after data preparation -----------')
+    logger.info('----------------------------------------------------------')
     
     
     def calculateLinearRegressionTerms(metric, dataFrame):
@@ -969,16 +968,12 @@ def run(nn_file_name, visualize = False):
 
 
     # In[152]: Visualize
-
-    from visualizerlinux import ipythonPlotMetricsRealAgainstPredicted
-
     if showPlots :
+        from visualizerlinux import ipythonPlotMetricsRealAgainstPredicted
         ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames)
 
-
-    from visualizerlinux import ipythonPlotMetricsRealAgainstPredictedRegression
-
     if showPlots :
+        from visualizerlinux import ipythonPlotMetricsRealAgainstPredictedRegression
         ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
 
     

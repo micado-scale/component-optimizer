@@ -1,6 +1,6 @@
 input_metrics:
-- name: AVG_RR
-- name: SUM_RR
+- name: AVG RR
+- name: SUM RR
 - name: CPU
 - name: Inter
 - name: CTXSW
@@ -8,14 +8,14 @@ input_metrics:
 - name: PktIn
 - name: KBOut
 - name: PktOut
-knowledge_base: use_existing
+knowledge_base: build_new
 max_delta_vm: 2
 max_number_of_scaling_activity: 100
 max_vm_number: 10
 min_vm_number: 1
 nn_stop_error_rate: 10.0
 target_metrics:
-- max_threshold: 4000000
+- max_threshold: 3000000
   min_threshold: 1000000
-  name: AVG_LAT_05
-training_samples_required: 20
+  name: avg latency (quantile 0.5)
+training_samples_required: 10

@@ -245,6 +245,8 @@ def run(csfFileName, last = False):
    
     metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     metricNames         = setMetricNames(input_variables[2:])
+    # Változtatás
+    # metricNames         = setMetricNames(input_variables)
     # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
 
         

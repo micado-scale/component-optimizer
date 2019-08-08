@@ -199,3 +199,22 @@ def evaluateGoodnessOfPrediction(y_normalized, y_predicted):
     print('Mean Absolute Error   = {v:0.3f}'.format(v = mae))
     print('Mean Squared Error    = {v:0.3f}'.format(v = mse))
     print('R2 Score              = {v:0.3f}'.format(v = r2))
+    
+
+def printNormalizedX(X_normalized):
+    print("X_normalized type        = ", type(X_normalized))
+    print("X_normalizde dtype       = ", X_normalized.dtype)
+    print("X_normalized shape       = ", X_normalized.shape)
+    print("X_normalized ndim        = ", X_normalized.ndim)
+    print("X_normalized[:,0].max()  = ", X_normalized[:,0].max())
+    print("X_normalized[:,0].min()  = ", X_normalized[:,0].min())
+
+def printNormalizedY(y_normalized):
+    """Void. Print normalizeY(df) values"""
+
+    print("y_normalized type        = ", type(y_normalized))
+    print("y_normalized dtype       = ", y_normalized.dtype)
+    print("y_normalized shape       = ", y_normalized.shape)
+    print("y_normalized ndim        = ", y_normalized.ndim)
+    print("y_normalized[:].max()    = ", y_normalized[:].max())
+    print("y_normalized[:].min()    = ", y_normalized[:].min())
