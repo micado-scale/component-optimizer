@@ -24,10 +24,12 @@ pandas_dataframe_styles = {
 
 _target_variable = None
 _input_metrics = None
-_outsource_metrics = ['AVG RR', 'SUM RR']
 _worker_count = None
+_training_samples_required = None
+_outsource_metrics = ['AVG RR', 'SUM RR']
 
-def init(target_variable, input_metrics, worker_count):
+
+def init(target_variable, input_metrics, worker_count, training_samples_required):
     
     print('----------------------- trainer init ----------------------')
     
@@ -39,6 +41,9 @@ def init(target_variable, input_metrics, worker_count):
     
     global _worker_count
     _worker_count = worker_count[0]
+    
+    global _training_samples_required
+    _training_samples_required = training_samples_required
     
     print('----------------------- trainer init end ----------------------')
 
@@ -684,7 +689,6 @@ def run(nn_file_name, visualize = False):
         inputVariables = np.flip(beforeafterDFLags.columns[0:index].ravel(), axis=-1)
         print('Input Variables in createBeforeafterDFLags: ', inputVariables)
 
-        # index = 10
         for i in inputVariables:
             new_column = beforeafterDFLags[i].shift(lag)
             new_column_name = (str('prev') + str(1) + i)
@@ -699,10 +703,7 @@ def run(nn_file_name, visualize = False):
     logger.info('------------ Linear Regression diagnosis -----------------')
     logger.info('----------------------------------------------------------')
     logger.info('preProcessedDF is the input of the createBeforeafterDFLags()')
-    logger.info('ez a függvény elvileg semmi mást nem csinál mint a lagokat')
-    logger.info('nem mellesleg a lagokat nem is használom, de ennek az eredménye megy')
-    logger.info('be a createBeforeafterDFLeads(df, lead = 1) függvénybe')
-    logger.info('A createBeforeafterDFLags(df, lag)-ben szokott eltörni valami ooooooooooooooooooooooooooooooooooo')
+    logger.info('A createBeforeafterDFLags(df, lag)-ben szokott eltörni valami xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     logger.info('')
     
     logger.info(f'preProcessedDF.shape = {preProcessedDF.shape}')
@@ -741,7 +742,6 @@ def run(nn_file_name, visualize = False):
 
 
     # In[129]: Create lead variables (see above -> 'next1CPU', 'next1Inter', etc)
-
     beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, index, lead = lead)
 
     
@@ -808,48 +808,10 @@ def run(nn_file_name, visualize = False):
 
     
     # ## ------------------------------------------------------------------------------------------------------
-    # ## This is only for exploration purposes
-    # ## ------------------------------------------------------------------------------------------------------
-
-    # In[136]: Calculate and store values of each metrics after scalling happened in new collumns
-    if( explore ):
-        beforeafterMetricsDF = scalingDF.copy()
-
-        for i in metricNames:
-            print(i)
-            changeInMetricAfterScale = beforeafterMetricsDF['next1'+i]-beforeafterMetricsDF[i]
-            beforeafterMetricsDF['changed1'+i] = changeInMetricAfterScale
-
-
-    # In[137]: Explore
-    if( explore ):
-        beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-        beforeafterMetricsDF[['prev1CPU','CPU','next1CPU','changed1CPU','prev1WorkerCount','WorkerCount','next1WorkerCount']]. head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-        beforeafterMetricsDF[['changed1CPU','changed1Inter', 'changed1CTXSW', 'changed1KBIn',
-                              'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
-                              'addedWorkerCount']]. groupby(['addedWorkerCount'], as_index=False).mean().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-
-        beforeafterMetricsDF[['changed1CPU', 'changed1Inter', 'changed1CTXSW', 'changed1KBIn',
-                              'changed1KBOut', 'changed1PktIn', 'changed1PktOut',
-                              'addedWorkerCount']].groupby(['addedWorkerCount'], as_index=False).count().style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
-
-
-    # In[141]: Explore
-    if( explore ):
-        print(theBeforeAfterDF.shape)
-        print(scalingDF.shape)
-        print('theBeforeAfterDF.shape = ', theBeforeAfterDF.shape)
-        print(theBeforeAfterDF.head())
-
-    
-    # ## ------------------------------------------------------------------------------------------------------
     # ## This is the end of before-after data preparation
     # ## ------------------------------------------------------------------------------------------------------
     
-    print(scalingDF.shape)
+    logger.info(f'scalingDF.shape = {scalingDF.shape}')
     print(scalingDF.head())
     logger.info('---------------------------------------------------------------------------------------------')
     
@@ -857,6 +819,12 @@ def run(nn_file_name, visualize = False):
     logger.info('--------- End of before-after data preparation -----------')
     logger.info('----------------------------------------------------------')
     
+
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear regression calculation part
+    # ## ------------------------------------------------------------------------------------------------------
     
     def calculateLinearRegressionTerms(metric, dataFrame):
         termDF = dataFrame.copy()
@@ -910,17 +878,42 @@ def run(nn_file_name, visualize = False):
     # In[144]: Store scalingDF in a new DF ->
 
     temporaryScalingDF = scalingDF.copy()
+    
+    
+    # Az egész probléma onnan indult ki, hogy én rendre eldobtam korábban az első két
+    # változót a metrikák közül, ezek az AVG RR és a SUM RR voltak
+    #
+    # A Bajt az okozta, ha ezek nem az első két változók voltak, ezt a problémát
+    # még mindíg nem oldottam meg
+    #
+    # Ha itt a metricNames nem úgy néz ki ahogy ki kell néznie akkor baj van
+    # ha nem azt a két változót dobom el akkor hiába keresi az ezekre
+    # készített prediction modelleket nem fogja megtalálni őket
+    #
+    # Tehát itt is nagyon észnél kell lenni, hogy mire készítem el a lineáris regressziós
+    # modelleket és mire nem
+    #
+    # A metricName-nek összhangban kell lennie a CSV filével amibe kiirom
+    #
+    # Elvileg arra a bizonyos két 'metrikára' is csináltam before
+    # after értékek kiszámítását
+    
+    # tehát ellenőrizni kell, hogy a regresszió milyen adatot használ
+    # és milyen változó nevek vannak a DF-ben és listában amin végig iterál
+    
+    # A ScalingDF-et használja
 
 
     # In[145]: The format as I will store Linear Regression models for each metric
 
+    print('_______________________________________________________')
     d={}
     for i in metricNames:
         d["model{0}".format(i)]="Hello " + i
-        # print(d)
+        print(d)
 
     d.get('modelCPU')
-
+    print('_______________________________________________________')
 
     # In[146]: Declare some functions, Calculate and store each Linear Regression model of each metrics
 
@@ -955,16 +948,18 @@ def run(nn_file_name, visualize = False):
 
 
     # In[148]: Explore
-    if( explore ):
+    if( True ):
+        print('____________________________________________________________________________________________')
         linearRegressionModelNames = linearRegressionModels.keys()
         print(linearRegressionModelNames)
 
-        modelCPU = linearRegressionModels.get('modelCPU')
-        print(type(modelCPU))
+        # modelCPU = linearRegressionModels.get('modelCPU')
+        # print(type(modelCPU))
+        # print(modelCPU)
 
         print(temporaryScalingDF.columns)
         print(temporaryScalingDF.shape)
-
+        print('____________________________________________________________________________________________')
 
 
     # In[152]: Visualize

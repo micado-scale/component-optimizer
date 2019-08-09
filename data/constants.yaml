@@ -15,7 +15,7 @@ max_vm_number: 10
 min_vm_number: 1
 nn_stop_error_rate: 10.0
 target_metrics:
-- max_threshold: 3000000
+- max_threshold: 4000000
   min_threshold: 1000000
   name: avg latency (quantile 0.5)
-training_samples_required: 10
+training_samples_required: 300

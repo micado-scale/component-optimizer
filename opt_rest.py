@@ -20,11 +20,10 @@ app = Flask(__name__)
 logger = None
 config = None
 training_unit = None
-_last = True
-
-training_result = []
 target_metrics = None
+training_result = []
 constants = {}
+_last = True
 
 
 def init_service(cfg):
@@ -33,8 +32,6 @@ def init_service(cfg):
 
     global config
     config = opt_config.OptimizerConfig(cfg, 'optimizer')
-
-
 
 
 @app.route('/optimizer/init', methods=['POST'])
@@ -46,13 +43,26 @@ def init():
     else:
         global constants
         constants = yaml.safe_load(constants_yaml).get('constants')
-        logger.info(f'Constants received: {constants}')
-
-        logger.info('Saving constants...')
+        logger.info('-------------------------------------------')
+        logger.info('            Constants received             ')
+        logger.info('-------------------------------------------')
+        
+        logger.info('-------------- GET CONSTANTS --------------')
+        logger.info(f'constansts = {constants}')
+        logger.info('-------------------------------------------')
+        
+        logger.info('-------------------------------------------')
+        logger.info('            Saving constants               ')
+        logger.info('-------------------------------------------')
         opt_utils.write_yaml(config.constants_filename, constants)
         logger.info('Constants saved to "data/constants.yaml"')
 
-        logger.info('Preparing database for training data...')
+        logger.info('-------------------------------------------')
+        logger.info('   Preparing database for training data    ')
+        logger.info('-------------------------------------------')
+        
+        #TODO:
+        #Input metrikákat is letárolni az opt_rest.py-ban mint a global target_metrics-et
         input_metrics = [metric.get('name')
                          for metric in constants.get('input_metrics')]
         
@@ -61,35 +71,30 @@ def init():
                           for metric in constants.get('target_metrics')]
 
         timestamp_col = ['timestamp']
-        
         worker_count = ['vm_number']
 
-        logger.info('Creating a .csv file for neural network...')
-        
-        # TODO:
-        logger.info('-------------- GET CONSTANTS --------------')
-        logger.info(f'constansts = {constants}')
-        logger.info('-------------------------------------------')
-        # TODO:
-        # IF "use_existing" then do nothing else create
         if( constants.get('knowledge_base') == 'use_existing' ):
-            # opt_utils.persist_data( config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
-
-            logger.info('File NOT created')
+            logger.info('File NOT created - use_existing')
             
         elif( constants.get('knowledge_base') == 'build_new' ):
             opt_utils.persist_data( config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
-
-            logger.info('File created')
-            
+            logger.info('File created - build new')
+        
+        logger.info('-------------------------------------------')
+        logger.info('  Created a .csv file for neural network   ')
+        logger.info('-------------------------------------------')
+        logger.info('csv saved to "data/nn_training_data.csv"')
         
         global opt_advisor
         opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count)
         
         global opt_trainer
-        opt_trainer.init(target_metrics, input_metrics, worker_count)
+        training_samples_required = constants.get('training_samples_required')
+        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required)
 
-        logger.info('Optimizer REST initialized successfully ')
+        logger.info('----------------------------------------------------------')
+        logger.info('      Optimizer REST initialized successfully             ')
+        logger.info('----------------------------------------------------------')
     return jsonify('OK'), 200
 
 
@@ -162,8 +167,13 @@ def sample():
                         
             # TRAINING
             logger.info(constants.get('training_samples_required'))
-            # if( tmp_df.shape[0] > constants.get('training_samples_required') ):
-            _min_training = 100
+            # _min_training = 100
+            _min_training = constants.get('training_samples_required')
+            #TODO:
+            #Itt van egy kis diszkrepancia
+            #Mivel a trainer maga végez egy kis adattisztitást, lehet, hogy itt 300-ra van állítva a df érték, de a trainer maga
+            #dobja a null sorokat, ezért leheet, hogy ott kisebb lesz a df szám amikor elkezd tanulni (mivel itt a df 300 ott a null
+            #dobása után mondjuk 243
 
             logger.info('----------------------------------------------')
             logger.info(f'Now we have rows = {tmp_df.shape[0]}')
