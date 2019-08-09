@@ -26,7 +26,9 @@ _target_variable = None
 _input_metrics = None
 _worker_count = None
 _training_samples_required = None
-_outsource_metrics = ['AVG RR', 'SUM RR']
+# Prométeusz nem fogad el szóközt ezért néha ez néha a felső aszerint, hogy melyik grafana filét olvassuk ki.
+# _outsource_metrics = ['AVG RR', 'SUM RR']
+_outsource_metrics = ['AVG_RR', 'SUM_RR']
 
 
 def init(target_variable, input_metrics, worker_count, training_samples_required):
