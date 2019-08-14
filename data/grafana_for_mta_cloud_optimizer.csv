@@ -1,4 +1,4 @@
-timestamp,AVG RR,SUM RR,CPU,Inter,CTXSW,KBIn,PktIn,KBOut,PktOut,vm_number,avg latency (quantile 0.5)
+timestamp,AVG_RR,SUM_RR,CPU,Inter,CTXSW,KBIn,PktIn,KBOut,PktOut,vm_number,AVG_LAT_05
 12345,null,null,null,null,null,null,null,null,null,null,null
 12345,null,null,null,null,null,null,null,null,null,1,null
 12345,null,null,65.6511449618346,4096.630112329589,8885.40381987267,1136.121243875204,814.1728609046364,10.919297481750608,73.79754008199727,1,null

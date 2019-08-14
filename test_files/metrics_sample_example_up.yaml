@@ -1,10 +1,10 @@
 sample:
   timestamp: 1553263975
   input_metrics:
-    - name: AVG RR
+    - name: AVG_RR
       value: 51.06666666666667
 
-    - name: SUM RR
+    - name: SUM_RR
       value: 155.06666666666667
 
     - name: CPU
@@ -29,7 +29,7 @@ sample:
       value: 1875.391476839661
 
   target_metrics: 
-    - name: avg latency (quantile 0.5)
+    - name: AVG_LAT_05
       value: 4614349.53
 
   vm_number: 3

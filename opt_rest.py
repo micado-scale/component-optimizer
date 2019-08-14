@@ -124,7 +124,10 @@ def sample():
         target_metrics = [metric.get('value')
                           for metric in sample.get('sample').get('target_metrics')]
         
+        # Ez volt a jó megoldás, de Józsi valmiért a Polcy Keeperben a sample-n kívül küldi el a vm_number értéket
+        # ezért ezt most átírom, csak egy próba ereéig
         vm_number = sample.get('sample').get('vm_number')
+        # vm_number = sample.get('vm_number')
         
         timestamp_col = [sample.get('sample').get('timestamp')]
         
@@ -132,7 +135,15 @@ def sample():
         logger.info('----------------------------------------------')
         logger.info(f'input_metrics = {input_metrics}')
         logger.info(f'target_metrics = {target_metrics}')
+        logger.info('miért nem látja a vm_number értéket amikor megkapja és kiolvassa')
         logger.info(f'vm_number = {vm_number}')
+        logger.info('------full sample------')
+        logger.info(sample.get('sample'))
+        logger.info('------full sample-----')
+        logger.info('------dirty solution-----')
+        # logger.info(sample.get('vm_number'))
+        logger.info('--ha elvileg így már látnia kell itt egy értéket--')
+        # miért nem látja a vm numbert amikor megkapja
         logger.info(f'timestamp_col = {timestamp_col}')
         logger.info('----------------------------------------------')
 

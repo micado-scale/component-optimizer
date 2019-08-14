@@ -33,6 +33,7 @@ target_metric_max = None
 target_variable = None
 input_variables = None
 worker_count_name = None
+outsource_metrics = ['AVG_RR', 'SUM_RR']
 
 
 
@@ -42,7 +43,9 @@ worker_count_name = None
     
 def init(_target_metric, input_metrics, worker_count):
     
-    print('----------------------- advisor init ----------------------')
+    logger = logging.getLogger('optimizer')
+    
+    logger.info('----------------------- advisor init ----------------------')
     
     global input_variables
     input_variables = input_metrics
@@ -58,15 +61,23 @@ def init(_target_metric, input_metrics, worker_count):
     
     global target_variable
     target_variable = _target_metric[0].get('name')
+    # TODO:
+    # Itt lehet, hogy para van, ha nem az első helyen áll a neve ennek a szarnak, hanem mondjuk ott valami más van a threshold
     
-    print(target_metric_min)
-    print(target_metric_max)
-    print(target_variable)
-    print(_target_metric)
-    print(input_metrics)
-    print(worker_count_name)
+    logger.info('     ----------------------------------------------')
+    logger.info('     ------ ADVISOR INIT DIAGNOSIS ------------')
+    logger.info('     ----------------------------------------------')
     
-    print('----------------------- advisor init end ----------------------')
+    logger.info(f'     target_metric_min = {target_metric_min}')
+    logger.info(f'     target_metric_max = {target_metric_max}')
+    logger.info(f'     target_variable = {target_variable}')
+    logger.info('     xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info(f'     _target_metric = {_target_metric}')
+    logger.info('     xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info(f'     input_metrics = {input_metrics}')
+    logger.info(f'     worker_count_name = {worker_count_name}')
+    
+    logger.info('----------------------- advisor init end ----------------------')
 
 
 
@@ -132,11 +143,25 @@ def run(csfFileName, last = False):
     
     maximumNumberIncreasableNode = 6                                       # must be positive 6
     minimumNumberReducibleNode = -4                                        # must be negativ -4
-
-    upperLimit = target_metric_max                                                   # 4000000
-    lowerLimit = target_metric_min                                                   # 1000000
+    
+    upperLimit = target_metric_max                                         # 4000000
+    lowerLimit = target_metric_min                                         # 1000000
 
     
+    logger.info('----------------------------------------------------------')
+    logger.info(f'targetVariable = {targetVariable}')
+    logger.info('----------------------------------------------------------')
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'testFileName = {testFileName}')
+    logger.info(f'csfFileName = {csfFileName}')
+    logger.info('----------------------------------------------------------')
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'maximumNumberIncreasableNode = {maximumNumberIncreasableNode}')
+    logger.info(f'minimumNumberReducibleNode = {minimumNumberReducibleNode}')
+    logger.info('----------------------------------------------------------')
+
     logger.info('----------------------------------------------------------')
     logger.info(f'lowerLimit parameter variable set = {lowerLimit}')
     logger.info(f'upperLimit parameter variable set = {upperLimit}')
@@ -161,6 +186,18 @@ def run(csfFileName, last = False):
     logger.info('----------------------------------------------------------')
     logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] <= 0:
+        error_msg = 'There are no training samples yet.'
+        logger.error(error_msg)
+        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## If there is not enough data in dataframe then return error message
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('----------- Checking advisor data properties -------------')
+    if df.shape[0] <= 300:
         error_msg = 'There are no training samples yet.'
         logger.error(error_msg)
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
@@ -242,12 +279,37 @@ def run(csfFileName, last = False):
     # ## ------------------------------------------------------------------------------------------------------
     # ## Better if WorkerCountName comes from init()
     # ## ------------------------------------------------------------------------------------------------------
+    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    logger.info('----------------------------------------------------------')
+    logger.info('------------------- set metricNames ----------------------')
+    logger.info('----------------------------------------------------------')
    
-    metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
-    metricNames         = setMetricNames(input_variables[2:])
+    # metricNames         = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
+    # metricNames         = setMetricNames(input_variables[2:])
     # Változtatás
     # metricNames         = setMetricNames(input_variables)
     # extendedMetricNames = setExtendedMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut', 'WorkerCount'])
+
+    # na itt lesz majd az alapvető probléma az inputMetric és a metricNames között
+    # ugyanis igazából nem tudjuk, hogy az első kettő az amit le kell vágnunk a listából
+    # ezért dirty ha szóval itt kell leválogatnom, hogy
+    # a metrics names-ben
+    # dobjuk el azt a két fránya AVR_RR SUM_RR oszlopot 
+    
+    # Ezeeket az értékeket az init-ben adom át neki, annyi a különbség, hogy az első két változóra nincs szükségünk
+    # metricNames = _input_metrics[2:]
+    metricNames = input_variables.copy()
+
+    for i in outsource_metrics:
+        logger.info(f'removed elements of the metricNames list = {i}')
+        metricNames.remove(i)
+    
+    logger.info(f'metricNames = {metricNames}')
+    logger.info(f'input_variables = {input_variables}')
+    
+    logger.info('----------------------------------------------------------')
+    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    
 
         
     logger.info('----------------------------------------------------------')
@@ -264,7 +326,9 @@ def run(csfFileName, last = False):
     # In[162]:
 
     def calculatePredictedLatencyWithVariousWorkers(modelNeuralNet, to):
-
+        
+        logger.info('------------ calculatePredictedLatencyWithVariousWorkers STARTED -------------')
+        
         newDFForRegression = filteredDF.copy()
         nDD = filteredDF.copy()
 
@@ -279,19 +343,38 @@ def run(csfFileName, last = False):
         elif( to < 0 ):
             step = -1
             print('............. down maximum vm = ' + str(to) + ' ...........')
+            
+        logger.info(f' to = {to}')
+        logger.info(f' step = {step}')
 
         for j in range(0, to, step):
+            
+            logger.info(f' j = {j}')
 
             addedWorkerCount = j
+            
+            logger.info(f' addedWorkerCount = {addedWorkerCount}')
 
             newDFForRegression['addedWorkerCount'] = addedWorkerCount
+            
+            logger.info(f'newDFForRegression.columns = {newDFForRegression.columns}')
 
             for i in metricNames:
+                
+                logger.info('------------- inner loop started -----------------')
+                
+                logger.info(f' metricsNames = {metricNames}')
+                
+                logger.info(f' i = {i}')
 
                 newDFForRegressionWithTerms = calculateLinearRegressionTerms(i, newDFForRegression)
+                
+                logger.info('-------------- calculateLinearRegressionTerms STARTED -------------')
 
                 # keep last three column - given metric, term1, term2
                 X = newDFForRegressionWithTerms.iloc[:, [-3, -2, -1]]
+                
+                logger.info('-------------- X Features Generated STARTED -------------')
 
                 # load the proper current metric model
                 modelForMetric = joblib.load('models/saved_linearregression_model_' + i + '.pkl')
@@ -346,6 +429,10 @@ def run(csfFileName, last = False):
                 #investigationDF = newDFForNerualNetworkPrediction[['predictedResponseTimeAdded0Worker']]
                 #investigationDFDeNormalized = newDFForNerualNetworkPrediction[['denormalizedPredictedResponseTimeAdded0Worker']]
 
+                
+            ## itt kéne egy ellenőrzést csinálni, hogy ezt a módszert miért kifogásolja a panda
+            ## van egy új df-em aminek az egyik oszlopát egyelővé akarom tenni egy másik df másik oszlopával
+            ## le kéne ellenőrizni, hogy milyen változ
             investigationDF['predictedResponseTimeAdded' + str(j) + 'Worker'] = newDFForNerualNetworkPrediction[['predictedResponseTimeAdded' + str(j) + 'Worker']]
             investigationDFDeNormalized['denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'] = newDFForNerualNetworkPrediction[['denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker']]
 

@@ -6,17 +6,17 @@ constants:
     max_number_of_scaling_activity: 100
     nn_stop_error_rate: 10.0 
     input_metrics: 
+      - name: PktIn
+      - name: KBIn 
       - name: AVG_RR
-      - name: SUM_RR 
-      - name: CPU
       - name: Inter
       - name: CTXSW
-      - name: KBIn
-      - name: PktIn
       - name: KBOut
+      - name: CPU
+      - name: SUM_RR
       - name: PktOut
     target_metrics: 
       - name: AVG_LAT_05
-        min_threshold: 1000000
-        max_threshold: 4000000
+        min_threshold: 12000
+        max_threshold: 13000
     knowledge_base: build_new

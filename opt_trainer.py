@@ -33,10 +33,18 @@ _outsource_metrics = ['AVG_RR', 'SUM_RR']
 
 def init(target_variable, input_metrics, worker_count, training_samples_required):
     
-    print('----------------------- trainer init ----------------------')
+    logger = logging.getLogger('optimizer')
+    
+    logger.info('----------------------- trainer init ----------------------')
     
     global _target_variable
     _target_variable = target_variable[0]
+    # TODO
+    # Itt csak egy értéket kap meg a name: alapján a target_metrika nevét ez jó
+    logger.info('       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info(f'       target_variable = {target_variable}')
+    logger.info(f'       _target_variable = {_target_variable}')
+    logger.info('       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     
     global _input_metrics
     _input_metrics = input_metrics
@@ -47,7 +55,14 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     global _training_samples_required
     _training_samples_required = training_samples_required
     
-    print('----------------------- trainer init end ----------------------')
+    logger.info(f'     _worker_count = {_worker_count}')
+    logger.info(f'     worker_count = {worker_count}')
+    logger.info(f'     _input_metrics = {_input_metrics}')
+    logger.info(f'     input_metrics = {input_metrics}')
+    logger.info(f'     _training_samples_required = {_training_samples_required}')
+    logger.info(f'     training_samples_required = {training_samples_required}')
+    
+    logger.info('----------------------- trainer init end ----------------------')
 
 
 def run(nn_file_name, visualize = False):
