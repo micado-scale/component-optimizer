@@ -1,8 +1,8 @@
 sample:
-  timestamp: 3005609060
+  timestamp: 1565609060
   input_metrics:
     - name: PktIn
-      value: 0.30000000000000000
+      value: 0.22494877555112702
       
     - name: KBIn
       value: 0.023579013749246862
@@ -30,6 +30,6 @@ sample:
 
   target_metrics:
     - name: AVG_LAT_05
-      value: 10000.000
+      value: 13790.787
 
-  vm_number: 5
+  vm_number: 2

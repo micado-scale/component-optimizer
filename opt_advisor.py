@@ -1,6 +1,8 @@
 import logging
 import logging.config
 
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -197,7 +199,8 @@ def run(csfFileName, last = False):
     
     logger.info('----------------------------------------------------------')
     logger.info('----------- Checking advisor data properties -------------')
-    if df.shape[0] <= 300:
+    # if df.shape[0] <= 300:
+    if df.shape[0] < 300:
         error_msg = 'There are no training samples yet.'
         logger.error(error_msg)
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
@@ -698,9 +701,58 @@ def run(csfFileName, last = False):
     
     logger.info('----------------------------------------------')
     logger.info(f'advice = {advice}')
+    logger.info(f'vm_number_total = {vm_number_total}')
     logger.info('----------------------------------------------')
     
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
+    
+    # TODO
+    # ide kell csinálni egy olyat, hogy fog egy csv-t mondjuk az advice hoz kiolvasott mintájára
+    # ha nem létezik akkor csinál egyet
+    # ha már létezik, akkor appendálja hozzá, az aktuális kiolvasott értékeket
+    # és azt is, hogy milyen számot javalsolt volna
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'pf shape               = {pf.shape}')
+    for m in pf.columns:
+        logger.info(f'Column names are = {m}, {pf[m].values}')
+
+    
+    tf = pf.copy() # original csv stored input datas
+    # if advicedDF.csv file exists
+    if(os.path.isfile('outputs/advicedDF.csv') == True):
+        print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+        # read
+        af = readCSV('outputs/advicedDF.csv')
+        print('------af-----------')
+        print(af.head())
+        print(af.shape)
+        tf['advised_vm_number'] = vm_number_total
+        print('-------tf-----------')
+        print(tf.head())
+        print(tf.shape)
+        # appendálja
+        bf = af.copy()
+        bf.append(tf, ignore_index=True)
+        print('--------af----------')
+        print(bf.head())
+        print(bf.shape)
+        # save
+        bf.to_csv('outputs/advicedDF.csv', sep=',', encoding='utf-8', index=False)
+    if(os.path.isfile('outputs/advicedDF.csv') != True):
+        print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        nf = tf.copy()
+        nf['advised_vm_number'] = vm_number_total
+        # save
+        nf.to_csv('outputs/advicedDF.csv', sep=',', encoding='utf-8', index=False)
+    logger.info('outputs/advicedDF.csv saved')
+    
+    ## igazából van egy pf értékünk ez alapján kell csinálni egy csv-t csak még hozzá kell adni két
+    ## értéket, a predicted latencít és azt, hogy hány vm-et javasolunk
+    
+    # fontos, hogy az init-nél ezt az otuput mappából minden csv-t üritsünk ki
+    
+    
     return return_msg
     

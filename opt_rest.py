@@ -191,7 +191,8 @@ def sample():
             logger.info(f'Minimum number when training start = {_min_training}')
             logger.info('----------------------------------------------')
 
-            if( tmp_df.shape[0] > _min_training ):
+            # if( tmp_df.shape[0] > _min_training ):
+            if( tmp_df.shape[0] >= _min_training ):
 
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
@@ -207,7 +208,6 @@ def sample():
                     logger.info('Learning NN and Linear Regression Phase')
                     logger.info('----------------------------------------------')
 
-                    
                     global training_result
 
                     logger.info('----------------------------------------------')
@@ -253,7 +253,6 @@ def get_advice():
     logger.info('----------------------------------------------------------')
 
     
-    
     logger.info('----------------------------------------------------------')
     logger.info('------------------------ ADVISOR -------------------------')
     logger.info('Advisor get_advice() called')
@@ -276,9 +275,6 @@ def get_advice():
     logger.info('------------------------ ADVISOR -------------------------')
     logger.info('----------------------------------------------------------')
     
-    # global opt_advisor
-    # opt_advisor.init(constants.get('target_metrics'))
-
     
     logger.info('----------------------------------------------------------')
     logger.info('------------------------ ADVISOR -------------------------')
@@ -311,10 +307,6 @@ def get_advice():
     logger.info('------------------ opt_advisor_return --------------------')
     logger.info('----------------------------------------------------------')
 
-
-    # print('---constans= ', constants.get('input_metrics'))
-    # print('---constans= ', constants)
-        
     logger.info('Get Advice recieved and processed.')
     
     return opt_advisor_return
