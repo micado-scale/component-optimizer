@@ -20,6 +20,8 @@ logger = None
 config = None
 training_unit = None
 target_metrics = None
+input_metrics = None
+outsource_metrics = ['AVG_RR', 'SUM_RR']
 training_result = []
 constants = {}
 _last = True
@@ -40,6 +42,9 @@ def init():
     if not constants_yaml:
         raise RequestException(400, 'Empty POST data')
     else:
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Load configuration data
+        # ## ------------------------------------------------------------------------------------------------------
         global constants
         constants = yaml.safe_load(constants_yaml).get('constants')
         logger.info('-------------------------------------------')
@@ -47,7 +52,8 @@ def init():
         logger.info('-------------------------------------------')
         
         logger.info('-------------- GET CONSTANTS --------------')
-        logger.info(f'constansts = {constants}')
+        for k, v in constants.items():
+            logger.info(f' {k} = {v}')
         logger.info('-------------------------------------------')
         
         logger.info('-------------------------------------------')
@@ -55,13 +61,15 @@ def init():
         logger.info('-------------------------------------------')
         opt_utils.write_yaml(config.constants_filename, constants)
         logger.info('Constants saved to "data/constants.yaml"')
-
+        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Assaigne input and target varables
+        # ## ------------------------------------------------------------------------------------------------------
         logger.info('-------------------------------------------')
         logger.info('   Preparing database for training data    ')
         logger.info('-------------------------------------------')
         
-        #TODO:
-        #Input metrikákat is letárolni az opt_rest.py-ban mint a global target_metrics-et
+        global input_metrics
         input_metrics = [metric.get('name')
                          for metric in constants.get('input_metrics')]
         
@@ -71,7 +79,10 @@ def init():
 
         timestamp_col = ['timestamp']
         worker_count = ['vm_number']
-
+        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Create Data store csv file or use existing depends on the cofiguration
+        # ## ------------------------------------------------------------------------------------------------------
         if( constants.get('knowledge_base') == 'use_existing' ):
             logger.info('File NOT created mode - use_existing')
             
@@ -82,29 +93,33 @@ def init():
         logger.info('-------------------------------------------')
         logger.info('  Created a .csv file for neural network   ')
         logger.info('-------------------------------------------')
-        logger.info('csv saved to "data/nn_training_data.csv"')
+        logger.info(f'csv saved to  {config.nn_filename}        ')
         
         logger.info('-------------------------------------------')
-        logger.info('  Reset output file for advice   ')
+        logger.info('      Reset output file for advice         ')
         logger.info('-------------------------------------------')
         logger.info(f'csv  {config.output_filename}  reseted')
         
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Reset or delete output file where advices were stored
+        # ## ------------------------------------------------------------------------------------------------------
+        
         opt_utils.reset_output(config.output_filename)
-        # TODO
-        # Igazából ezeknek a logger információknak nek itt kéne szerepelniűk hanem ott ahol létrejöttek
-        # Ennek igazából az opt_utils.reset_output részben
-        # Kb úgy mint ahogy pár sorral alább látható, hogy csak az opt_trainer.init van meghívva
-        # de a log-okat ő dobálja itt egy  sincs
         
-        
-        
-        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Init opt_advisor
+        # ## ------------------------------------------------------------------------------------------------------
+
         global opt_advisor
-        opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count)
+        opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count, outsource_metrics)
+        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Init opt_trainer
+        # ## ------------------------------------------------------------------------------------------------------
         
         global opt_trainer
         training_samples_required = constants.get('training_samples_required')
-        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required)
+        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required, outsource_metrics)
 
         logger.info('--------------------------------------------------------------')
         logger.info('          Optimizer REST initialized successfully             ')
@@ -115,15 +130,12 @@ def init():
 
 @app.route('/optimizer/sample', methods=['POST'])
 def sample():
-    
+
     constants = opt_utils.read_yaml('data/constants.yaml')
-    
-    # Todo Ennek a loggnak sem itt kéne szerepelnie hanem az opt_utils.read_yaml metodusban
-    logger.info('----------------------------------------------------------')
+
     logger.info('-------------------------- YAML --------------------------')
     logger.info(f'Constants received: {constants}')
     logger.info('-------------------------- YAML --------------------------')
-    logger.info('----------------------------------------------------------')
     
     sample_yaml = request.stream.read()
     if not sample_yaml:
@@ -149,21 +161,15 @@ def sample():
         
         logger.info('Sample data stored in corresponding variables.')
         logger.info('----------------------------------------------')
-        logger.info(f'input_metrics = {input_metrics}')
-        logger.info(f'target_metrics = {target_metrics}')
-        logger.info('miért nem látja a vm_number értéket amikor megkapja és kiolvassa')
-        logger.info(f'vm_number = {vm_number}')
-        logger.info('------full sample------')
-        logger.info(sample.get('sample'))
-        logger.info('------full sample-----')
-        logger.info('------dirty solution-----')
-        # logger.info(sample.get('vm_number'))
-        logger.info('--ha elvileg így már látnia kell itt egy értéket--')
-        # miért nem látja a vm numbert amikor megkapja
-        logger.info(f'timestamp_col = {timestamp_col}')
+        logger.info(f'      input_metrics = {input_metrics}')
+        logger.info(f'      target_metrics = {target_metrics}')
+        logger.info(f'      vm_number = {vm_number}')
+        logger.info(f'      timestamp_col = {timestamp_col}')
+        logger.info('      ----------- sample -----------')
+        logger.info(f'      {sample.get("sample")}')
+        logger.info('      ----------- sample -----------')
         logger.info('----------------------------------------------')
 
-        # print(timestamp_col+input_metrics+target_metrics+[vm_number])
         
         if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
             logger.info('----------------------------------------------')
@@ -172,7 +178,7 @@ def sample():
             
             # itt csak beolvassa a csv fájlt és csinál belőle egy data framet
             df = opt_utils.readCSV(config.nn_filename)
-            
+
             logger.info('----------------------------------------------')
             logger.info(f'pandas dataframe df.columns = {df.columns}')
             logger.info('----------------------------------------------')
@@ -193,7 +199,7 @@ def sample():
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
                         
             # TRAINING
-            logger.info(constants.get('training_samples_required'))
+            # logger.info(constants.get('training_samples_required'))
             # _min_training = 100
             _min_training = constants.get('training_samples_required')
             #TODO:
@@ -207,13 +213,12 @@ def sample():
             logger.info(f'Minimum number when training start = {_min_training}')
             logger.info('----------------------------------------------')
 
-            # if( tmp_df.shape[0] > _min_training ):
             if( tmp_df.shape[0] >= _min_training ):
 
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
                 # Comment: Nehogy már minden körben tanítsuk
-                if( tmp_df.shape[0] % 1 == 0 ):
+                if( tmp_df.shape[0] % 2 == 0 ):
 
                     logger.info('----------------------------------------------')
                     logger.info(f'Now we have rows = {tmp_df.shape[0]}')
@@ -233,10 +238,6 @@ def sample():
                     training_result = opt_trainer.run(config.nn_filename, visualize = False)
                     
                     logger.info(f'Training result = {training_result}')
-                    
-                    # opt_advisor.run(config.nn_filename, last = True)
-                    # Az opt_adviser_old.run() csak meghagytam, hogyha egy régi csv-t szerenénk tesztelni vele
-                    # opt_advisor_old.run()
                     
             else:
                 logger.info('----------------------------------------------')
@@ -348,12 +349,19 @@ class RequestException(Exception):
                     reason=self.reason,
                     message=str(self))
 
-
+    
 @app.errorhandler(RequestException)
 def handled_exception(error):
     global logger
     logger.error(f'An exception occured: {error.to_dict()}')
     return jsonify(error.to_dict())
+
+
+@app.errorhandler(NameError)
+def name_error_exception(error):
+    global logger
+    logger.error(f'An exception occured: {error}')
+    return jsonify('NameError'), 400
 
 
 @app.errorhandler(Exception)

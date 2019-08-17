@@ -26,20 +26,19 @@ _target_variable = None
 _input_metrics = None
 _worker_count = None
 _training_samples_required = None
-# Prométeusz nem fogad el szóközt ezért néha ez néha a felső aszerint, hogy melyik grafana filét olvassuk ki.
-# _outsource_metrics = ['AVG RR', 'SUM RR']
-_outsource_metrics = ['AVG_RR', 'SUM_RR']
+_outsource_metrics = None
 
 
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
 
-def init(target_variable, input_metrics, worker_count, training_samples_required):
+def init(target_variable, input_metrics, worker_count, training_samples_required, outsource_metrics):
     
     logger = logging.getLogger('optimizer')
     
-    logger.info('----------------------- trainer init ----------------------')
+    logger.info('')
+    logger.info('----------------------- trainer init ---------------------')
     
     global _target_variable
     _target_variable = target_variable[0]
@@ -53,6 +52,9 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     global _training_samples_required
     _training_samples_required = training_samples_required
     
+    global _outsource_metrics
+    _outsource_metrics = outsource_metrics
+    
     logger.info('     ----------------------------------------------')
     logger.info('     ----------- TRAINER INIT DIAGNOSIS -----------')
     logger.info('     ----------------------------------------------')
@@ -65,8 +67,11 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     logger.info(f'     input_metrics = {input_metrics}')
     logger.info(f'     _training_samples_required = {_training_samples_required}')
     logger.info(f'     training_samples_required = {training_samples_required}')
+    logger.info(f'     _outsource_metrics = {_outsource_metrics}')
+    logger.info(f'     outsource_metrics = {outsource_metrics}')
     
-    logger.info('----------------------- trainer init end ----------------------')
+    logger.info('----------------------- trainer init end ---------------------')
+    logger.info('')
 
 
 def run(nn_file_name, visualize = False):
@@ -245,22 +250,24 @@ def run(nn_file_name, visualize = False):
 
     # metricNames = setMetricNames(['CPU', 'Inter', 'CTXSW', 'KBIn', 'PktIn', 'KBOut', 'PktOut'])
     
-    
-    
-    
-    
-    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## redefine metricNames
+    # ##
+    # ## Here can occure a potential problem cased by the difference between the input_metrics list
+    # ## and metricNames list.
+    # ## Because we don't know which are outsource or external metrics and which are so called inside
+    # ## metrics
+    # ##
+    # ## I solved this problem in a following way:
+    # ## I remove every element from metricNames list which occur in _outsorce_metrics list
+    # ##
+    # ## In my sample application these are the 'AVR_RR' and 'SUM_RR'
+    # ##
+    # ## ------------------------------------------------------------------------------------------------------
     logger.info('----------------------------------------------------------')
     logger.info('------------------- set metricNames ----------------------')
     logger.info('----------------------------------------------------------')
-    # na itt lesz majd az alapvető probléma az inputMetric és a metricNames között
-    # ugyanis igazából nem tudjuk, hogy az első kettő az amit le kell vágnunk a listából
-    # ezért dirty ha szóval itt kell leválogatnom, hogy
-    # a metrics names-ben
-    # dobjuk el azt a két fránya AVR_RR SUM_RR oszlopot 
     
-    # Ezeeket az értékeket az init-ben adom át neki, annyi a különbség, hogy az első két változóra nincs szükségünk
-    # metricNames = _input_metrics[2:]
     metricNames = _input_metrics.copy()
 
     for i in _outsource_metrics:
@@ -271,26 +278,28 @@ def run(nn_file_name, visualize = False):
     logger.info(f'_input_metrics = {_input_metrics}')
     
     logger.info('----------------------------------------------------------')
-    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
-    
-    
 
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Drop first n row if needed
+    # ## ------------------------------------------------------------------------------------------------------
     
     # In[14]: Drop First Cases
-    def dropFirstCases(df, n):
-        new_df = df.copy()
-        filteredDF = new_df[new_df.index > n]
-        return filteredDF
+    # def dropFirstCases(df, n):
+    #     new_df = df.copy()
+    #     filteredDF = new_df[new_df.index > n]
+    #     return filteredDF
 
     # If in the begining of the samples have a lot of outliers
-    filteredDF = dropFirstCases(preProcessedDF, cutFirstCases)
+    # filteredDF = dropFirstCases(preProcessedDF, cutFirstCases)
 
 
     # In[16]:
     # ## ------------------------------------------------------------------------------------------------------            
     # ## preProcessedDF let filteredDF
     # ## ------------------------------------------------------------------------------------------------------
-    preProcessedDF = filteredDF
+    # preProcessedDF = filteredDF
     
     logger.info('------------------- preProcessedDF -----------------------')
     logger.info('----------------------------------------------------------')
@@ -299,11 +308,6 @@ def run(nn_file_name, visualize = False):
     # logger.info(f'preProcessedDF.head(2) = {preProcessedDF.head(2)}')
     logger.info('----------------------------------------------------------')
     
-    ## itt a preProcessedDF shape még minden jó volt aztátn egyszer csak valamiért 1 soros lesz az egsész
-
-
-
-
 
     # In[26]:
     # ## ------------------------------------------------------------------------------------------------------            

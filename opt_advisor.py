@@ -35,18 +35,18 @@ target_metric_max = None
 target_variable = None
 input_variables = None
 worker_count_name = None
-outsource_metrics = ['AVG_RR', 'SUM_RR']
-
+outsource_metrics = None
 
 
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
     
-def init(_target_metric, input_metrics, worker_count):
+def init(_target_metric, input_metrics, worker_count, _outsource_metrics):
     
     logger = logging.getLogger('optimizer')
     
+    logger.info('')
     logger.info('----------------------- advisor init ----------------------')
     
     global input_variables
@@ -63,6 +63,9 @@ def init(_target_metric, input_metrics, worker_count):
     
     global target_variable
     target_variable = _target_metric[0].get('name')
+    
+    global outsource_metrics
+    outsource_metrics = _outsource_metrics
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -76,6 +79,8 @@ def init(_target_metric, input_metrics, worker_count):
     logger.info('     ----------------------------------------')
     logger.info(f'     input_metrics = {input_metrics}')
     logger.info(f'     worker_count_name = {worker_count_name}')
+    logger.info(f'     _outsource_metrics = {_outsource_metrics}')
+    logger.info(f'     outsource_metrics = {outsource_metrics}')
     
     logger.info('----------------------- advisor init end ----------------------')
 
@@ -716,8 +721,6 @@ def run(csfFileName, last = False):
     # ki kell íratnom egy változóba azt az értéket is az advisorban, hogy milyen válaszidőt prediktált volna
     # és ezt az értéket is hozzá kell írnom
     
-    # fontos, hogy az init-nél ezt az otuput mappából minden csv-t üritsünk ki
-    
     # TODO
     # A file elérési utvonalát a configból kapja meg és ne legyen hardkodolva
     
@@ -729,27 +732,30 @@ def run(csfFileName, last = False):
     logger.info('----------------------------------------------------------')
     logger.info('              store adviced data csv                      ')
     logger.info('----------------------------------------------------------')
+    
     tf = pf.copy() # original csv stored input datas
+    
     # if advisedDF.csv file exists
+    
     if(os.path.isfile('outputs/advisedDF.csv') == True):
         logger.info('----------------------------------------------------------')
         # read
         af = readCSV('outputs/advisedDF.csv')
         logger.info('      ------ read existing csv ---------    ')
-        logger.info(f' csv datafraeme shape = {af.shape}')
+        logger.info(f'      csv datafraeme shape = {af.shape}')
         
         # add advised vm_number
         tf['advised_vm_number'] = vm_number_total
 
         logger.info('      ------- inner state ---------')
-        logger.info(f' inner state df shape = {tf.shape}')
+        logger.info(f'      inner state df shape = {tf.shape}')
         
         # appendálja
         bf = af.copy()
         bf = bf.append(tf.copy(), ignore_index=True)
         
         logger.info('      ------- append new data -------')
-        logger.info(f' appended df shape = {bf.shape}')
+        logger.info(f'      appended df shape = {bf.shape}')
         
         logger.info('---------------- end of appending advice -----------------')
         logger.info('----------------------------------------------------------')
@@ -759,13 +765,15 @@ def run(csfFileName, last = False):
         bf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
         logger.info('--------- advice saved into csv file -------------')
         
+    # if advisedDF.csv file does not exist
+    
     if(os.path.isfile('outputs/advisedDF.csv') != True):
         logger.info('------------- create new advice csv file -----------------')
         nf = tf.copy()
         nf['advised_vm_number'] = vm_number_total
         # save
         nf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
-    logger.info('--------------------- advice saved to csv ------------------------')
+    logger.info('----------------- advice saved to csv --------------------')
 
     
     return return_msg

@@ -20,10 +20,13 @@ pandas_dataframe_styles = {
 
 
 def readCSV(filename):
-    df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null")
-
-    # Return DataFrame
-    return df
+    global logger
+    try:
+        df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null")
+    except IOException as e:
+        logger.error(e)
+    else:
+        return df
 
 
 def removeMissingData(df):
@@ -78,6 +81,8 @@ def read_yaml(yaml_file):
         except (FileNotFoundError, IOError, yaml.YAMLError) as e:
             logger.error(e)
         else:
+            logger.info('----------------------- READ YAML ------------------------')
+            logger.info(f'Loaded yaml: {yaml_data}')
             return yaml_data
 
         
@@ -136,9 +141,11 @@ def persist_data(filename, data, mode):
                     wr.writerow(line)
             else:
                 wr.writerow(data)
+        logger.info(f'Data file {filename} created')
     except (FileNotFoundError, IOError) as e:
         logger.error(e)
 
+        
 def zip_files(files, zip_filename):
     global logger
     try:
