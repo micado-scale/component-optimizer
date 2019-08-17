@@ -36,13 +36,15 @@ target_variable = None
 input_variables = None
 worker_count_name = None
 outsource_metrics = None
+config = None
+constants = None
 
 
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
     
-def init(_target_metric, input_metrics, worker_count, _outsource_metrics):
+def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _config, _constants):
     
     logger = logging.getLogger('optimizer')
     
@@ -66,6 +68,12 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics):
     
     global outsource_metrics
     outsource_metrics = _outsource_metrics
+    
+    global config
+    config = _config
+    
+    global constants
+    constants = _constants
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -191,7 +199,7 @@ def run(csfFileName, last = False):
     logger.info('----------------------------------------------------------')
     logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] <= 0:
-        error_msg = 'There are no training samples yet.'
+        error_msg = 'There is no training sample yet.'
         logger.error(error_msg)
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
     
@@ -202,9 +210,16 @@ def run(csfFileName, last = False):
     
     logger.info('----------------------------------------------------------')
     logger.info('----------- Checking advisor data properties -------------')
+    # Todo:
+    # Azért ezt itt be lehet szívni, ha mondjuk csak 30 körönként tanítunk
+    # és a tanulás limitje 300, akkor lehet, hogy csak a 310 körben lesz
+    # meg az első tanulás
+    # ez a szerencsétlen viszont már 300 után keresni fogja a modelt
+    # amit persze nem talál majd
+    # +++++++ szóval ezt az értéket meg kell még növelni a körök számával +1 ++++++++++++
     # if df.shape[0] <= 300:
     if df.shape[0] < 300:
-        error_msg = 'There are no training samples yet.'
+        error_msg = 'There are not enough training samples yet.'
         logger.error(error_msg)
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
 
@@ -218,9 +233,9 @@ def run(csfFileName, last = False):
     logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] < 1:
         logger.info('----------------------------------------------------------')
-        logger.info('------- There are not enough training samples yet. -------')
+        logger.info('------- There is no training sample at all. -------')
         logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
-        error_msg = 'There are no training samples yet.'
+        error_msg = 'There is no training sample yet.'
         return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
 
     
@@ -727,8 +742,8 @@ def run(csfFileName, last = False):
     # ki kell íratnom egy változóba azt az értéket is az advisorban, hogy milyen válaszidőt prediktált volna
     # és ezt az értéket is hozzá kell írnom
     
-    # TODO
-    # A file elérési utvonalát a configból kapja meg és ne legyen hardkodolva
+    output_filename = config.output_filename
+    output_filename = config.get_property('output_filename')
     
     logger.info('----------------------------------------------------------')
     logger.info(f'pf shape               = {pf.shape}')
@@ -736,31 +751,32 @@ def run(csfFileName, last = False):
         # logger.info(f'Column names are = {m}, {pf[m].values}')
 
     logger.info('----------------------------------------------------------')
-    logger.info('              store adviced data csv                      ')
+    logger.info('                store adviced data csv                    ')
     logger.info('----------------------------------------------------------')
     
     tf = pf.copy() # original csv stored input datas
     
     # if advisedDF.csv file exists
     
-    if(os.path.isfile('outputs/advisedDF.csv') == True):
+    if(os.path.isfile(output_filename) == True):
         logger.info('----------------------------------------------------------')
         # read
-        af = readCSV('outputs/advisedDF.csv')
-        logger.info('      ------ read existing csv ---------    ')
+        af = readCSV(output_filename)
+        logger.info('      --------- read existing csv ---------    ')
+        logger.info(f'      csv file name = {output_filename}')
         logger.info(f'      csv datafraeme shape = {af.shape}')
         
         # add advised vm_number
         tf['advised_vm_number'] = vm_number_total
 
-        logger.info('      ------- inner state ---------')
+        logger.info('      --------- inner state ---------')
         logger.info(f'      inner state df shape = {tf.shape}')
         
         # appendálja
         bf = af.copy()
         bf = bf.append(tf.copy(), ignore_index=True)
         
-        logger.info('      ------- append new data -------')
+        logger.info('      --------- append new data ---------')
         logger.info(f'      appended df shape = {bf.shape}')
         
         logger.info('---------------- end of appending advice -----------------')
@@ -768,19 +784,18 @@ def run(csfFileName, last = False):
 
         logger.info('--------------------- save to csv ------------------------')
         # save
-        bf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
-        logger.info('--------- advice saved into csv file -------------')
+        bf.to_csv(output_filename, sep=',', encoding='utf-8', index=False)
+        logger.info('------------- advice saved into csv file -----------------')
         
     # if advisedDF.csv file does not exist
     
-    if(os.path.isfile('outputs/advisedDF.csv') != True):
+    if(os.path.isfile(output_filename) != True):
         logger.info('------------- create new advice csv file -----------------')
         nf = tf.copy()
         nf['advised_vm_number'] = vm_number_total
         # save
-        nf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
-    logger.info('----------------- advice saved to csv --------------------')
-
+        nf.to_csv(output_filename, sep=',', encoding='utf-8', index=False)
+        logger.info('------------- advice saved into csv file -----------------')
     
     return return_msg
     

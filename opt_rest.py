@@ -113,7 +113,7 @@ def init():
         # ## ------------------------------------------------------------------------------------------------------
 
         global opt_advisor
-        opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count, outsource_metrics)
+        opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count, outsource_metrics, config, constants)
         
         # ## ------------------------------------------------------------------------------------------------------
         # ## Init opt_trainer
@@ -295,19 +295,19 @@ def get_advice():
     logger.info('----------------------------------------------------------')
     
     
-    logger.info('----------------------------------------------------------')
-    logger.info('------------------------ ADVISOR -------------------------')
-    logger.info('opt_utils.readCSV(config.nn_filename)')
-    logger.info('------------------------ ADVISOR -------------------------')
-    logger.info('----------------------------------------------------------')
+    # logger.info('----------------------------------------------------------')
+    # logger.info('------------------------ ADVISOR -------------------------')
+    # logger.info('opt_utils.readCSV(config.nn_filename)')
+    # logger.info('------------------------ ADVISOR -------------------------')
+    # logger.info('----------------------------------------------------------')
     
-    df = opt_utils.readCSV(config.nn_filename)
+    # df = opt_utils.readCSV(config.nn_filename)
     
-    logger.info('----------------------------------------------------------')
-    logger.info('------------------------ ADVISOR -------------------------')
-    logger.info(f'df.shape[0] = {df.shape[0]}')
-    logger.info('------------------------ ADVISOR -------------------------')
-    logger.info('----------------------------------------------------------')
+    # logger.info('----------------------------------------------------------')
+    # logger.info('------------------------ ADVISOR -------------------------')
+    # logger.info(f'df.shape[0] = {df.shape[0]}')
+    # logger.info('------------------------ ADVISOR -------------------------')
+    # logger.info('----------------------------------------------------------')
 
     # Tehát igazából abban sem vagyok biztos, hogy az Adviser API
     # hívásánaál be kellene e olvasnaom a CSV-t
