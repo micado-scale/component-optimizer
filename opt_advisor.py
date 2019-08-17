@@ -556,7 +556,9 @@ def run(csfFileName, last = False):
         
         
         
-    # ### Get Advice
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Get Advice
+    # ## ------------------------------------------------------------------------------------------------------
 
     # In[180]:
 
@@ -565,6 +567,7 @@ def run(csfFileName, last = False):
     countInRange = 0
     countViolatedUp = 0
     countViolatedDown = 0
+    actual_worker_number = 0
 
     advicedDF = investigationDeNormalizedDF.copy()
     advicedDF['advice'] = 0
@@ -584,7 +587,9 @@ def run(csfFileName, last = False):
         real = investigationDeNormalizedDF[[targetVariable]].get_value(i, targetVariable)
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
-            advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            # advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            advicedVM = actual_worker_number
             # Ne a javaslatot, hanem a konkrét gép számot adja vissza
             advicedDF.ix[i,'advice'] = 0
             # advicedDF.ix[i,'advice'] = investigationDeNormalizedDF[['WorkerCount']]
@@ -711,6 +716,7 @@ def run(csfFileName, last = False):
     
     logger.info('----------------------------------------------')
     logger.info(f'advice = {advice}')
+    logger.info(f'actual_worker_number = {actual_worker_number}')
     logger.info(f'vm_number_total = {vm_number_total}')
     logger.info('----------------------------------------------')
     

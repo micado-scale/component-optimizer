@@ -21,9 +21,11 @@ config = None
 training_unit = None
 target_metrics = None
 input_metrics = None
-outsource_metrics = ['AVG_RR', 'SUM_RR']
 training_result = []
 constants = {}
+
+outsource_metrics = ['AVG_RR', 'SUM_RR']         # Our example application this should leave as it is
+learning_round = 3                               # learn after n new sample
 _last = True
 
 
@@ -218,7 +220,7 @@ def sample():
                 # TODO:
                 # Kivezetni hogy hány mintánként tanuljon
                 # Comment: Nehogy már minden körben tanítsuk
-                if( tmp_df.shape[0] % 2 == 0 ):
+                if( tmp_df.shape[0] % learning_round == 0 ):
 
                     logger.info('----------------------------------------------')
                     logger.info(f'Now we have rows = {tmp_df.shape[0]}')

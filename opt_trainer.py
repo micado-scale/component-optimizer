@@ -126,7 +126,7 @@ def run(nn_file_name, visualize = False):
     neuronsWhole = 10                   # 10
     neuronsTrainTest = 4                # 4
     cutFirstCases = 0                   # 0
-
+    
     lead = 1                            # 1 default
 
     showPlots = False                   # True
