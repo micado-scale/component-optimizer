@@ -8,7 +8,6 @@ import opt_config
 import opt_utils
 import opt_trainer
 import opt_advisor
-# import opt_advisor_old
 import opt_trainer_backtest
 import opt_advisor_backtest
 
@@ -74,16 +73,31 @@ def init():
         worker_count = ['vm_number']
 
         if( constants.get('knowledge_base') == 'use_existing' ):
-            logger.info('File NOT created - use_existing')
+            logger.info('File NOT created mode - use_existing')
             
         elif( constants.get('knowledge_base') == 'build_new' ):
             opt_utils.persist_data( config.nn_filename, timestamp_col+input_metrics+worker_count+target_metrics, 'w')
-            logger.info('File created - build new')
+            logger.info('File created mode - build new')
         
         logger.info('-------------------------------------------')
         logger.info('  Created a .csv file for neural network   ')
         logger.info('-------------------------------------------')
         logger.info('csv saved to "data/nn_training_data.csv"')
+        
+        logger.info('-------------------------------------------')
+        logger.info('  Reset output file for advice   ')
+        logger.info('-------------------------------------------')
+        logger.info(f'csv  {config.output_filename}  reseted')
+        
+        opt_utils.reset_output(config.output_filename)
+        # TODO
+        # Igazából ezeknek a logger információknak nek itt kéne szerepelniűk hanem ott ahol létrejöttek
+        # Ennek igazából az opt_utils.reset_output részben
+        # Kb úgy mint ahogy pár sorral alább látható, hogy csak az opt_trainer.init van meghívva
+        # de a log-okat ő dobálja itt egy  sincs
+        
+        
+        
         
         global opt_advisor
         opt_advisor.init(constants.get('target_metrics'), input_metrics, worker_count)
@@ -92,9 +106,10 @@ def init():
         training_samples_required = constants.get('training_samples_required')
         opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required)
 
-        logger.info('----------------------------------------------------------')
-        logger.info('      Optimizer REST initialized successfully             ')
-        logger.info('----------------------------------------------------------')
+        logger.info('--------------------------------------------------------------')
+        logger.info('          Optimizer REST initialized successfully             ')
+        logger.info('--------------------------------------------------------------')
+        
     return jsonify('OK'), 200
 
 
@@ -103,6 +118,7 @@ def sample():
     
     constants = opt_utils.read_yaml('data/constants.yaml')
     
+    # Todo Ennek a loggnak sem itt kéne szerepelnie hanem az opt_utils.read_yaml metodusban
     logger.info('----------------------------------------------------------')
     logger.info('-------------------------- YAML --------------------------')
     logger.info(f'Constants received: {constants}')

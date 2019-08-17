@@ -91,7 +91,18 @@ def create_dirs(directories):
         else:
             logger.info(f'Directory {dir} exists')
 
+            
+def reset_output(output_filename):
+    if os.path.exists(output_filename):
+        try:
+            os.remove(output_filename)
+            logger.info(f'Output file {output_filename} deleted')
+        except (FileNotFoundError, IOError) as e:
+            logger.error(e)
+    else:
+        logger.info(f'Output file {output_filename} does not exist')
 
+        
 def write_yaml(yaml_file, data):
     global logger
     with open(yaml_file, 'w') as stream:

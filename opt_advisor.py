@@ -63,19 +63,17 @@ def init(_target_metric, input_metrics, worker_count):
     
     global target_variable
     target_variable = _target_metric[0].get('name')
-    # TODO:
-    # Itt lehet, hogy para van, ha nem az első helyen áll a neve ennek a szarnak, hanem mondjuk ott valami más van a threshold
-    
+
     logger.info('     ----------------------------------------------')
-    logger.info('     ------ ADVISOR INIT DIAGNOSIS ------------')
+    logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
     logger.info('     ----------------------------------------------')
     
     logger.info(f'     target_metric_min = {target_metric_min}')
     logger.info(f'     target_metric_max = {target_metric_max}')
     logger.info(f'     target_variable = {target_variable}')
-    logger.info('     xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info('     ----------------------------------------')
     logger.info(f'     _target_metric = {_target_metric}')
-    logger.info('     xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    logger.info('     ----------------------------------------')
     logger.info(f'     input_metrics = {input_metrics}')
     logger.info(f'     worker_count_name = {worker_count_name}')
     
@@ -577,6 +575,7 @@ def run(csfFileName, last = False):
 
     for i in investigationDeNormalizedDF.index:
         distance = 99999999999
+        calculatedDistance = 99999999999
         real = investigationDeNormalizedDF[[targetVariable]].get_value(i, targetVariable)
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
@@ -650,6 +649,12 @@ def run(csfFileName, last = False):
                     # print(calculateDistance)
                 advicedDF.ix[i, 'advice'] = advice
                 advicedDF.ix[i, 'postScaledTargetVariable'] = postScaledTargetVariable
+                # TODO
+                # Ide írni még egy elif ágat, hogy nem talált jó megoldást
+                # Egyelőre ilyen esetben legyen az, hogy hagyja a VM számot ott ahol van
+                # Vagy majd kigondolok valami jobbat
+                # Esetleg azt, hogy mi az ami a legközelebb áll az alsó vagy felső limithez
+                # Attól függően, hogy melyik ágon futunk le
 
 
     # In[181]:
@@ -686,8 +691,8 @@ def run(csfFileName, last = False):
     # In[188]:
 
     if( last == False ):
-        advicedDF.to_csv('outputs/adviceDF.csv', sep=';', encoding='utf-8')
-        logger.info('outputs/adviceDF.csv saved')
+        advicedDF.to_csv('outputs/adviseDF.csv', sep=';', encoding='utf-8')
+        logger.info('outputs/adviseDF.csv saved')
     
     
     # In[x]:
@@ -708,51 +713,60 @@ def run(csfFileName, last = False):
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
     
     # TODO
-    # ide kell csinálni egy olyat, hogy fog egy csv-t mondjuk az advice hoz kiolvasott mintájára
-    # ha nem létezik akkor csinál egyet
-    # ha már létezik, akkor appendálja hozzá, az aktuális kiolvasott értékeket
-    # és azt is, hogy milyen számot javalsolt volna
-    
-    logger.info('----------------------------------------------------------')
-    logger.info(f'pf shape               = {pf.shape}')
-    for m in pf.columns:
-        logger.info(f'Column names are = {m}, {pf[m].values}')
-
-    
-    tf = pf.copy() # original csv stored input datas
-    # if advicedDF.csv file exists
-    if(os.path.isfile('outputs/advicedDF.csv') == True):
-        print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
-        # read
-        af = readCSV('outputs/advicedDF.csv')
-        print('------af-----------')
-        print(af.head())
-        print(af.shape)
-        tf['advised_vm_number'] = vm_number_total
-        print('-------tf-----------')
-        print(tf.head())
-        print(tf.shape)
-        # appendálja
-        bf = af.copy()
-        bf.append(tf, ignore_index=True)
-        print('--------af----------')
-        print(bf.head())
-        print(bf.shape)
-        # save
-        bf.to_csv('outputs/advicedDF.csv', sep=',', encoding='utf-8', index=False)
-    if(os.path.isfile('outputs/advicedDF.csv') != True):
-        print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-        nf = tf.copy()
-        nf['advised_vm_number'] = vm_number_total
-        # save
-        nf.to_csv('outputs/advicedDF.csv', sep=',', encoding='utf-8', index=False)
-    logger.info('outputs/advicedDF.csv saved')
-    
-    ## igazából van egy pf értékünk ez alapján kell csinálni egy csv-t csak még hozzá kell adni két
-    ## értéket, a predicted latencít és azt, hogy hány vm-et javasolunk
+    # ki kell íratnom egy változóba azt az értéket is az advisorban, hogy milyen válaszidőt prediktált volna
+    # és ezt az értéket is hozzá kell írnom
     
     # fontos, hogy az init-nél ezt az otuput mappából minden csv-t üritsünk ki
     
+    # TODO
+    # A file elérési utvonalát a configból kapja meg és ne legyen hardkodolva
+    
+    logger.info('----------------------------------------------------------')
+    logger.info(f'pf shape               = {pf.shape}')
+    # for m in pf.columns:
+        # logger.info(f'Column names are = {m}, {pf[m].values}')
+
+    logger.info('----------------------------------------------------------')
+    logger.info('              store adviced data csv                      ')
+    logger.info('----------------------------------------------------------')
+    tf = pf.copy() # original csv stored input datas
+    # if advisedDF.csv file exists
+    if(os.path.isfile('outputs/advisedDF.csv') == True):
+        logger.info('----------------------------------------------------------')
+        # read
+        af = readCSV('outputs/advisedDF.csv')
+        logger.info('      ------ read existing csv ---------    ')
+        logger.info(f' csv datafraeme shape = {af.shape}')
+        
+        # add advised vm_number
+        tf['advised_vm_number'] = vm_number_total
+
+        logger.info('      ------- inner state ---------')
+        logger.info(f' inner state df shape = {tf.shape}')
+        
+        # appendálja
+        bf = af.copy()
+        bf = bf.append(tf.copy(), ignore_index=True)
+        
+        logger.info('      ------- append new data -------')
+        logger.info(f' appended df shape = {bf.shape}')
+        
+        logger.info('---------------- end of appending advice -----------------')
+        logger.info('----------------------------------------------------------')
+
+        logger.info('--------------------- save to csv ------------------------')
+        # save
+        bf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
+        logger.info('--------- advice saved into csv file -------------')
+        
+    if(os.path.isfile('outputs/advisedDF.csv') != True):
+        logger.info('------------- create new advice csv file -----------------')
+        nf = tf.copy()
+        nf['advised_vm_number'] = vm_number_total
+        # save
+        nf.to_csv('outputs/advisedDF.csv', sep=',', encoding='utf-8', index=False)
+    logger.info('--------------------- advice saved to csv ------------------------')
+
     
     return return_msg
     

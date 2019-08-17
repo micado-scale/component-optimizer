@@ -7,7 +7,7 @@ def launch_optimizer():
     args = parse_arguments()
     config = opt_utils.read_yaml(args.config_path)
     create_logger(config)
-    opt_utils.create_dirs(config.get('directories', ['data', 'log']).values())
+    opt_utils.create_dirs(config.get('directories', ['data', 'log', 'outputs']).values())
     opt_rest.init_service(config)
     opt_rest.app.run(debug=True,
                      host=args.host,

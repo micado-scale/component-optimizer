@@ -1,11 +1,13 @@
 directories:
     log_dir: 'log'
     data_dir: 'data'
+    output_dir: 'outputs'
 
 
 optimizer: 
     nn_filename: 'data/nn_training_data.csv'
     constants_filename: 'data/constants.yaml'
+    output_filename: 'outputs/advisedDF.csv'
     training_data_filename: 'data/training_data.zip'
 
 

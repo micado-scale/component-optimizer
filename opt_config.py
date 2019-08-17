@@ -32,3 +32,11 @@ class OptimizerConfig(Config):
     @training_data_filename.setter
     def training_data_filename(self, training_data_filename):
         self._training_data_filename = training_data_filename
+
+    @property
+    def output_filename(self):
+        return self.get_property('output_filename')
+
+    @output_filename.setter
+    def output_filename(self, output_filename):
+        self._output_filename = output_filename
