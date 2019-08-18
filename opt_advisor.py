@@ -1,7 +1,10 @@
 import logging
 import logging.config
 
+import re
 import os
+import time
+from timeit import default_timer as timer
 
 import numpy as np
 import pandas as pd
@@ -17,7 +20,13 @@ from opt_utils import dropFirstCases
 from utils import setMetricNames, setExtendedMetricNames
 
 from linearregression import calculateLinearRegressionTerms
-from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYWithWorkers
+from visualizerlinux import VisualizePredictedYLine
+from visualizerlinux import VisualizePredictedYWithWorkers
+from visualizerlinux import VisualizePredictedXY2Line
+from visualizerlinux import VisualizePredictedXY3Line
+from visualizerlinux import VisualizePredictedXYLine
+from visualizerlinux import VisualizePredictedXYLine
+
 from sklearn.externals import joblib
 
 pandas_dataframe_styles = {
@@ -105,7 +114,9 @@ def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate =
         return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = error_msg)), 400
 
     
-    
+
+
+
     
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define run
@@ -348,11 +359,13 @@ def run(csfFileName, last = False):
 
     def calculatePredictedLatencyWithVariousWorkers(modelNeuralNet, to):
         
+        sum_model_load_ido = 0
+        
         logger.info('------------ calculatePredictedLatencyWithVariousWorkers STARTED -------------')
         
         newDFForRegression = filteredDF.copy()
         nDD = filteredDF.copy()
-
+        
         step = 0
 
         if( to == 0 ):
@@ -399,6 +412,7 @@ def run(csfFileName, last = False):
 
                 # load the proper current metric model
                 modelForMetric = joblib.load('models/saved_linearregression_model_' + i + '.pkl')
+                
 
                 # print("------------     ", modelForMetric.get_params(), "     ------------")
 
@@ -407,7 +421,14 @@ def run(csfFileName, last = False):
                     X['term2'] = np.where(np.isinf(X['term2'].values), 0, X['term2'])
 
                 # create prediction and store in a new numpy.array object
+                # start = timer()
                 predictedMetric = modelForMetric.predict(X)
+                # end = timer()
+                # model_load_ido = end - start
+                # sum_model_load_ido = sum_model_load_ido + model_load_ido
+                # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+                # print(sum_model_load_ido)
+                # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
 
                 # leave original metric value (just for fun and investigation) and store in a new column
@@ -419,13 +440,20 @@ def run(csfFileName, last = False):
                 
 
                 # print out the new data frame
-                newDFForRegression.head()
+                # newDFForRegression.head()
 
 
             newDFForNerualNetworkPrediction = newDFForRegression.copy()     
 
             # X must contain exactly the same columns as the model does
             X = newDFForNerualNetworkPrediction.iloc[:, :9]
+            print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            print(newDFForNerualNetworkPrediction.head())
+            print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+            print('hát ez itt nagyon gáz, hogy ez a szám a 9 így be van varva ez az input metrikák száma kell hogy legyen')
+            print('de hát az meg változhat, ha kevesebb az input metrika nem igaz')
+            print('az X a features nem lehet ez alapján leválogatni a dataframeből, ahhoz máshonnan kell venni a metrikák')
+            print('számát')
 
             # X must be normalized based on a previously created MinMaxScaler
             X_normalized_MinMaxScaler # the name of the MinMaxScaler
@@ -484,7 +512,7 @@ def run(csfFileName, last = False):
                                              investigationDFDeNormalizedUp], axis = 1).T.drop_duplicates().T
 
 
-    if( 10 > 1 ):
+    if( 10 < 1 ):
         print('------------------------------------------------------')
         print('investigationDeNormalizedDF.values.shape')
         print(investigationDeNormalizedDF.values.shape)
@@ -521,55 +549,6 @@ def run(csfFileName, last = False):
         print('------------------------------------------------------')
 
 
-    # In[171]:
-
-    if showPlots :
-        visualisedData = investigationDFDown.columns[2:]
-        VisualizePredictedYWithWorkers(0, investigationDFDown[visualisedData], targetVariable)
-
-
-    # In[172]:
-
-    if showPlots :
-        visualisedColumns = investigationDFUp.columns[2:]
-        VisualizePredictedYWithWorkers(0, investigationDFUp[visualisedColumns], targetVariable)
-
-
-    # In[174]:
-
-    if showPlots :
-        visualisedColumns = investigationDFDeNormalizedUp.columns[2:]
-        VisualizePredictedYWithWorkers(0, investigationDFDeNormalizedUp[visualisedColumns], targetVariable)
-
-
-    # In[175]:
-
-    if showPlots :
-        visualisedColumns = investigationDFDeNormalizedUp.columns[2:]
-        VisualizePredictedYLine(investigationDFDeNormalizedUp['avg latency (quantile 0.5)'],                         investigationDFDeNormalizedUp[visualisedColumns], targetVariable)
-
-
-    # In[176]:
-
-    if showPlots :
-        VisualizePredictedYLine(investigationDFDeNormalizedUp[[targetVariable]],                         investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker']], targetVariable)
-
-
-    # In[177]:
-
-    if showPlots :
-        VisualizePredictedYLine(investigationDFDeNormalizedUp[[targetVariable]],                         investigationDFDeNormalizedUp[['denormalizedPredictedResponseTimeAdded0Worker']], targetVariable)
-
-
-    # In[179]:
-    
-    if showPlots :
-        from visualizerlinux import VisualizePredictedXYLine
-        from visualizerlinux import VisualizePredictedXY2Line
-        VisualizePredictedXYLine(0, investigationDFDeNormalizedUp[[targetVariable]], targetVariable, lowerLimit, upperLimit)
-
-        
-        
         
     # ## ------------------------------------------------------------------------------------------------------
     # ## Get Advice
@@ -591,10 +570,12 @@ def run(csfFileName, last = False):
     
     logger.info('post advice init')
     
-    # print('------------------------------------------------------')
+    print('------------------------------------------------------')
     # print('investigationDeNormalizedDF.columns')
     # print(investigationDeNormalizedDF.columns)
-    # print('------------------------------------------------------')
+    print(investigationDeNormalizedDF.shape)
+    print(investigationDeNormalizedDF.index)
+    print('------------------------------------------------------')
 
     for i in investigationDeNormalizedDF.index:
         distance = 99999999999
@@ -682,45 +663,22 @@ def run(csfFileName, last = False):
                 # Attól függően, hogy melyik ágon futunk le
 
 
-    # In[181]:
-    # advicedDF.head(10).style.set_properties(**pandas_dataframe_styles).format("{:0.0f}")
-
-
-    # In[182]:
-    if showPlots :
-        VisualizePredictedXYLine(advicedDF[['advice']] * 2000000, advicedDF[[targetVariable]], targetVariable, lowerLimit, upperLimit)
-
 
     # In[183]:
-    print('countInRange      = ', countInRange)
-    print('countViolatedDown = ', countViolatedDown)
-    print('countVilolatedUp  = ', countViolatedUp)
-
-
-    # In[184]:
-    if showPlots :
-        VisualizePredictedXY2Line(advicedDF[[targetVariable]], advicedDF[['advice']], targetVariable, lowerLimit, upperLimit)
-
-
-    # In[186]:
-    if showPlots :
-        from visualizerlinux import VisualizePredictedXY3Line
-        
-        VisualizePredictedXY3Line(advicedDF[[targetVariable]],advicedDF[['postScaledTargetVariable']],advicedDF[['advice']],targetVariable, lowerLimit, upperLimit)
-
-
-    # In[187]:
-    # advicedDF.style.set_properties(**pandas_dataframe_styles).format("{:0.2f}")
+    logger.info(f'countInRange      = {countInRange}')
+    logger.info(f'countViolatedDown = {countViolatedDown}')
+    logger.info(f'countVilolatedUp  = {countViolatedUp}')
 
 
     # In[188]:
-
     if( last == False ):
         advicedDF.to_csv('outputs/adviseDF.csv', sep=';', encoding='utf-8')
         logger.info('outputs/adviseDF.csv saved')
     
     
-    # In[x]:
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Set return_msg
+    # ## ------------------------------------------------------------------------------------------------------
     
     phase = 'production'
     nn_error_rate = 0
@@ -728,22 +686,25 @@ def run(csfFileName, last = False):
     # vm_number_total = advice
     # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
     vm_number_total = advicedVM
+    output_filename = config.output_filename
+    output_filename = config.get_property('output_filename')
     
     logger.info('----------------------------------------------')
     logger.info(f'advice = {advice}')
     logger.info(f'actual_worker_number = {actual_worker_number}')
     logger.info(f'vm_number_total = {vm_number_total}')
+    logger.info(f'output_filename = {output_filename}')
     logger.info('----------------------------------------------')
     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Set return_msg          the rest of the code is for report and persist data
+    # ## ------------------------------------------------------------------------------------------------------
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
-    
-    # TODO
-    # ki kell íratnom egy változóba azt az értéket is az advisorban, hogy milyen válaszidőt prediktált volna
-    # és ezt az értéket is hozzá kell írnom
-    
-    output_filename = config.output_filename
-    output_filename = config.get_property('output_filename')
+        
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Store and save metrics, advice and predictions in a csv file
+    # ## ------------------------------------------------------------------------------------------------------
     
     logger.info('----------------------------------------------------------')
     logger.info(f'pf shape               = {pf.shape}')
@@ -754,7 +715,24 @@ def run(csfFileName, last = False):
     logger.info('                store adviced data csv                    ')
     logger.info('----------------------------------------------------------')
     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Prepare dataframes to store metrics, advice and predictions
+    # ## ------------------------------------------------------------------------------------------------------
+    
     tf = pf.copy() # original csv stored input datas
+
+    # Merge data frames
+    tmp_columns = investigationDFDeNormalizedUp.columns[2:]
+    tf = pd.merge(tf, investigationDFDeNormalizedUp[tmp_columns], right_index=True, left_index=True)
+    
+    # Merge data frames
+    tmp_columns = investigationDFDeNormalizedDown.columns[2:]
+    tf = pd.merge(tf, investigationDFDeNormalizedDown[tmp_columns], right_index=True, left_index=True)
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Store data frame in a csv file
+    # ## ------------------------------------------------------------------------------------------------------
     
     # if advisedDF.csv file exists
     
@@ -768,11 +746,12 @@ def run(csfFileName, last = False):
         
         # add advised vm_number
         tf['advised_vm_number'] = vm_number_total
-
+        tf['post_scaled_target_variable'] = advicedDF['postScaledTargetVariable'].get_value(i, 'postScaledTargetVariable')
+        
         logger.info('      --------- inner state ---------')
         logger.info(f'      inner state df shape = {tf.shape}')
         
-        # appendálja
+        # append
         bf = af.copy()
         bf = bf.append(tf.copy(), ignore_index=True)
         
@@ -787,15 +766,52 @@ def run(csfFileName, last = False):
         bf.to_csv(output_filename, sep=',', encoding='utf-8', index=False)
         logger.info('------------- advice saved into csv file -----------------')
         
+        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Generate Report
+        # ## ------------------------------------------------------------------------------------------------------
+        min_threshold = constants.get('target_metrics')[0].get('min_threshold')
+        max_threshold = constants.get('target_metrics')[0].get('max_threshold')
+        
+        # print(bf.columns)
+        generate_report(bf, min_threshold, max_threshold)
+        
+        # ## ------------------------------------------------------------------------------------------------------
+        # ## Generate Report End
+        # ## ------------------------------------------------------------------------------------------------------
+        
     # if advisedDF.csv file does not exist
     
     if(os.path.isfile(output_filename) != True):
         logger.info('------------- create new advice csv file -----------------')
         nf = tf.copy()
         nf['advised_vm_number'] = vm_number_total
+        nf['post_scaled_target_variable'] = advicedDF['postScaledTargetVariable'].get_value(i, 'postScaledTargetVariable')
         # save
         nf.to_csv(output_filename, sep=',', encoding='utf-8', index=False)
         logger.info('------------- advice saved into csv file -----------------')
     
     return return_msg
+    
+    
+# ## ------------------------------------------------------------------------------------------------------
+# ## Generate report method
+# ## ------------------------------------------------------------------------------------------------------
+
+def generate_report(df, min_threshold, max_threshold):
+    
+    VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    
+    VisualizePredictedXYLine(df[['advised_vm_number']] * 2000, df[[target_variable]], target_variable, min_threshold, max_threshold)
+    
+    VisualizePredictedXY3Line(df[[target_variable]], \
+                              df[['post_scaled_target_variable']], \
+                              df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    
+    # r = re.compile('.*0*.')
+    r = re.compile('.*denormalized*.')
+    visualised_columns = list(filter(r.match, df.columns))
+    VisualizePredictedYLine(df[target_variable], df[visualised_columns], target_variable)
+    
+    
     

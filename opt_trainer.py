@@ -5,6 +5,15 @@ import opt_config
 
 from utils import printNormalizedX, printNormalizedY
 
+from visualizerlinux import TimeLinePlot
+from visualizerlinux import ScatterPlots
+from visualizerlinux import TimeLinePlots
+from visualizerlinux import CorrelationMatrixSave
+from visualizerlinux import VisualizePredictedYScatter
+from visualizerlinux import VisualizePredictedYLine, VisualizePredictedYLineWithValues
+from visualizerlinux import ipythonPlotMetricsRealAgainstPredictedRegression
+from visualizerlinux import ipythonPlotMetricsRealAgainstPredicted
+
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
@@ -309,6 +318,17 @@ def run(nn_file_name, visualize = False):
     logger.info('----------------------------------------------------------')
     
 
+    
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Report
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    CorrelationMatrixSave(preProcessedDF)
+    ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], _input_metrics, targetVariable)
+    TimeLinePlot(preProcessedDF, targetVariable)
+    TimeLinePlots(preProcessedDF, _input_metrics)
+    
+    
     # In[26]:
     # ## ------------------------------------------------------------------------------------------------------            
     # ## Create a whole new DataFrame for Before After Data
@@ -588,6 +608,15 @@ def run(nn_file_name, visualize = False):
     # In[59]: Evaluete the model
     from utils import evaluateGoodnessOfPrediction
     evaluateGoodnessOfPrediction(y_normalized, y_predicted)
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Report
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable)
+    VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable, 'Normalized')
+    
 
 
 
@@ -623,9 +652,13 @@ def run(nn_file_name, visualize = False):
     # In[75]: De-normalize Target
     y_denormalized = denormalizeY(y_normalized, y_normalized_MinMaxScaler)
     y_predicted_denormalized = denormalizeY(y_predicted, y_normalized_MinMaxScaler)
-
-
-
+    
+    
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Report
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    VisualizePredictedYLineWithValues(y_denormalized, y_predicted_denormalized, targetVariable, 'Denormalized')
     
     
     
@@ -988,14 +1021,18 @@ def run(nn_file_name, visualize = False):
 
 
     # In[152]: Visualize
-    if showPlots :
-        from visualizerlinux import ipythonPlotMetricsRealAgainstPredicted
-        ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames)
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Report
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames)
 
-    if showPlots :
-        from visualizerlinux import ipythonPlotMetricsRealAgainstPredictedRegression
-        ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
+    ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
 
+    
+    # ## ------------------------------------------------------------------------------------------------------            
+    # ## Return with training_result
+    # ## ------------------------------------------------------------------------------------------------------
     
     training_result = [error_msg]
     return training_result

@@ -5,6 +5,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import imgkit
+import math
 
 def CorrelationMatrixSave(df):
 
@@ -74,8 +75,8 @@ def CorrelationMatrixSave(df):
 
 def ScatterPlots(x, y, extendedMetricNames, ylabel):
     fig = plt.figure(figsize=(20,20))
-
-    row = 4; col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
+    
+    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
 
     j = 1
     for i in extendedMetricNames:
@@ -125,7 +126,7 @@ def TimeLinePlot(df, x):
 def TimeLinePlots(df, extendedMetricNames):
     fig = plt.figure(figsize=(20,20))
 
-    row = 4; col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
+    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
 
     j = 1
     for i in extendedMetricNames:

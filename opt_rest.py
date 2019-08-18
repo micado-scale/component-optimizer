@@ -200,9 +200,10 @@ def sample():
             logger.info(f'tmp_df.shape = {tmp_df.shape}')
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
                         
-            # TRAINING
-            # logger.info(constants.get('training_samples_required'))
-            # _min_training = 100
+            # ## ------------------------------------------------------------------------------------------------------
+            # ## Start Training
+            # ## ------------------------------------------------------------------------------------------------------
+            
             _min_training = constants.get('training_samples_required')
             #TODO:
             #Itt van egy kis diszkrepancia
@@ -212,6 +213,7 @@ def sample():
 
             logger.info('----------------------------------------------')
             logger.info(f'Now we have rows = {tmp_df.shape[0]}')
+            logger.info(f'Minimum number when training start = {constants.get("training_samples_required")}')
             logger.info(f'Minimum number when training start = {_min_training}')
             logger.info('----------------------------------------------')
 
@@ -256,8 +258,6 @@ def sample():
             logger.info('----------------------------------------------')
             
     return jsonify('OK'), 200
-
-
 
 
 @app.route('/optimizer/advice', methods=['GET'])
