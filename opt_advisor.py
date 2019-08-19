@@ -311,7 +311,6 @@ def run(csfFileName, last = False):
     # ## ------------------------------------------------------------------------------------------------------
     # ## Better if WorkerCountName comes from init()
     # ## ------------------------------------------------------------------------------------------------------
-    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
     logger.info('----------------------------------------------------------')
     logger.info('------------------- set metricNames ----------------------')
     logger.info('----------------------------------------------------------')
@@ -340,7 +339,6 @@ def run(csfFileName, last = False):
     logger.info(f'input_variables = {input_variables}')
     
     logger.info('----------------------------------------------------------')
-    # 333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
     
 
         
@@ -358,8 +356,6 @@ def run(csfFileName, last = False):
     # In[162]:
 
     def calculatePredictedLatencyWithVariousWorkers(modelNeuralNet, to):
-        
-        sum_model_load_ido = 0
         
         logger.info('------------ calculatePredictedLatencyWithVariousWorkers STARTED -------------')
         
@@ -421,14 +417,7 @@ def run(csfFileName, last = False):
                     X['term2'] = np.where(np.isinf(X['term2'].values), 0, X['term2'])
 
                 # create prediction and store in a new numpy.array object
-                # start = timer()
                 predictedMetric = modelForMetric.predict(X)
-                # end = timer()
-                # model_load_ido = end - start
-                # sum_model_load_ido = sum_model_load_ido + model_load_ido
-                # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-                # print(sum_model_load_ido)
-                # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
 
                 # leave original metric value (just for fun and investigation) and store in a new column
@@ -446,20 +435,29 @@ def run(csfFileName, last = False):
             newDFForNerualNetworkPrediction = newDFForRegression.copy()     
 
             # X must contain exactly the same columns as the model does
-            X = newDFForNerualNetworkPrediction.iloc[:, :9]
-            print('oooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            X = newDFForNerualNetworkPrediction.iloc[:, :len(input_variables)]
+            print('11111ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            print(newDFForNerualNetworkPrediction.columns)
+            print(newDFForNerualNetworkPrediction.shape)
             print(newDFForNerualNetworkPrediction.head())
-            print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-            print('hát ez itt nagyon gáz, hogy ez a szám a 9 így be van varva ez az input metrikák száma kell hogy legyen')
-            print('de hát az meg változhat, ha kevesebb az input metrika nem igaz')
-            print('az X a features nem lehet ez alapján leválogatni a dataframeből, ahhoz máshonnan kell venni a metrikák')
-            print('számát')
+            print('22222ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            print(X.columns)
+            print(X.shape)
+            print(X.head())
+            print('33333ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            print(input_variables)
+            print(len(input_variables))
+            print('44444ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+
 
             # X must be normalized based on a previously created MinMaxScaler
             X_normalized_MinMaxScaler # the name of the MinMaxScaler
 
             X_normalized = X_normalized_MinMaxScaler.transform(X)
 
+            #!!!
+            #!!!
+            #!!!
             # modelNeuralNet = joblib.load('models/saved_mlp_model.pkl')
             modelNeuralNet = modelNeuralNet
 
@@ -802,8 +800,6 @@ def generate_report(df, min_threshold, max_threshold):
     
     VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
     
-    VisualizePredictedXYLine(df[['advised_vm_number']] * 2000, df[[target_variable]], target_variable, min_threshold, max_threshold)
-    
     VisualizePredictedXY3Line(df[[target_variable]], \
                               df[['post_scaled_target_variable']], \
                               df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
@@ -813,5 +809,8 @@ def generate_report(df, min_threshold, max_threshold):
     visualised_columns = list(filter(r.match, df.columns))
     VisualizePredictedYLine(df[target_variable], df[visualised_columns], target_variable)
     
+    r = re.compile('.*denormalized*.')
+    visualised_columns = list(filter(r.match, df.columns))
+    VisualizePredictedYWithWorkers(0, df[visualised_columns], target_variable)
     
     

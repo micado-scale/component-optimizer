@@ -323,7 +323,7 @@ def run(nn_file_name, visualize = False):
     # ## Report
     # ## ------------------------------------------------------------------------------------------------------
     
-    CorrelationMatrixSave(preProcessedDF)
+    # CorrelationMatrixSave(preProcessedDF)
     ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], _input_metrics, targetVariable)
     TimeLinePlot(preProcessedDF, targetVariable)
     TimeLinePlots(preProcessedDF, _input_metrics)

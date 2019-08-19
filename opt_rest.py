@@ -25,7 +25,7 @@ training_result = []
 constants = {}
 
 outsource_metrics = ['AVG_RR', 'SUM_RR']         # Our example application this should leave as it is
-learning_round = 3                               # learn after n new sample
+learning_round = 1                               # learn after n new sample
 _last = True
 
 
@@ -172,7 +172,12 @@ def sample():
         logger.info('      ----------- sample -----------')
         logger.info('----------------------------------------------')
 
-        
+        #TODO
+        # !!!
+        # Ez gáz egy csomó olyan érték bekerül, ahol a target_metrics üres
+        # !!!
+        # !!!
+        # !!!
         if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
             logger.info('----------------------------------------------')
             logger.info('Sample accepted.')

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+<title>Report</title>
+<style type="text/css">
+html { font-family: sans-serif; font-size: 14px; }
+body { max-width:310mm; margin: 0 auto;}
+header h1 {font-size: 4rem;}
+h1 {font-size: 3rem;}
+h2 {font-size: 2.6rem;}
+h3 {font-size: 2.2rem;}
+h4 {font-size: 2.0rem;}
+ul {list-style-type: none;}
+nav li a{color: black; text-decoration: none;}
+table, tr, td, th { border-style: solid; border-color: #ccc; border-width: 0px;}
+table {border-spacing: 0px; border-width: 0px 1px 1px 0px;}
+td, th {border-width: 1px 0px 0px 1px; padding: 5px;}
+th {background-color: #eee}
+footer {text-align:center; border-top: 1px solid #CCC;}
+footer a {text-decoration: none; color: #e75424;}
+@media print {
+ footer {
+    position: fixed;
+	bottom: 0;
+	width: 100%;
+  }
+}
+header img{vertical-align:middle;}
+img { border: 0; }
+section {page-break-inside: avoid;}
+</style>
+</head>
+<body>
+<header>
+<h1>
+<img src="logo.png" width="366" height="143" alt="COLA Logo"/>
+
+<span><br>Report</span>
+</h1>
+</header>
+<div>
+<h2>Table of content</h2>
+<nav>
+<ul>
+<li><a href="#l0">Average Latency Time Lines</a>
+</li>
+<li><a href="#l1">Inner State Variables timeline</a>
+</li>
+<li><a href="#l2">Correlation Matrix</a>
+</li>
+<li><a href="#l3">Inner State Variable against Response Time</a>
+</li>
+<li><a href="#l4">Measured Response Time against Predicted Response Time by Neural Network (split train, test)</a>
+</li>
+<li><a href="#l5">Measured Response Time against Predicted Response Time by Neural Network (set All)</a>
+</li>
+<li><a href="#l6">Plot measured Response Time and predicted Response Time by Neural Network normalized(set All)</a>
+</li>
+<li><a href="#l7">Plot measured Response Time and predicted Response Time by Neural Network de-normalized(set All)</a>
+</li>
+<li><a href="#l8">Estimated Response Time if add different numbers of resources</a>
+</li>
+<li><a href="#19">Estimated metrics vs Real metrics1</a>
+</li>
+<li><a href="#20">Estimated metrics vs Real metrics2</a>
+</li>
+<li><a href="#21">Response Time and proposed number of additional resources</a>
+</li>
+<li><a href="#22">Response Time and proposed number of additional resources</a>
+</li>
+<li><a href="#23">Response Time and proposed number of additional resources</a>
+</li>
+<li><a href="#24">Predicted Response Time and proposed number of additional resources</a>
+</li>
+</ul>
+</nav>
+</div>
+<div>
+
+
+<section>
+<h4 id="l0">Response Time timelines</h4>
+<img src="AverageLatencyQuantileZeroPointFiveTimeLines.jpg" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLines"/>
+</section>
+<section>
+<h4 id="l1">Inner state variables timeline</h4>
+<img src="InnerStateVariableTimeLines_2.jpg" width="100%" height="100%" alt="Image: InnerStateVariableTimeLines_2"/>
+</section>
+<section>
+<h4 id="l2">Correlation Matrix</h4>
+<div align="center">
+  <img src="CorrelationMatrix.png" width="1024" height="404" alt="Image: CorrelationMatrix"/>
+</div>
+</section>
+<section>
+<h4 id="l3">Inner State Variable against Response Time</h4>
+<img src="InnerStateVariableVsTargetVariable.jpg" width="100%" height="" alt="Image: InnerStateVariableVsTargetVariable"/>
+</section>
+<section>
+<h4 id="l4">Measured Response Time against Predicted Response Time by Neural Network (split train, test)</h4>
+<img src="Y_denormailizedVsY_predictedLatency.jpg" width="100%" height="100%" alt="Image: Y_denormailizedVsY_predictedLatency"/>
+</section>
+<section>
+<h4 id="l5">Measured Response Time against Predicted Response Time by Neural Network (set All)</h4>
+<img src="Y_normailizedVsY_predictedLatency.jpg" width="100%" height="100%" alt="Image: Y_normailizedVsY_predictedLatency"/>
+</section>
+<section>
+<h4 id="l6">Plot measured Response Time and predicted Response Time by Neural Network normalized (set All)</h4>
+<img src="VisualizePredictedYLineWithValuesNormalized.jpg" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesNormalized"/>
+</section>
+<section>
+<h4 id="l7">Plot measured Response Time and predicted Response Time by Neural Network de-normalized (set All)</h4>
+<img src="VisualizePredictedYLineWithValuesDenormalized.jpg" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesDenormalized"/>
+</section>
+<section>
+<h4 id="l8">Estimated Response Time if add different numbers of resources</h4>
+<img src="PredictedYByWorkers.jpg" width="100%" height="100%" alt="Image: PredictedYByWorkers"/>
+</section>
+
+
+<section>
+<h4 id="19">Estimated metrics vs Real metrics1</h4>
+<div align="center">
+	<table>
+	  <tr>
+		<td>
+			<img src="InnerStateMetricRegression1.jpg" alt="Image: InnerStateMetricRegression1"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression2.jpg" alt="Image: InnerStateMetricRegression2"/>
+		</td>
+	  </tr>
+	  <tr>
+		<td>
+			<img src="InnerStateMetricRegression3.jpg" alt="Image: InnerStateMetricRegression3"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression4.jpg" alt="Image: InnerStateMetricRegression4"/>
+		</td>
+	  </tr>
+	  <tr>
+		<td>
+			<img src="InnerStateMetricRegression5.jpg" alt="Image: InnerStateMetricRegression5"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression6.jpg" alt="Image: InnerStateMetricRegression6"/>
+		</td>
+	  </tr>
+	</table>
+</div>
+</section>
+
+<section>
+<h4 id="20">Estimated metrics vs Real metrics</h4>
+<div align="center">
+	<table>
+	  <tr>
+		<td>
+			<img src="InnerStateMetricRegression1.jpg" alt="Image: InnerStateMetricRegression1"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression2.jpg" alt="Image: InnerStateMetricRegression2"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression3.jpg" alt="Image: InnerStateMetricRegression3"/>
+		</td>
+	  </tr>
+	  <tr>
+		<td>
+			<img src="InnerStateMetricRegression4.jpg" alt="Image: InnerStateMetricRegression4"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression5.jpg" alt="Image: InnerStateMetricRegression5"/>
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression6.jpg" alt="Image: InnerStateMetricRegression6"/>
+		</td>
+	  </tr>
+	  <tr>
+		<td>
+			<!-- empty -->
+		</td>
+		<td>
+			<img src="InnerStateMetricRegression7.jpg" alt="Image: InnerStateMetricRegression7"/>
+		</td>
+		<td>
+			<!-- empty -->
+		</td>
+	  </tr>
+	</table>
+</div>
+</section>
+
+<section>
+<h4 id="21">Response Time and proposed number of additional resources on Test Set</h4>
+<img src="AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3"/>
+</section>
+<section>
+<h4 id="22">Response Time and proposed number of additional resources on Test Set</h4>
+<img src="AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3"/>
+</section>
+<section>
+<h4 id="23">Response Time and proposed number of additional resources on Test Set</h4>
+<img src="AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3"/>
+</section>
+<section>
+<h4 id="24">Predicted Response Time and proposed number of additional resources on Test Set</h4>
+<img src="ResponseTimeAdvicePredicted.jpg" width="100%" height="100%" alt="Image: ResponseTimeAdvicePredicted"/>
+</section>
+</div>
+
+<footer><p>Generated with MiCado Optimizer. More information at <a href="https://project-cola.eu">https://project-cola.eu/</a></p></footer>
+</body>
+</html>
