@@ -341,7 +341,7 @@ def ScatterPlotsTrainTest(y_train, y_train_predicted, y_test, y_test_predicted, 
 
 
 def ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames):
-    row = 4; col = 2; j = 1
+    row = math.ceil(len(metricNames)/2); col = 2; j = 1
     # fig = plt.figure(figsize=(16,30))
     fig = plt.figure(figsize=(20,30))
     for i in metricNames:
@@ -359,19 +359,19 @@ def ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames):
 
 
 def ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames):
-    row = 9; col = 2; j = 1
-    fig = plt.figure(figsize=(32,20))
+    j = 1
+    
+    # fig = plt.figure(figsize=(32,20))
     sns.set(style="white", color_codes=True)
-    for i in metricNames:
-        # plt.subplot(row, col, j)
-        # g = sns.jointplot(x=temporaryScalingDF['next1'+str(i)], y=temporaryScalingDF['predictedNext1'+str(i)],                           kind='reg', height=5, ratio=3)
-        
+    for i in metricNames:        
         g = sns.jointplot(x=temporaryScalingDF['next1'+str(i)], y=temporaryScalingDF['predictedNext1'+str(i)],                           kind='reg', ratio=3)
         
         g.savefig('images/InnerStateMetricRegression' + str(j) + '.jpg')
         
         j = j + 1
+        
+        plt.close()
     
     # plt.show()
-    plt.close()
+    # plt.close()
     pass
