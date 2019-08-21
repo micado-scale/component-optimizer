@@ -45,7 +45,8 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     logger = logging.getLogger('optimizer')
     
     logger.info('')
-    logger.info('----------------------- trainer init ---------------------')
+    logger.info('---------------------------  trainer init  -------------------------')
+    logger.info('')
     
     global _target_variable
     _target_variable = target_variable[0]
@@ -77,22 +78,24 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     logger.info(f'     _outsource_metrics = {_outsource_metrics}')
     logger.info(f'     outsource_metrics = {outsource_metrics}')
     
-    logger.info('----------------------- trainer init end ---------------------')
+    logger.info('---------------------------  trainer init end  -------------------------')
     logger.info('')
 
+    
+# ## ------------------------------------------------------------------------------------------------------
+# ## Define run
+# ## ------------------------------------------------------------------------------------------------------
 
 def run(nn_file_name, visualize = False):
 
     logger = logging.getLogger('optimizer')
     
-    logger.info('-----opt_trainer.run()-----')
+    logger.info('---------------------------     opt_trainer.run()     ---------------------------')
     
-    logger.info(f'_target_variable = {_target_variable}')
-    logger.info(f'_input_metrics = {_input_metrics}')
 
-    logger.info('---------------------------')
-    logger.info(nn_file_name)
-    logger.info('---------------------------')
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info(f'      nn_file_name     = {nn_file_name}')
+    logger.info('---------------------------------------------------------------------------------')
     
 
     # Declare variables
@@ -103,22 +106,22 @@ def run(nn_file_name, visualize = False):
     targetVariable = _target_variable
     
     logger.info('---------------------------------------------------------------------------------')
-    logger.info(f'targetVariable = {targetVariable}')
-    logger.info(f'_target_variable = {_target_variable}')
+    logger.info(f'      targetVariable   = {targetVariable}')
+    logger.info(f'      _target_variable = {_target_variable}')
     logger.info('---------------------------------------------------------------------------------')
 
     inputMetrics = _input_metrics
     
     logger.info('---------------------------------------------------------------------------------')
-    logger.info(f'inputMetrics = {inputMetrics}')
-    logger.info(f'_input_metrics = {_input_metrics}')
+    logger.info(f'      inputMetrics     = {inputMetrics}')
+    logger.info(f'      _input_metrics   = {_input_metrics}')
     logger.info('---------------------------------------------------------------------------------')
 
     workerCount = _worker_count
     
     logger.info('---------------------------------------------------------------------------------')
-    logger.info(f'workerCount = {workerCount}')
-    logger.info(f'_worker_count = {_worker_count}')
+    logger.info(f'      workerCount      = {workerCount}')
+    logger.info(f'      _worker_count    = {_worker_count}')
     logger.info('---------------------------------------------------------------------------------')
 
     
@@ -147,7 +150,6 @@ def run(nn_file_name, visualize = False):
 
     def readCSV(filename):
         df = pd.read_csv(filename, sep=";", header="infer", skiprows=1, na_values="null")
-        # Return DataFrame
         return df
 
     # Read DataFrame
@@ -155,9 +157,7 @@ def run(nn_file_name, visualize = False):
     
     def readNeuralCSV(filename):
         df = pd.read_csv(filename, sep=",", header="infer", skiprows=0, na_values="null")
-        # Return DataFrame
         return df
-        
     
     # Read nn_train_data
     nf = readNeuralCSV(neuralCSVFile)
@@ -207,11 +207,12 @@ def run(nn_file_name, visualize = False):
     
     def dataFrameInfo(df):
         logger.info('---------------------------------------------------------------------------------')
-        logger.info('                   --------------- DataFrame ------------------                  ')
-        logger.info(f'df.columns  = {df.columns}')
-        logger.info(f'df.shape    = {df.shape}')
-        # logger.info(f'df.head()   = {df.head()}')
-        logger.info('                   --------------- DataFrame ------------------                  ')
+        logger.info('      --------------   pre-processed DataFrame from csv   --------------         ')
+        logger.info(f'      df.shape    = {df.shape}')
+        logger.info(f'      df.columns  = {df.columns}')
+        # logger.info(f'      df.head()   = {df.head()}')
+        logger.info('     -------------------------------------------------------------------         ')
+        logger.info('---------------------------------------------------------------------------------')
 
 
     # ## ------------------------------------------------------------------------------------------------------
@@ -223,11 +224,6 @@ def run(nn_file_name, visualize = False):
 
     # Print DataFrame Info
     dataFrameInfo(preProcessedDF)
-
-    # Set targetVariable
-    targetVariable = _target_variable
-    logger.info(f'target variable set = {targetVariable}')
-
 
     # Declare some functions
     def renameVariable(df, old_var_name, new_var_name):
@@ -244,7 +240,6 @@ def run(nn_file_name, visualize = False):
     logger.info(f'WorkerCountName = {WorkerCountName}')
     
     
-
     # Rename Worker count or vm_number to WorkerCount
     preProcessedDF = renameVariable(preProcessedDF, WorkerCountName, 'WorkerCount')
 
@@ -332,9 +327,10 @@ def run(nn_file_name, visualize = False):
     # ## Create a whole new DataFrame for Before After Data
     # ## ------------------------------------------------------------------------------------------------------
     
-    # ## This is only for further development - consider the lags as input
+    # ## This is only for further development - consider the lags as inputs for neural network
 
-    logger.info('CreateBeforeAfter method')
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info('---------------   createBeforeafterDF(df, lag, inputMetrics)    -----------------')
     logger.info(f'preProcessedDF.columns = {preProcessedDF.columns}')
     logger.info(f'len(inputMetrics) = {len(inputMetrics)}')
     logger.info(f'inputMetrics = {inputMetrics}')
@@ -343,7 +339,7 @@ def run(nn_file_name, visualize = False):
         beforeafterDF = df.copy()
         length = len(inputMetrics)
         inputVariables = np.flip(beforeafterDF.columns[0:length].ravel(), axis=-1)
-        print('Input Variablels : ', inputVariables)
+        # print('Input Variablels : ', inputVariables)
 
         index = length
         for i in inputVariables:
@@ -367,6 +363,7 @@ def run(nn_file_name, visualize = False):
     beforeafterDF = createBeforeafterDF(preProcessedDF, 1, inputMetrics)
 
     logger.info('CreateBeforeAfter method done')
+    logger.info('---------------------------------------------------------------------------------')
 
 
     
@@ -377,11 +374,6 @@ def run(nn_file_name, visualize = False):
     # ## ------------------------------------------------------------------------------------------------------
 
     # In[28]: Declare some functions
-
-    logger.info('----------------------------------------------------------')
-    logger.info(f'_input_metrics {_input_metrics}')
-    logger.info(f'inputMetrics {inputMetrics}')
-    logger.info('----------------------------------------------------------')
 
     def setFeaturesAndTheirLags(df, columnNames):
         # X = df.iloc[:,0:9]
