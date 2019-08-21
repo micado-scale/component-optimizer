@@ -90,6 +90,7 @@ def ScatterPlots(x, y, extendedMetricNames, ylabel):
 
     plt.tight_layout(w_pad=15, h_pad=3)
     fig.savefig('images/InnerStateVariableVsTargetVariable.jpg')
+    fig.savefig('static/InnerStateVariableVsTargetVariable.jpg')
 
     # plt.show()
     plt.close()
@@ -118,6 +119,7 @@ def TimeLinePlot(df, x):
     plt.text(y = tmp_mean + 2*tmp_std, x = 0, s = '+2Std', fontsize = 20)
 
     fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLines.jpg')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLines.jpg')
 
     # plt.show()
     plt.close()
@@ -141,6 +143,7 @@ def TimeLinePlots(df, extendedMetricNames):
 
     plt.tight_layout(w_pad=15, h_pad=3)
     fig.savefig('images/InnerStateVariableTimeLines_2.jpg')
+    fig.savefig('static/InnerStateVariableTimeLines_2.jpg')
 
     # plt.show()
     plt.close()
@@ -156,6 +159,7 @@ def VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable):
     plt.xlabel('Normalized real Response Time', fontsize=labelsize)
     plt.ylabel('Normalized estimated Response Time', fontsize=labelsize)
     fig.savefig('images/Y_normailizedVsY_predictedLatency.jpg')
+    fig.savefig('static/Y_normailizedVsY_predictedLatency.jpg')
 
     # plt.show()
     plt.close()
@@ -178,6 +182,7 @@ def VisualizePredictedYLine(y_normalized, y_predicted, targetVariable, lines = F
         plt.axhline(y = y_predicted.min(), color = 'grey', linestyle = '--')
     plt.gca().legend(('real','predicted'), loc = 2, prop={'size': 16})
     fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.jpg')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.jpg')
     
     # plt.show()
     plt.close()
@@ -201,6 +206,7 @@ def VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable,
     plt.text(y = y_predicted.min() + 0.02, x = -0, s = str(y_predicted.min())[:15], fontsize = 14, horizontalalignment='left')
     plt.gca().legend(('real','predicted'), loc = 2, prop={'size': 16})
     fig.savefig('images/VisualizePredictedYLineWithValues' + name + '.jpg')
+    fig.savefig('static/VisualizePredictedYLineWithValues' + name + '.jpg')
     
     # plt.show()
     plt.close()
@@ -222,6 +228,7 @@ def VisualizePredictedYWithWorkers(y_normalized, y_predicted, targetVariable):
     plt.gca().legend((variables), loc = 2, prop={'size': 16})
 
     fig.savefig('images/PredictedYByWorkers.jpg')
+    fig.savefig('static/PredictedYByWorkers.jpg')
     
     # plt.show()
     plt.close()
@@ -244,6 +251,7 @@ def VisualizePredictedXYLine(y_normalized, y_predicted, targetVariable, lowerLim
     plt.axhline(y = upperLimit, color = 'grey')
     plt.gca().legend(('Advided numb. of new resources','Measured response time (ms)'), loc = 2, prop={'size': 12})
     fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_2.jpg')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_2.jpg')
     
     # plt.show()
     plt.close()
@@ -283,6 +291,7 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
 
     fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg')
     
     # plt.show()
     plt.close()
@@ -315,6 +324,7 @@ def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit
     ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
 
     fig.savefig('images/ResponseTimeAdvicePredicted.jpg')
+    fig.savefig('static/ResponseTimeAdvicePredicted.jpg')
     
     # plt.show()
     plt.close()
@@ -334,6 +344,7 @@ def ScatterPlotsTrainTest(y_train, y_train_predicted, y_test, y_test_predicted, 
     plt.scatter(x = y_test, y = y_test_predicted, s = 10)
 
     fig.savefig('images/Y_denormailizedVsY_predictedLatency.jpg')
+    fig.savefig('static/Y_denormailizedVsY_predictedLatency.jpg')
 
     # plt.show()
     plt.close()
@@ -352,6 +363,7 @@ def ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames):
         j = j + 1
         
     fig.savefig('images/InnerStateMetricsRegression.png', bbox_inches = 'tight', pad_inches = 0)
+    fig.savefig('static/InnerStateMetricsRegression.png', bbox_inches = 'tight', pad_inches = 0)
     
     # plt.show()
     plt.close()
@@ -364,9 +376,10 @@ def ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricN
     # fig = plt.figure(figsize=(32,20))
     sns.set(style="white", color_codes=True)
     for i in metricNames:        
-        g = sns.jointplot(x=temporaryScalingDF['next1'+str(i)], y=temporaryScalingDF['predictedNext1'+str(i)],                           kind='reg', ratio=3)
+        g = sns.jointplot(x=temporaryScalingDF['next1'+str(i)], y=temporaryScalingDF['predictedNext1'+str(i)], kind='reg', ratio=3)
         
         g.savefig('images/InnerStateMetricRegression' + str(j) + '.jpg')
+        g.savefig('static/InnerStateMetricRegression' + str(j) + '.jpg')
         
         j = j + 1
         

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, render_template, Response
 from ruamel import yaml
 
 import logging
@@ -172,12 +172,7 @@ def sample():
         logger.info('      ----------- sample -----------')
         logger.info('----------------------------------------------')
 
-        #TODO
-        # !!!
-        # Ez gáz egy csomó olyan érték bekerül, ahol a target_metrics üres
-        # !!!
-        # !!!
-        # !!!
+
         # if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
         # if( len(input_metrics) != 0 and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
         if( len(input_metrics) == len(constants.get('input_metrics')) and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
@@ -350,6 +345,9 @@ def index():
 def hello():
     return 'Hello Optimizer'
 
+@app.route('/optimizer/report', methods=['GET'])
+def report():
+    return render_template('index.html')
 
 class RequestException(Exception):
     def __init__(self, status_code, reason, *args):

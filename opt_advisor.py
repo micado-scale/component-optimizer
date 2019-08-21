@@ -165,7 +165,7 @@ def run(csfFileName, last = False):
     # testFileName = 'data/test_data.csv'                                  # test data
     testFileName = csfFileName                                             # from parameter
     
-    maximumNumberIncreasableNode = 6                                       # must be positive 6
+    maximumNumberIncreasableNode = 4                                       # must be positive 6
     minimumNumberReducibleNode = -4                                        # must be negativ -4
     
     upperLimit = target_metric_max                                         # 4000000
@@ -383,28 +383,28 @@ def run(csfFileName, last = False):
 
             addedWorkerCount = j
             
-            logger.info(f' addedWorkerCount = {addedWorkerCount}')
+            logger.info(f' calculate target variable related to current addedWorkerCount = {addedWorkerCount}')
 
             newDFForRegression['addedWorkerCount'] = addedWorkerCount
             
-            logger.info(f'newDFForRegression.columns = {newDFForRegression.columns}')
+            # logger.info(f'newDFForRegression.columns = {newDFForRegression.columns}')
 
             for i in metricNames:
                 
-                logger.info('------------- inner loop started -----------------')
+                # logger.info('------------- inner loop started -----------------')
                 
-                logger.info(f' metricsNames = {metricNames}')
+                # logger.info(f' metricsNames = {metricNames}')
                 
-                logger.info(f' i = {i}')
+                # logger.info(f' i = {i}')
 
                 newDFForRegressionWithTerms = calculateLinearRegressionTerms(i, newDFForRegression)
                 
-                logger.info('-------------- calculateLinearRegressionTerms STARTED -------------')
+                # logger.info('-------------- calculateLinearRegressionTerms STARTED -------------')
 
                 # keep last three column - given metric, term1, term2
                 X = newDFForRegressionWithTerms.iloc[:, [-3, -2, -1]]
                 
-                logger.info('-------------- X Features Generated STARTED -------------')
+                # logger.info('-------------- X Features Generated STARTED -------------')
 
                 # load the proper current metric model
                 modelForMetric = joblib.load('models/saved_linearregression_model_' + i + '.pkl')
@@ -566,14 +566,16 @@ def run(csfFileName, last = False):
     advicedDF['postScaledTargetVariable'] = np.nan
     advicedDF['advicedVM'] = 0
     
-    logger.info('post advice init')
+    logger.info('----------------------------------------------------------')
+    logger.info('                      post advice init                    ')
+    logger.info('----------------------------------------------------------')
     
-    print('------------------------------------------------------')
+    logger.info('------------------------------------------------------')
     # print('investigationDeNormalizedDF.columns')
     # print(investigationDeNormalizedDF.columns)
-    print(investigationDeNormalizedDF.shape)
-    print(investigationDeNormalizedDF.index)
-    print('------------------------------------------------------')
+    logger.info(f'investigationDeNormalizedDF.shape = {investigationDeNormalizedDF.shape}')
+    logger.info(f'investigationDeNormalizedDF.index = {investigationDeNormalizedDF.index}')
+    logger.info('------------------------------------------------------')
 
     for i in investigationDeNormalizedDF.index:
         distance = 99999999999
@@ -589,18 +591,25 @@ def run(csfFileName, last = False):
             # advicedDF.ix[i,'advice'] = investigationDeNormalizedDF[['WorkerCount']]
             countInRange += 1
             print("ok")
+            logger.info('----------------------------------------------------------')
+            logger.info('                 Target Variable in Range                 ')
         else:
-            print("threshold violation at index " + str(i))
+            logger.info('----------------------------------------------------------')
+            logger.info('          Target Variable higher than upper limit         ')
+            logger.info(f'   threshold violation at index = {str(i)}')
+            logger.info(f'   upper limit = {upperLimit}')
+            logger.info(f'   real target value = {real}')
             if( upperLimit < real ):
                 countViolatedUp += 1
-                # print("threshold up violation")
                 advice = 0
                 actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('inf')
                 for j in range(1, maximumNumberIncreasableNode):
                     # print(distance)
-                    advice = 0
+                    # advice = 0 elvileg 0-ról indulunk de mondjuk legyen alapból -1 ezt majd át kell írnom
+                    advice = 1
+                    advicedVM = actual_worker_number + advice
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága a felső limittől
                     # kettő legyen a felső limit alatt (utóbbi nem biztos, hogy teljesül)
                     varName = 'denormalizedPredictedResponseTimeAdded' + str(j) + 'Worker'
@@ -617,17 +626,21 @@ def run(csfFileName, last = False):
                 advicedDF.ix[i, 'postScaledTargetVariable'] = postScaledTargetVariable
             elif( lowerLimit > real ):
                 countViolatedDown += 1
-                print("threshold down violation")
+                logger.info('----------------------------------------------------------')
+                logger.info('           Target Variable less than lower limit          ')
+                logger.info(f'   threshold violation at index = {str(i)}')
+                logger.info(f'   lower limit = {lowerLimit}')
+                logger.info(f'   real target value = {real}')
                 advice = 0
                 actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                 postScaledTargetVariable = np.nan # 0
                 distance = float('-inf')
-                # TODO:
-                # Change to for j in range (-1, minimumNumberReducibleNode, -1):
+
                 # for j in range(-1, -3, -1):
                 for j in range(-1, minimumNumberReducibleNode, -1):
                     # print(distance)
-                    advice = 0
+                    # advice = 0 elvileg 0-ról indulunk de mondjuk legyen alapból -1 ezt majd át kell írnom
+                    advice = -1
                     actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
                     # két feltételnek kell megfelelnie sorrendben legyen a legkisebb távolsága az alsó limittől
                     # kettő legyen az alsó limit fölött (utóbbi nem biztos, hogy teljesül)
