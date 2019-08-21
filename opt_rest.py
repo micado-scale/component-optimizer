@@ -178,9 +178,14 @@ def sample():
         # !!!
         # !!!
         # !!!
-        if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
+        # if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
+        # if( len(input_metrics) != 0 and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
+        if( len(input_metrics) == len(constants.get('input_metrics')) and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
             logger.info('----------------------------------------------')
             logger.info('Sample accepted.')
+            logger.info(constants.get('target_metrics'))
+            logger.info(len(target_metrics))
+            logger.info(len(constants.get('target_metrics')))
             logger.info('----------------------------------------------')
             
             # itt csak beolvassa a csv fájlt és csinál belőle egy data framet

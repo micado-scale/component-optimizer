@@ -436,18 +436,18 @@ def run(csfFileName, last = False):
 
             # X must contain exactly the same columns as the model does
             X = newDFForNerualNetworkPrediction.iloc[:, :len(input_variables)]
-            print('11111ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            print(newDFForNerualNetworkPrediction.columns)
-            print(newDFForNerualNetworkPrediction.shape)
-            print(newDFForNerualNetworkPrediction.head())
-            print('22222ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            print(X.columns)
-            print(X.shape)
-            print(X.head())
-            print('33333ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            print(input_variables)
-            print(len(input_variables))
-            print('44444ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            # print('11111ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            # print(newDFForNerualNetworkPrediction.columns)
+            # print(newDFForNerualNetworkPrediction.shape)
+            # print(newDFForNerualNetworkPrediction.head())
+            # print('22222ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            # print(X.columns)
+            # print(X.shape)
+            # print(X.head())
+            # print('33333ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            # print(input_variables)
+            # print(len(input_variables))
+            # print('44444ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
 
 
             # X must be normalized based on a previously created MinMaxScaler
