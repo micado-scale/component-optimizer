@@ -50,6 +50,7 @@ maximumNumberIncreasableNode = 6  # must be positive
 minimumNumberReducibleNode = -6   # must be negative
 first_advice = None
 prev_adviced_time = 0
+prev_advice_vm_total_number = 0
 
 
 # ## ------------------------------------------------------------------------------------------------------
@@ -100,7 +101,10 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     first_advice = True
     
     global prev_adviced_time
-    prev_adviced_time = 0
+    prev_adviced_time = float('-inf')
+    
+    global prev_advice_vm_total_number
+    prev_advice_vm_total_number = 0
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -152,12 +156,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     
     
     
-    global first_advice
-    global prev_adviced_time
-    if( first_advice == True ):
-        first_advice = False
-        prev_adviced_time = current_time
-    
+
 
     # Set the default message False
     return_msg = advice_msg(valid = False, phase = 'invalid', error_msg = 'Default message')
@@ -784,8 +783,36 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # ## ------------------------------------------------------------------------------------------------------
     
     current_time = int(time.time())
-    if( current_time - prev_advice_time > 100 ):
-        print(a)
+    global first_advice
+    global prev_adviced_time
+    global prev_advice_vm_total_number
+    logger.info('---------------------------------------------------------------------------')
+    logger.info(f'  first_advice = {first_advice}')
+    logger.info(f'  prev_adviced_time = {prev_adviced_time}')
+    logger.info(f'  current_time      = {current_time}')
+    logger.info(f'  ellapsed time     = {current_time - prev_adviced_time}')
+    logger.info('---------------------------------------------------------------------------')
+    if( current_time - prev_adviced_time > 30 ):
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        print('a')
+        prev_adviced_time = current_time
+        prev_advice_vm_total_number = vm_number_total
+        first_advice = False
+        
+        logger.info('----------------------  opt_advisor.run() first run  ----------------------')
+        logger.info(f'  first_advice = {first_advice}')
+        logger.info(f'  prev_adviced_time = {prev_adviced_time}')
+        logger.info(f'  prev_advice_vm_total_number = {prev_advice_vm_total_number}')
+        logger.info(f'  vm_number_total = {vm_number_total}')
+        logger.info('---------------------------------------------------------------------------')
+    
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
         
