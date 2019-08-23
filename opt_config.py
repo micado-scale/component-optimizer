@@ -40,3 +40,19 @@ class OptimizerConfig(Config):
     @output_filename.setter
     def output_filename(self, output_filename):
         self._output_filename = output_filename
+        
+    @property
+    def maximum_number_increasable_node(self):
+        return self.get_property('maximum_number_increasable_node')
+
+    @maximum_number_increasable_node.setter
+    def maximum_number_increasable_node(self, maximum_number_increasable_node):
+        self.maximum_number_increasable_node = maximum_number_increasable_node
+    
+    @property
+    def minimum_number_reducible_node(self):
+        return self.get_property('minimum_number_reducible_node')
+
+    @minimum_number_reducible_node.setter
+    def minimum_number_reducible_node(self, minimum_number_reducible_node):
+        self.minimum_number_reducible_node = minimum_number_reducible_node

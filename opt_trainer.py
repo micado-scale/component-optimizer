@@ -349,7 +349,8 @@ def run(nn_file_name, visualize = False):
 
         beforeafterDF = beforeafterDF[lag:]
 
-        print('Before After DF columns: ', beforeafterDF.columns)
+        logger.info('---------------------------------------------------------------------------------')
+        logger.info(f'Before After DF columns = {beforeafterDF.columns}')
 
         return beforeafterDF
 
@@ -362,7 +363,8 @@ def run(nn_file_name, visualize = False):
 
     beforeafterDF = createBeforeafterDF(preProcessedDF, 1, inputMetrics)
 
-    logger.info('CreateBeforeAfter method done')
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info('                        CreateBeforeAfter method done                            ')
     logger.info('---------------------------------------------------------------------------------')
 
 
@@ -375,7 +377,7 @@ def run(nn_file_name, visualize = False):
 
     # In[28]: Declare some functions
 
-    def setFeaturesAndTheirLags(df, columnNames):
+    def setFeatures(df, columnNames):
         # X = df.iloc[:,0:9]
         X = df[columnNames]
         return X
@@ -387,13 +389,16 @@ def run(nn_file_name, visualize = False):
     # ## ------------------------------------------------------------------------------------------------------
 
     # X = setFeaturesAndTheirLags(beforeafterDF, inputMetrics)
-    X = setFeaturesAndTheirLags(beforeafterDF, inputMetrics)
+    X = setFeatures(beforeafterDF, inputMetrics)
 
-    logger.info('--------- SetFeaturesAndTheirLags method done ------------')
+    logger.info('---------      Set Features method done       ------------')
     logger.info('-------------------------- X -----------------------------')
     logger.info('----------------------------------------------------------')
 
     logger.info('----------------------------------------------------------')
+    logger.info(f'      type(X) = {type(X)}')
+    logger.info(f'      X.shape = {X.shape}')
+    logger.info(f'      X.columns = {X.columns}')
     logger.info(X.head(3))
     logger.info('----------------------------------------------------------')
     
@@ -416,6 +421,7 @@ def run(nn_file_name, visualize = False):
     logger.info('----------------------------------------------------------')
     logger.info(y.head())
     logger.info(f'(y describe = {y.describe()}')
+    logger.info('----------------------------------------------------------')
 
     
     # In[33]:
@@ -451,7 +457,9 @@ def run(nn_file_name, visualize = False):
     # In[36]: Normalize Features and Save Normalized values, Normalize input variables set
     X_normalized, X_normalized_MinMaxScaler = normalizeX(X)
     
-    logger.info('X_normalized done')
+    logger.info('')
+    logger.info('---------          X_normalized done          ------------')
+    logger.info('-------------------------- X -----------------------------')
 
 
     
@@ -469,7 +477,9 @@ def run(nn_file_name, visualize = False):
     # In[38]: Load Saved Normalized Data (Normalizer)
     X_normalized_MinMaxScaler = loadMinMaxScalerXFull()
     
-    logger.info('X_normalized_MinMaxScaler load done')
+    logger.info('')
+    logger.info('--------- X_normalized_MinMaxScaler load done ------------')
+    logger.info('-------------------------- X -----------------------------')
 
 
 
@@ -512,6 +522,10 @@ def run(nn_file_name, visualize = False):
     
     # In[46]: Normalize Target and Save Normalized values, Normalize target variable set
     y_normalized, y_normalized_MinMaxScaler = normalizeY(y)
+    
+    logger.info('')
+    logger.info('---------          y_normalized done          ------------')
+    logger.info('-------------------------- y -----------------------------')
 
 
     # In[48]:
@@ -533,6 +547,10 @@ def run(nn_file_name, visualize = False):
 
     # In[51]: Load Saved Normalized Data (Normalizer)
     y_normalized_MinMaxScaler = loadMinMaxScalerYFull()
+    
+    logger.info('')
+    logger.info('--------- y_normalized_MinMaxScaler load done ------------')
+    logger.info('-------------------------- y -----------------------------')
 
 
     # In[52]: De-normalize Features set
@@ -544,7 +562,10 @@ def run(nn_file_name, visualize = False):
         y_denormalized[0:3]
         y_denormalized[-3:]
 
-    logger.info('Normalization done')
+    logger.info('')
+    logger.info('')
+    logger.info('---------          Normalization done         ------------')
+    logger.info('----------------------------------------------------------')
 
     
     
@@ -601,6 +622,9 @@ def run(nn_file_name, visualize = False):
     # In[59]: Evaluete the model
     from utils import evaluateGoodnessOfPrediction
     evaluateGoodnessOfPrediction(y_normalized, y_predicted)
+    
+    # TODO
+    # visszatérni az értékekkel és eltárolni őket valamilyen változóban
     
     
     # ## ------------------------------------------------------------------------------------------------------            
@@ -740,16 +764,17 @@ def run(nn_file_name, visualize = False):
     
     
     
+    
     def createBeforeafterDFLags(df, lag):
         beforeafterDFLags = df.copy()
         dfColumnsNumber = beforeafterDFLags.shape[1]
-        print('dfColumnsNumber = ', dfColumnsNumber)
+        logger.info(f'dfColumnsNumber = {dfColumnsNumber}')
         # index = 10
         index = dfColumnsNumber - 1
         
         # inputVariables = np.flip(beforeafterDFLags.columns[0:10].ravel(), axis=-1)
         inputVariables = np.flip(beforeafterDFLags.columns[0:index].ravel(), axis=-1)
-        print('Input Variables in createBeforeafterDFLags: ', inputVariables)
+        logger.info(f'Input Variables in createBeforeafterDFLags = {inputVariables}')
 
         for i in inputVariables:
             new_column = beforeafterDFLags[i].shift(lag)

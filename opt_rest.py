@@ -15,6 +15,7 @@ import pandas as pd
 
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 logger = None
 config = None
@@ -27,6 +28,10 @@ constants = {}
 outsource_metrics = ['AVG_RR', 'SUM_RR']         # Our example application this should leave as it is
 learning_round = 1                               # learn after n new sample
 _last = True
+
+# Akkor is átveszi a sample-ből ha ott van, ha nincs
+vm_number = None
+target_variable = None
 
 
 def init_service(cfg):
@@ -146,31 +151,43 @@ def sample():
         sample = yaml.safe_load(sample_yaml)
         logger.info(f'New sample received: {sample}')
         
-        logger.info('Getting sample data...')
+        logger.info('')
+        logger.info('--------------------------------------------------------------')
+        logger.info('                   Getting sample data...                     ')
+        logger.info('--------------------------------------------------------------')
 
         input_metrics = [metric.get('value')
                          for metric in sample.get('sample').get('input_metrics')]
         
+        
         target_metrics = [metric.get('value')
                           for metric in sample.get('sample').get('target_metrics')]
         
+        
+        global target_variable
+        target_variable = target_metrics
+        
         # Ez volt a jó megoldás, de Józsi valmiért a Polcy Keeperben a sample-n kívül küldi el a vm_number értéket
         # ezért ezt most átírom, csak egy próba ereéig
+        global vm_number
         vm_number = sample.get('sample').get('vm_number')
         # vm_number = sample.get('vm_number')
         
         timestamp_col = [sample.get('sample').get('timestamp')]
         
-        logger.info('Sample data stored in corresponding variables.')
-        logger.info('----------------------------------------------')
+        logger.info('')
+        logger.info('Sample data is going to be stored in corresponding variables.')
+        logger.info('--------------------------------------------------------------')
         logger.info(f'      input_metrics = {input_metrics}')
         logger.info(f'      target_metrics = {target_metrics}')
         logger.info(f'      vm_number = {vm_number}')
         logger.info(f'      timestamp_col = {timestamp_col}')
-        logger.info('      ----------- sample -----------')
+        logger.info(f'      target_variable = {target_variable}')
+        logger.info('      ----------------------- sample -----------------------')
         logger.info(f'      {sample.get("sample")}')
-        logger.info('      ----------- sample -----------')
-        logger.info('----------------------------------------------')
+        logger.info('      ----------------------- sample -----------------------')
+        logger.info('')
+        logger.info('--------------------------------------------------------------')
 
 
         # if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
@@ -178,16 +195,18 @@ def sample():
         if( len(input_metrics) == len(constants.get('input_metrics')) and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
             logger.info('----------------------------------------------')
             logger.info('Sample accepted.')
-            logger.info(constants.get('target_metrics'))
-            logger.info(len(target_metrics))
-            logger.info(len(constants.get('target_metrics')))
+            logger.info('----------------------------------------------')
+            logger.info(f'     (constants.get("target_metrics") = {constants.get("target_metrics")}')
+            logger.info(f'     len(target_metrics) = {len(target_metrics)}')
+            logger.info(f'     len(constants.get("target_metrics")) = {len(constants.get("target_metrics"))}')
             logger.info('----------------------------------------------')
             
             # itt csak beolvassa a csv fájlt és csinál belőle egy data framet
             df = opt_utils.readCSV(config.nn_filename)
 
             logger.info('----------------------------------------------')
-            logger.info(f'pandas dataframe df.columns = {df.columns}')
+            logger.info('  df = opt_utils.readCSV(config.nn_filename)  ')
+            logger.info(f'  pandas dataframe df.columns = {df.columns}')
             logger.info('----------------------------------------------')
 
             # Hozzáfűzöm az új adatokat a beolvasott csv-ből csinált data framehez
@@ -197,6 +216,7 @@ def sample():
             tmp_df.to_csv(config.nn_filename, sep=',', encoding='utf-8', index=False)
 
             logger.info('----------------------------------------------')
+            logger.info("tmp_df.to_csv(config.nn_filename, sep=',', encoding='utf-8', index=False)'")
             logger.info('Data has been added and saved to csv file')
             logger.info('----------------------------------------------')
 
@@ -323,7 +343,12 @@ def get_advice():
     # akkor ad javaslatot, ha nincs akkor a józsinak megfelelően
     # visszadja, hogy False
     
-    opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
+    # opt_advisor_return = opt_advisor.run(config.nn_filename, last = _last)
+    
+    # Felmerült az a probléma, hogy néha nem kapunk elfogadható mintát
+    # a Sample API-ban, ezért két változót átadok az Advisornak
+    # akkor is ha ezek nem lesznek letárolva az adatok között
+    opt_advisor_return = opt_advisor.run(config.nn_filename, vm_number, target_variable, last = _last)
     
     logger.info('----------------------------------------------------------')
     logger.info('------------------ opt_advisor_return --------------------')
