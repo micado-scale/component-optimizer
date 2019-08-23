@@ -791,25 +791,24 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info(f'  prev_adviced_time = {prev_adviced_time}')
     logger.info(f'  current_time      = {current_time}')
     logger.info(f'  ellapsed time     = {current_time - prev_adviced_time}')
+    logger.info(f'  prev_advice_vm_total_number = {prev_advice_vm_total_number}')
+    logger.info(f'  vm_number_total = {vm_number_total}')
     logger.info('---------------------------------------------------------------------------')
     if( current_time - prev_adviced_time > 30 ):
-        print('a')
-        print('a')
-        print('a')
-        print('a')
-        print('a')
-        print('a')
-        print('a')
-        print('a')
-        print('a')
+
         prev_adviced_time = current_time
         prev_advice_vm_total_number = vm_number_total
         first_advice = False
         
-        logger.info('----------------------  opt_advisor.run() first run  ----------------------')
+        logger.info('-------------------------  opt_advisor.run() run  -------------------------')
         logger.info(f'  first_advice = {first_advice}')
         logger.info(f'  prev_adviced_time = {prev_adviced_time}')
         logger.info(f'  prev_advice_vm_total_number = {prev_advice_vm_total_number}')
+        logger.info(f'  vm_number_total = {vm_number_total}')
+        logger.info('---------------------------------------------------------------------------')
+    else:
+        vm_number_total = prev_advice_vm_total_number
+        logger.info('---------------------------------------------------------------------------')
         logger.info(f'  vm_number_total = {vm_number_total}')
         logger.info('---------------------------------------------------------------------------')
     

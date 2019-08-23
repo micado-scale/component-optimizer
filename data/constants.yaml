@@ -15,7 +15,7 @@ max_vm_number: 10
 min_vm_number: 1
 nn_stop_error_rate: 10.0
 target_metrics:
-- max_threshold: 19000
-  min_threshold: 14000
+- max_threshold: 13000
+  min_threshold: 12000
   name: AVG_LAT_05
 training_samples_required: 300
