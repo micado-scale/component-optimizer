@@ -52,7 +52,8 @@ first_advice = None
 prev_adviced_time = 0
 prev_advice_vm_total_number = 0
 
-
+default_maximumNumberIncreasableNode = 6  # must be positive
+default_minimumNumberReducibleNode = -6   # must be negative
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
@@ -92,6 +93,10 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     global maximumNumberIncreasableNode
     if config.maximum_number_increasable_node is not None:
         maximumNumberIncreasableNode = config.maximum_number_increasable_node
+    else:
+        maximumNumberIncreasableNode = default_maximumNumberIncreasableNode
+        
+    # maximumNumberIncreasableNode = config.maximum_number_increasable_node if config.maximum_number_increasable_node else default_maximumNumberIncreasableNode
     
     global minimumNumberReducibleNode
     if config.minimum_number_reducible_node is not None:
@@ -794,7 +799,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info(f'  prev_advice_vm_total_number = {prev_advice_vm_total_number}')
     logger.info(f'  vm_number_total = {vm_number_total}')
     logger.info('---------------------------------------------------------------------------')
-    if( current_time - prev_adviced_time > 30 ):
+    
+    if( current_time - prev_adviced_time > 1 ):
 
         prev_adviced_time = current_time
         prev_advice_vm_total_number = vm_number_total

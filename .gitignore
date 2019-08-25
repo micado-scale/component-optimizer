@@ -7,3 +7,5 @@
 /backups/
 Helpers.*
 *backup*.*
+.ipynb_checkpoints/
+

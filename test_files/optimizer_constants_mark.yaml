@@ -4,7 +4,8 @@ constants:
     max_delta_vm: 2
     training_samples_required: 300
     max_number_of_scaling_activity: 100
-    nn_stop_error_rate: 10.0 
+    nn_stop_error_rate: 10.0
+    advice_freeze_interval: 0
     input_metrics: 
       - name: PktIn
       - name: KBIn 

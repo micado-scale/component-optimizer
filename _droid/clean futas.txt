@@ -11,6 +11,7 @@ python optimizer.py --cfg config/config.yaml --host=192.168.0.60
 
 
 
+
 curl -X POST http://193.224.59.115:5000/optimizer/init --data-binary @test_files/optimizer_constants_mark.yaml
 
 ./delete-clean.sh

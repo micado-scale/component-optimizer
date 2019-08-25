@@ -1,35 +1,56 @@
-<!DOCTYPE html>
-<html lang="zxx">
+<!doctype html>
+<html>
 <head>
-<title>Report</title>
-<style type="text/css">
-html { font-family: sans-serif; font-size: 14px; }
-body { max-width:310mm; margin: 0 auto;}
-header h1 {font-size: 4rem;}
-h1 {font-size: 3rem;}
-h2 {font-size: 2.6rem;}
-h3 {font-size: 2.2rem;}
-h4 {font-size: 2.0rem;}
-ul {list-style-type: none;}
-nav li a{color: black; text-decoration: none;}
-table, tr, td, th { border-style: solid; border-color: #ccc; border-width: 0px;}
-table {border-spacing: 0px; border-width: 0px 1px 1px 0px;}
-td, th {border-width: 1px 0px 0px 1px; padding: 5px;}
-th {background-color: #eee}
-footer {text-align:center; border-top: 1px solid #CCC;}
-footer a {text-decoration: none; color: #e75424;}
-@media print {
- footer {
-    position: fixed;
-	bottom: 0;
-	width: 100%;
-  }
-}
-header img{vertical-align:middle;}
-img { border: 0; }
-section {page-break-inside: avoid;}
-</style>
+    <link rel="apple-touch-icon" sizes="57x57" href="{{url_for('static', filename='favicon/apple-icon-57x57.png')}}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{url_for('static', filename='favicon/apple-icon-60x60.png')}}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{url_for('static', filename='favicon/apple-icon-72x72.png')}}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{url_for('static', filename='favicon/apple-icon-76x76.png')}}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{url_for('static', filename='favicon/apple-icon-114x114.png')}}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{url_for('static', filename='favicon/apple-icon-120x120.png')}}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{url_for('static', filename='favicon/apple-icon-144x144.png')}}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{url_for('static', filename='favicon/apple-icon-152x152.png')}}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='favicon/apple-icon-180x180.png')}}">
+    <link rel="icon" type="image/png" sizes="192x192"  href="{{url_for('static', filename='favicon/android-icon-192x192.png')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='favicon/favicon-32x32.png')}}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{url_for('static', filename='favicon/favicon-96x96.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='favicon/favicon-16x16.png')}}">
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon/favicon.ico')}}" type="image/x-icon">
+    <link rel="manifest" href="{{url_for('static', filename='favicon/manifest.json')}}">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="{{url_for('static', filename='favicon/ms-icon-144x144.png')}}">
+    <meta name="theme-color" content="#ffffff">
+    
+    <title>Report</title>
+    
+    <style type="text/css">
+    html { font-family: sans-serif; font-size: 14px; }
+    body { max-width:310mm; margin: 0 auto;}
+    header h1 {font-size: 4rem;}
+    h1 {font-size: 3rem;}
+    h2 {font-size: 2.6rem;}
+    h3 {font-size: 2.2rem;}
+    h4 {font-size: 2.0rem;}
+    ul {list-style-type: none;}
+    nav li a{color: black; text-decoration: none;}
+    table, tr, td, th { border-style: solid; border-color: #ccc; border-width: 0px;}
+    table {border-spacing: 0px; border-width: 0px 1px 1px 0px;}
+    td, th {border-width: 1px 0px 0px 1px; padding: 5px;}
+    th {background-color: #eee}
+    footer {text-align:center; border-top: 1px solid #CCC;}
+    footer a {text-decoration: none; color: #e75424;}
+    @media print {
+     footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+    }
+    header img{vertical-align:middle;}
+    img { border: 0; }
+    section {page-break-inside: avoid;}
+    </style>
 </head>
+
 <body id="0">
 <header>
 <h1>
@@ -104,28 +125,28 @@ section {page-break-inside: avoid;}
 <div align="center">
     <table>
 	  <tr>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression1.jpg')}}" alt="Image: InnerStateMetricRegression1"/>
-		</td>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression2.jpg')}}" alt="Image: InnerStateMetricRegression2"/>
-		</td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression1.jpg')}}" alt="Image: InnerStateMetricRegression1"/>
+        </td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression2.jpg')}}" alt="Image: InnerStateMetricRegression2"/>
+        </td>
 	  </tr>
 	  <tr>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression3.jpg')}}" alt="Image: InnerStateMetricRegression3"/>
-		</td>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression4.jpg')}}" alt="Image: InnerStateMetricRegression4"/>
-		</td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression3.jpg')}}" alt="Image: InnerStateMetricRegression3"/>
+        </td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression4.jpg')}}" alt="Image: InnerStateMetricRegression4"/>
+        </td>
 	  </tr>
 	  <tr>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression5.jpg')}}" alt="Image: InnerStateMetricRegression5"/>
-		</td>
-		<td>
-			<img src="{{url_for('static', filename='InnerStateMetricRegression6.jpg')}}" alt="Image: InnerStateMetricRegression6"/>
-		</td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression5.jpg')}}" alt="Image: InnerStateMetricRegression5"/>
+        </td>
+        <td>
+            <img src="{{url_for('static', filename='InnerStateMetricRegression6.jpg')}}" alt="Image: InnerStateMetricRegression6"/>
+        </td>
 	  </tr>
     </table>
 </div>
