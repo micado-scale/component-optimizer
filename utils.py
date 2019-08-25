@@ -5,6 +5,11 @@ import numpy as np
 from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, r2_score
 from sklearn.externals import joblib
 
+import logging
+import logging.config
+
+logger = logging.getLogger('optimizer')
+
 pandas_dataframe_styles = {
     'font-family': 'monospace',
     'white-space': 'pre'
@@ -36,7 +41,7 @@ def preProcessing(df):
         df = dropVariable(df, 'avg latency (quantile 0.9)')
 
     # Debug
-    # printDF(df)
+    # logger.debug(df)
 
     # Remove cases with missing values
     df = removeMissingData(df)
@@ -193,12 +198,12 @@ def evaluateGoodnessOfPrediction(y_normalized, y_predicted):
     mae = mean_absolute_error(y_normalized, y_predicted)
     mse = mean_squared_error(y_normalized, y_predicted)
     r2  = r2_score(y_normalized, y_predicted)
-
-    print('Correlation           = {v:0.3f}'.format(v = correlation))
-    print('Explained variance    = {v:0.3f}'.format(v = explained_variance))
-    print('Mean Absolute Error   = {v:0.3f}'.format(v = mae))
-    print('Mean Squared Error    = {v:0.3f}'.format(v = mse))
-    print('R2 Score              = {v:0.3f}'.format(v = r2))
+    
+    logger.info(f'Correlation           = {correlation:0.3f}')
+    logger.info(f'Explained variance    = {explained_variance:0.3f}')
+    logger.info(f'Mean Absolute Error   = {mae:0.3f}')
+    logger.info(f'Mean Squared Error    = {mse:0.3f}')
+    logger.info(f'R2 Score              = {r2:0.3f}')
     
 
 def printNormalizedX(X_normalized):

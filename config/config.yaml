@@ -3,18 +3,16 @@ directories:
     data_dir: 'data'
     output_dir: 'outputs'
 
-
 optimizer: 
     nn_filename: 'data/nn_training_data.csv'
     constants_filename: 'data/constants.yaml'
     output_filename: 'outputs/advisedDF.csv'
     training_data_filename: 'data/training_data.zip'
 
-
 logging:
     version: 1
     root:
-        level: DEBUG
+        level: INFO
         handlers: [console, file]
     formatters:
         simpleFormatter:
@@ -23,13 +21,13 @@ logging:
         console:
             class: logging.StreamHandler
             formatter: simpleFormatter
-            level: DEBUG
+            level: INFO
             stream: ext://sys.stdout
         file:
             class : logging.FileHandler
             formatter: simpleFormatter
             mode: w
-            level: DEBUG
+            level: INFO
             filename: log/optimizer.log 
     loggers:
         optimizer:

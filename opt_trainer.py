@@ -34,6 +34,7 @@ _input_metrics = None
 _worker_count = None
 _training_samples_required = None
 _outsource_metrics = None
+_prev_temporary_scaling_df_row = 0
 
 
 # ## ------------------------------------------------------------------------------------------------------
@@ -795,20 +796,20 @@ def run(nn_file_name, visualize = False):
     print(beforeafterDFLags[['CPU', 'prev1CPU']].head(10))
 
 
-
-    # In[128]: Declare some functions
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Calculate N'th next values
+    # ## ------------------------------------------------------------------------------------------------------
 
     # Na itt viszont már para van itt viszont már tudnia kell, hogy mi is tulajdonképen
     # változók hossza
-    # Ide kéne beiktatni azt, hogy amikor a WorkerCount oszlophoz ér akkor az eltolás
-    # mértéke ne 10 vagy 1 vagy bármi legyen ami a lead-ben meg van adva,
-    # hanem szigorúan véve 1
     def createBeforeafterDFLeads(df, index, lead = 1):
         beforeafterDFLeads = df.copy()
-        # inputVariables = np.flip(beforeafterDFLeads.columns[0:10].ravel(), axis=-1)
         inputVariables = np.flip(beforeafterDFLeads.columns[0:index].ravel(), axis=-1)
         print('Input Variables in createBeforeafterDFLeads: ', inputVariables)
 
+        # In the case of WorkerCount column we take account the next value.
+        # Every other case we take account the parameter what was given by the user.
         for i in inputVariables:
             if( i == 'WorkerCount'):
                 lead_value = 1
@@ -816,11 +817,10 @@ def run(nn_file_name, visualize = False):
                 lead_value = lead
                 
             new_column = beforeafterDFLeads[i].shift(-lead_value)
-            new_column_name = (str('next') + str(1) + i) # Todo: rename str(lead)
+            new_column_name = (str('next') + str(1) + i)
             beforeafterDFLeads.insert(loc=index, column=new_column_name, value=new_column)
 
-        beforeafterDFLeads = beforeafterDFLeads[:-lead]         # remove last row as we haven't got data in lead var
-
+        beforeafterDFLeads = beforeafterDFLeads[:-lead]         # remove last row as we haven't got data in lead (next) variables
         beforeafterDFLeads = beforeafterDFLeads.iloc[:,:-1]     # remove last column - Latency
 
         return beforeafterDFLeads
@@ -829,46 +829,34 @@ def run(nn_file_name, visualize = False):
     # In[129]: Create lead variables (see above -> 'next1CPU', 'next1Inter', etc)
     beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, index1, lead = lead)
     
-    logger.info('after created leads')
-    logger.info(f'beforeafterDF.shape = {beforeafterDF.shape}')
-    logger.info(f'beforeafterDF.columns = {beforeafterDF.columns}')
-    print(beforeafterDF[['CPU', 'next1CPU']].head(10))
+    logger.info('----------------------------------------------------------')
+    logger.info('-------------- Create Before After Diagnosis -------------')
+    logger.info('----------------------------------------------------------')
+    
+    logger.info('     after createBeforeafterDFLeads(beforeafterDFLags, index1, lead = lead)')
+    logger.info('     beforeafterDF = createBeforeafterDFLeads(beforeafterDFLags, index1, lead = lead)')
+    logger.info(f'     beforeafterDF.shape = {beforeafterDF.shape} \n')
 
-
-
-    
-    logger.info('----------------------------------------------------------')
-    logger.info('------------ Create Before After Diagnosis ---------------')
-    logger.info('----------------------------------------------------------')
-    
-    print(beforeafterDF.columns)
-    print(beforeafterDF.shape)
-    print(beforeafterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].head(10))
-    
-    # ## ------------------------------------------------------------------------------------------------------
-    # ## Linear Regression Create Before After Columns Done
-    # ## ------------------------------------------------------------------------------------------------------
-    
-    logger.info('----------------------------------------------------------')
-    logger.info('---------- Create Before After Columns Done --------------')
-    logger.info('----------------------------------------------------------')
-    
+    logger.info(f'     beforeafterDF.columns = {beforeafterDF.columns}')
+    logger.info('---------------------------------------------------------- \n')
+    logger.debug(f"\n {beforeafterDF[['prev1CPU', 'CPU', 'next1CPU']].head(10)}")
+    logger.debug('----------------------------------------------------------')
+    logger.debug(f"\n {beforeafterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].head(10)}")
+    logger.debug('----------------------------------------------------------')
+    logger.debug(f"\n {beforeafterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].tail(10)}")
 
     # In[131]: Assert
-    logger.info('----------------------------------------------------------')
-    logger.info('----------               Assert             --------------')
-    logger.info('----------------------------------------------------------')
+    logger.debug('----------------------------------------------------------')
+    logger.debug('----------               Assert             --------------')
+    logger.debug('----------------------------------------------------------')
     
-    print('---------------- original _input_metrics length = ', len(_input_metrics))
-    print('---------------- beforeafterDF.shape[1] = ', beforeafterDF.shape[1])
-    print('---------------- ', len(_input_metrics), ' + 1 * 3')
+    logger.debug(f'---------------- original _input_metrics length = {len(_input_metrics)}')
+    logger.debug(f'---------------- beforeafterDF.shape[1] = {beforeafterDF.shape[1]}')
+    logger.debug(f'---------------- {len(_input_metrics)} + 1 * 3')
+    logger.debug('---------------------------------------------------------- \n')
 
-    logger.info('----------------------------------------------------------')
-
-
-    
     # ## ------------------------------------------------------------------------------------------------------
-    # ## Linear Regression Calculate before-after differencies
+    # ## Linear Regression Calculate before-after differencies of WorkerCount (vm_number)
     # ## ------------------------------------------------------------------------------------------------------
 
     def calculateWorkerCountDifferences(beforeafterDF):
@@ -880,12 +868,26 @@ def run(nn_file_name, visualize = False):
 
     # In[133]: Explore data
     theBeforeAfterDF = calculateWorkerCountDifferences(beforeafterDF)
-
-    logger.info('after calculateWorkerCountDifferences(beforeafterDF)')
-    logger.info(f'theBeforeAfterDF.shape = {theBeforeAfterDF.shape}')
-    logger.info(f'theBeforeAfterDF.columns = {theBeforeAfterDF.columns}')
-    print(theBeforeAfterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].head(10))
+    
     logger.info('----------------------------------------------------------')
+    logger.info('-------------- Create Before After Diagnosis -------------')
+    logger.info('----------------------------------------------------------')
+
+    logger.info('     after calculateWorkerCountDifferences(beforeafterDF)')
+    logger.info(f'     theBeforeAfterDF.shape = {theBeforeAfterDF.shape} \n')
+    # logger.info('')
+    logger.info(f'     theBeforeAfterDF.columns = {theBeforeAfterDF.columns}')
+    logger.debug(f"\n {theBeforeAfterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].head(10)}")
+    logger.debug(f"\n {theBeforeAfterDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount']].tail(10)}")
+    logger.info('---------------------------------------------------------- \n')
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('------------ Create Before After Columns Done ------------')
+    logger.info('----------------------------------------------------------')
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Create Before After Columns Done
+    # ## ------------------------------------------------------------------------------------------------------
     
     # ## ------------------------------------------------------------------------------------------------------
     # ## Filter rows where actual WorkerCount != next1WorkerCount
@@ -896,33 +898,32 @@ def run(nn_file_name, visualize = False):
     def createScalingDF(theBeforeAfterDF):
         new_beforeafterDF = theBeforeAfterDF.copy()
         scalingDF = new_beforeafterDF[new_beforeafterDF.WorkerCount != new_beforeafterDF.next1WorkerCount]
-        # scalingDF = new_beforeafterDF[new_beforeafterDF.WorkerCount != new_beforeafterDF[['next1WorkerCount']]]
-
         return scalingDF
 
 
-    # In[135]: Collect rows where 'WorkerCount != next1WorkerCount' -> If this condition is True that means scalling happened
+    # In[135]: Collect rows where 'WorkerCount != next1WorkerCount' -> If this condition is True that means scalling has happened
     scalingDF = createScalingDF(theBeforeAfterDF)
 
     logger.info('----------------------------------------------------------')
     logger.info('---------- Select where worker != next1Worker ------------')
     logger.info('----------------------------------------------------------')
     
-    logger.info('after createScalingDF(theBeforeAfterDF)')
-    logger.info(f'scalingDF.shape = {scalingDF.shape}')
-    logger.info(f'scalingDF.columns = {scalingDF.columns}')
+    logger.info('     after createScalingDF(theBeforeAfterDF)')
+    logger.info(f'     scalingDF.shape = {scalingDF.shape} \n')
+    # logger.info('')
+    logger.info(f'     scalingDF.columns = \n {scalingDF.columns} \n')
+    logger.info(f"\n {scalingDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount', 'addedWorkerCount']].head(2)}")
+    logger.info(f"\n {scalingDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount', 'addedWorkerCount']].tail(2)}")
+    logger.info('----------------------------------------------------------\n')
     
-    print(scalingDF[['WorkerCount', 'prev1WorkerCount', 'next1WorkerCount', 'addedWorkerCount']].head(500))
+    logger.info('----------------------------------------------------------')
+    logger.info('----- End of before-after scaling data preparation -------')
     logger.info('----------------------------------------------------------')
     
     # ## ------------------------------------------------------------------------------------------------------
-    # ## This is the end of before-after data preparation
+    # ## This is the end of before-after scaling data preparation
     # ## ------------------------------------------------------------------------------------------------------
-    
-    logger.info('----------------------------------------------------------')
-    logger.info('--------- End of before-after data preparation -----------')
-    logger.info('----------------------------------------------------------')
-    
+        
 
     
     
@@ -948,9 +949,9 @@ def run(nn_file_name, visualize = False):
         Xb = tmpDF.iloc[:, [-3, -2, -1]]     # keep last three column - given metric, term1, term2
 
         # These are only for check everything is in order
-        # print(y.head(1))
-        # print(featuresDF.head(1))
-        # print(X.head(2))
+        # logger.debug(y.head(1))
+        # logger.debug(featuresDF.head(1))
+        # logger.debug(X.head(2))
         # scalingDF[['CPU', 'next1CPU', 'WorkerCount', 'next1WorkerCount', 'addedWorkerCount']][0:3]
         return Xb, yb
 
@@ -959,12 +960,8 @@ def run(nn_file_name, visualize = False):
         newDataFrameA = dataFrameA.copy()
         Xa, ya = createInputAndTargetToLinearRegression(currentMetric, newDataFrameA)
 
-        # ToDo : Return and store particular model
-
         lr = LinearRegression(fit_intercept=True, normalize=False)
         lr.fit(Xa, ya)
-        # prediction = lr.predict(X)
-
         return lr
 
 
@@ -973,10 +970,9 @@ def run(nn_file_name, visualize = False):
         model.fit(X, y)
         y_predicted = model.predict(X)
 
-        print(metric)
+        logger.info(metric)
         evaluateGoodnessOfPrediction(y, y_predicted)
-        print('-----------------------------------')
-
+        logger.info('-----------------------------------')
         return y_predicted
 
 
@@ -985,47 +981,37 @@ def run(nn_file_name, visualize = False):
     temporaryScalingDF = scalingDF.copy()
     
     
-    # Az egész probléma onnan indult ki, hogy én rendre eldobtam korábban az első két
-    # változót a metrikák közül, ezek az AVG RR és a SUM RR voltak
+    # A potential problem can occure if you miss or leave it out the 'AVG_RR'
+    # and 'SUM_RR' columns from pandas.DataFrame
     #
-    # A Bajt az okozta, ha ezek nem az első két változók voltak, ezt a problémát
-    # még mindíg nem oldottam meg
+    # These two variables are quite different than any other 'input metrics'
     #
-    # Ha itt a metricNames nem úgy néz ki ahogy ki kell néznie akkor baj van
-    # ha nem azt a két változót dobom el akkor hiába keresi az ezekre
-    # készített prediction modelleket nem fogja megtalálni őket
+    # At this point of the program the 'metricNames' should not cointain these
+    # two variables. 'metricNames is a list, so you should make sure that
+    # 'metricNames' list does not contain any of them.
     #
-    # Tehát itt is nagyon észnél kell lenni, hogy mire készítem el a lineáris regressziós
-    # modelleket és mire nem
-    #
-    # A metricName-nek összhangban kell lennie a CSV filével amibe kiirom
-    #
-    # Elvileg arra a bizonyos két 'metrikára' is csináltam before
-    # after értékek kiszámítását
-    
-    # tehát ellenőrizni kell, hogy a regresszió milyen adatot használ
-    # és milyen változó nevek vannak a DF-ben és listában amin végig iterál
-    
-    # A ScalingDF-et használja
+    # The program creates linear regression model each element of the metricNames.
+    # But be aware.
+    # You must not create linear regression model for 'AVG_RR' and 'SUM_RR' respectively.
+ 
 
 
     # In[145]: The format as I will store Linear Regression models for each metric
     
-    print('_______________________________________________________')
-    d={}
-    for i in metricNames:
-        d["model{0}".format(i)]="Hello " + i
-        print(d)
+    # print('_______________________________________________________')
+    # d={}
+    # for i in metricNames:
+    #     d["model{0}".format(i)]="Hello " + i
+    #     print(d)
 
-    d.get('modelCPU')
-    print('_______________________________________________________')
+    # d.get('modelCPU')
+    # print('_______________________________________________________')
     
 
     # In[146]: Declare some functions, Calculate and store each Linear Regression model of each metrics
 
     def learningLinearRegression(scalingDF, temporaryScalingDF, metricNames):
-        # linearRegressionModels = {}
-        # temporaryScalingDF = scalingDF.copy()
+
         d={}
 
         for i in metricNames:
@@ -1039,17 +1025,16 @@ def run(nn_file_name, visualize = False):
             # save model to the file system
             joblib.dump(model, 'models/saved_linearregression_model_' + i + '.pkl')
 
-            # nos van egy ilyen modellünk mit tegyünk vele, tároljuk el mindegyiket különböző néven
+            # store each model by its name
             d["model{0}".format(i)] = model
 
             # el kéne tárolni
             temporaryScalingDF['predictedNext1'+i] = prediction
 
-
         return temporaryScalingDF, d
 
 
-    # In[147]: Calculate and Store each Linear Regression model of each metrics. Predicted and Real values are stored in a new DF.
+    # In[147]: Calculate and Store each Linear Regression model of each metrics. Predicted and Real values are stored in a new temporaryScalingDF.
 
     temporaryScalingDF, linearRegressionModels = learningLinearRegression(scalingDF, temporaryScalingDF, metricNames)
 
@@ -1069,25 +1054,29 @@ def run(nn_file_name, visualize = False):
         print('____________________________________________________________________________________________')
 
 
-    # In[152]: Visualize
+    # In[152]: Visualize the linear relationship between the real and the predicted metrics values
     # ## ------------------------------------------------------------------------------------------------------            
     # ## Report
     # ## ------------------------------------------------------------------------------------------------------
-    
 
-    # TODO:
-    # Bevezetni, hogy ez csak x körönként menjen le mert nagyon lassú és belassítja a tanulást ami
-    # ha minden körben megtörténik az nem annyira jó
-    # leginkább a temporraryScalingDF változásához lenne érdemes kötni
-    # mert az csak akkor változik, ha skálázás volt
-    ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
+    # Comment:
+    #
+    # This ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames) method
+    # executes a quite time consuming process. It is not necessary for proper program running but
+    # can be very useful for further investigation and data exploration.
+    #
+    # It is reasonable to call this when scale has happened, otherwise it gives back the same results.
+    global _prev_temporary_scaling_df_row
+    if( _prev_temporary_scaling_df_row != temporaryScalingDF.shape[0] ):
+        _prev_temporary_scaling_df_row = temporaryScalingDF.shape[0]
+        ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames)
 
     
     # ## ------------------------------------------------------------------------------------------------------            
     # ## Return with training_result
     # ## ------------------------------------------------------------------------------------------------------
-    
-    training_result = [error_msg]
+
+    training_result = [error_msg, linearRegressionModels]
     return training_result
 
     # ## ------------------------------------------------------------------------------------------------------

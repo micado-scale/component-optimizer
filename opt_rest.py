@@ -111,7 +111,7 @@ def init():
         # ## Reset or delete output file where advices were stored
         # ## ------------------------------------------------------------------------------------------------------
         
-        opt_utils.reset_output(config.output_filename)
+        # opt_utils.reset_output(config.output_filename)
         
         # ## ------------------------------------------------------------------------------------------------------
         # ## Init opt_advisor
@@ -266,7 +266,7 @@ def sample():
 
                     training_result = opt_trainer.run(config.nn_filename, visualize = False)
                     
-                    logger.info(f'Training result = {training_result}')
+                    logger.info(f'\nTraining result = {training_result}\n')
                     
             else:
                 logger.info('----------------------------------------------')
