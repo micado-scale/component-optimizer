@@ -20,7 +20,9 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.externals import joblib
+from sklearn import metrics
 
 np.set_printoptions(precision=3, suppress=True)
 
@@ -622,7 +624,10 @@ def run(nn_file_name, visualize = False):
 
     # In[59]: Evaluete the model
     from utils import evaluateGoodnessOfPrediction
-    evaluateGoodnessOfPrediction(y_normalized, y_predicted)
+    goodness_of_fitt = evaluateGoodnessOfPrediction(y_normalized, y_predicted)
+    print('--------------------------------------------')
+    print(goodness_of_fitt)
+    print('--------------------------------------------')
     
     # TODO
     # visszatérni az értékekkel és eltárolni őket valamilyen változóban
@@ -690,92 +695,52 @@ def run(nn_file_name, visualize = False):
     logger.info('-------------- Linear Regression start -------------------')
     logger.info('----------------------------------------------------------')
         
-    # In[124]: Import dependencies
-
-    from sklearn.linear_model import LinearRegression
-    from sklearn import metrics
-
-
     # In[125]: Declare some functions
 
     # TODO:
     # Átvezetni valahogy, hogy a bemeneti változók fényében kezelje hogy hány változó van a dataframeben
     
-    # na itt is van valami fos
-    # egyrészt kiprintelem az Input Variables nevü inputVariables-t amiből úgy látom hogy
-    # úgy vettem hogy 10 darab van, de miért és mik ezek az inputVariables-ek?
-    
-    # az inputVariables a függvényen belül lesz megcsinálva és annyi előnye van, hogy
-    # a preProcessedDF vagy ami bemegy abból veszi az oszlop neveket
-    
-    # viszont csak 0-10-ig mivel de a preProcessedDF-nek 11 oszlopa van,
-    # sajnos itt úgy veszem, hogy azért 0-10-ig mert a 11-ik a target változó
-    # és arra minek csináljuk meg a lag-et.
-    
-    # Egyébként akár meg is csinálhatnánk talán kevesebb lenne úgy a baj?
-    
-    # Ilyen szempontból meg kurvárna nem konzisztens a programom
-    # mert itt átírom akkor melyik másik helyen hasal el?
-    # Müködni fog-e az advice, ott miért nem ezt a függvényt hívom, vagy ott is ezt hívom meg?
-    
     # Ugy látom, hogy az advice-ban sehol nem szerepel a trainer aminek az az oka
     # hogy az Advice-nak semmi szüksége nincs a lag-ok-ra se a lead-ek-re
     # Ugyanis miután meg van tanulva egy model, az már csak a model beolvasásával törödik
     # és abban egyáltalán nem szerepelnek a lagok meg a lagek,
+
     
-    # Ugyanakkor elszomorító, hogy ezt a függvényt, sőt ezeket a függvényeket nem szerveztem ki.
-    # Mindegy ennek is megvolt a maga prakitus oka, a traineren kívül senkinek nincs rá szüksége.
+    # When pandas.DataFrame (preProcessedDF) was constructed, the order of the variables
+    # was determined by the program. The target variable is the latest.
+    # As far as we do not care about the previous or following target variable,
+    # the program hasn't got to count till the last column.
+    # As soon as we get the pandas.DataFrame, the program will know the number of
+    # the columns.
+    # So 'index' is a temporal variable what contains the number of the columns -1
     
-    #
-    
-    # probléma ott kezdődik hogy már arra sem emlékezem, hogy kezelem le a bejövő adatokat?
-    # hogy kerülnek azok be a csv-be?
-    # a yaml amit kapok az egy dictionarry eddig világos elég ha belenézek, de kezdek én
-    # egyáltalán valamit a sorrendel?
-    
-    # az opt_rest.py 116-ik sorában van az input adatok beolvasása, tehát még csak nem is
-    # a train-ben, ez jó,
-    # de mi van ha nem ugyan abban a sorrendben vannak az adatok a yaml-ben egy egy minta között?
-    
-    # ha valahol le kell kezelnem ezt a sorrendet akkor az az opt_rest 136-ik sora lesz.
-    # ott van egy input_metrics változóm, ami úgy áll elő, hogy végig iterálok a sample változón
-    # ami egy dictionary és annak a sample input_metrics részén ami egy lista key value párokból.
-    
-    # ha az a helyzet, hogy az egyes minták között a sorrend változik, akkor ezt ott kell kezelenem
-    # úgy, hogy minden key value párt eltárolok és a megfelelő sorrendbe állítom és ugy irom át
-    # egy pandas dataframebe azt pedig egy csv-be
-    
-    # szóval annyi jó hírem van, hogy amikor összerakom a pandasDataFramet és kiirom CSV-be
-    # akkor én határozom meg a sorrendet és úgy láttam, hogy a target változót a legutolsó
-    # helyre, a legutolsó oszlopba rakom.
-    # Tehát beolvasásnál is a legutolsó lesz.
-    
-    # ezért itt a createBeforeafterDFLags függvényben mivel megkapja a DF-t
-    # ezért igazából csak az utolsó elötti oszlopig kell elszámolnom
+    # In other words, the lag will be computed for every column, except the last one.
  
 
     logger.info('----------------------------------------------------------')
-    logger.info('------------ Linear Regression diagnosis -----------------')
+    logger.info('-------------- Create Before After Diagnosis -------------')
     logger.info('----------------------------------------------------------')
-    logger.info('preProcessedDF is the input of the createBeforeafterDFLags()')
+    
+    logger.info('     preProcessedDF the input of createBeforeafterDFLags()')
     logger.info('')
-    
-    logger.info(f'preProcessedDF.shape = {preProcessedDF.shape}')
-    logger.info(f'preProcessedDF.columns = {preProcessedDF.columns}')
-    
+    logger.info(f'     preProcessedDF.shape = {preProcessedDF.shape}')
+    logger.info(f'     preProcessedDF.columns = {preProcessedDF.columns}')
     
     
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Linear Regression Calculate N'th previous values
+    # ## ------------------------------------------------------------------------------------------------------
     
     def createBeforeafterDFLags(df, lag):
         beforeafterDFLags = df.copy()
         dfColumnsNumber = beforeafterDFLags.shape[1]
-        logger.info(f'dfColumnsNumber = {dfColumnsNumber}')
+        logger.info(f'     createBeforeafterDFLags(df, lag) df col number    = {dfColumnsNumber}')
         # index = 10
         index = dfColumnsNumber - 1
+        logger.info(f'     createBeforeafterDFLags(df, lag) df col number -1 = {index} \n')
         
-        # inputVariables = np.flip(beforeafterDFLags.columns[0:10].ravel(), axis=-1)
         inputVariables = np.flip(beforeafterDFLags.columns[0:index].ravel(), axis=-1)
-        logger.info(f'Input Variables in createBeforeafterDFLags = {inputVariables}')
+        logger.info(f'     Input Variables in createBeforeafterDFLags = {inputVariables} \n')
 
         for i in inputVariables:
             new_column = beforeafterDFLags[i].shift(lag)
@@ -790,10 +755,21 @@ def run(nn_file_name, visualize = False):
     # In[126]: Create lag variables (see above -> 'prev1CPU', 'prev1Inter', etc)
     beforeafterDFLags, index1 = createBeforeafterDFLags(preProcessedDF, 1)
     
-    logger.info('after created lags')
-    logger.info(f'beforeafterDFLags.shape = {beforeafterDFLags.shape}')
-    logger.info(f'beforeafterDFLags.columns = {beforeafterDFLags.columns}')
-    print(beforeafterDFLags[['CPU', 'prev1CPU']].head(10))
+    logger.info('----------------------------------------------------------')
+    logger.info('-------------- Create Before After Diagnosis -------------')
+    logger.info('----------------------------------------------------------')
+    
+    logger.info('     after createBeforeafterDFLags(preProcessedDF, 1)')
+    logger.info('     beforeafterDFLags, index1 = createBeforeafterDFLags(preProcessedDF, 1)')
+    logger.info(f'     beforeafterDFLags.shape = {beforeafterDFLags.shape} \n')
+
+    logger.info(f'     beforeafterDFLags.columns = {beforeafterDFLags.columns}')
+    logger.info('---------------------------------------------------------- \n')
+    logger.debug(f"\n {beforeafterDFLags[['prev1CPU', 'CPU']].head(10)}")
+    logger.debug('----------------------------------------------------------')
+    logger.debug(f"\n {beforeafterDFLags[['WorkerCount', 'prev1WorkerCount']].head(10)}")
+    logger.debug('----------------------------------------------------------')
+    logger.debug(f"\n {beforeafterDFLags[['WorkerCount', 'prev1WorkerCount']].tail(10)}")
 
 
     
@@ -806,7 +782,7 @@ def run(nn_file_name, visualize = False):
     def createBeforeafterDFLeads(df, index, lead = 1):
         beforeafterDFLeads = df.copy()
         inputVariables = np.flip(beforeafterDFLeads.columns[0:index].ravel(), axis=-1)
-        print('Input Variables in createBeforeafterDFLeads: ', inputVariables)
+        logger.info(f'Input Variables in createBeforeafterDFLeads: {inputVariables} \n')
 
         # In the case of WorkerCount column we take account the next value.
         # Every other case we take account the parameter what was given by the user.

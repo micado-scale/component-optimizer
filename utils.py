@@ -205,6 +205,8 @@ def evaluateGoodnessOfPrediction(y_normalized, y_predicted):
     logger.info(f'Mean Squared Error    = {mse:0.3f}')
     logger.info(f'R2 Score              = {r2:0.3f}')
     
+    return [correlation, explained_variance, mae, mse, r2]
+    
 
 def printNormalizedX(X_normalized):
     print("X_normalized type        = ", type(X_normalized))
