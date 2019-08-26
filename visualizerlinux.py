@@ -274,7 +274,7 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     ax1.set_xlabel('Timeline', fontsize = labelsize)
     ax1.set_ylabel('Response time (ms)', fontsize=labelsize)
     ax2.set_ylabel('Proposedd numb. of additional resources', fontsize=labelsize)
-    ax2.set_ylim([-5, 5])
+    ax2.set_ylim([-2, 12])
 
     ax1.axhline(y = lowerLimit, color = 'grey')
     ax1.axhline(y = upperLimit, color = 'grey')

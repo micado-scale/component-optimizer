@@ -12,11 +12,11 @@ from flask import jsonify
 
 from utils import loadMinMaxScalerXFull, loadMinMaxScalerYFull
 from utils import loadNeuralNetworkModel
+from utils import setMetricNames, setExtendedMetricNames
 from opt_utils import readCSV
 from opt_utils import preProcessing
 from opt_utils import renameVariable
 from opt_utils import dropFirstCases
-from utils import setMetricNames, setExtendedMetricNames
 
 from linearregression import calculateLinearRegressionTerms
 from visualizerlinux import VisualizePredictedYLine
@@ -46,14 +46,19 @@ worker_count_name = None
 outsource_metrics = None
 config = None
 constants = None
-maximumNumberIncreasableNode = 6  # must be positive
-minimumNumberReducibleNode = -6   # must be negative
 first_advice = None
 prev_adviced_time = 0
 prev_advice_vm_total_number = 0
 
+maximumNumberIncreasableNode = 6          # must be positive
+minimumNumberReducibleNode = -6           # must be negative
 default_maximumNumberIncreasableNode = 6  # must be positive
 default_minimumNumberReducibleNode = -6   # must be negative
+
+advice_freeze_interval = 0                # minimum time in secundum between two advice
+default_advice_freeze_interval = 0        # must be positive
+
+
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
@@ -90,17 +95,14 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     global constants
     constants = _constants
     
+    global advice_freeze_interval
+    advice_freeze_interval = abs(constants.get('advice_freeze_interval')) if constants.get('advice_freeze_interval') else default_advice_freeze_interval
+    
     global maximumNumberIncreasableNode
-    if config.maximum_number_increasable_node is not None:
-        maximumNumberIncreasableNode = config.maximum_number_increasable_node
-    else:
-        maximumNumberIncreasableNode = default_maximumNumberIncreasableNode
-        
-    # maximumNumberIncreasableNode = config.maximum_number_increasable_node if config.maximum_number_increasable_node else default_maximumNumberIncreasableNode
+    maximumNumberIncreasableNode = constants.get('max_upscale_delta') if constants.get('max_upscale_delta') else default_maximumNumberIncreasableNode
     
     global minimumNumberReducibleNode
-    if config.minimum_number_reducible_node is not None:
-        minimumNumberReducibleNode = config.minimum_number_reducible_node
+    minimumNumberReducibleNode = abs(constants.get('max_downscale_delta')) * -1 if constants.get('max_downscale_delta') else default_minimumNumberReducibleNode
     
     global first_advice
     first_advice = True
@@ -117,6 +119,7 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     
     logger.info(f'     maximumNumberIncreasableNode = {maximumNumberIncreasableNode}')
     logger.info(f'     minimumNumberReducibleNode   = {minimumNumberReducibleNode}')
+    logger.info(f'     advice_freeze_interval = {advice_freeze_interval}')
     
     logger.info(f'     target_metric_min = {target_metric_min}')
     logger.info(f'     target_metric_max = {target_metric_max}')
@@ -792,15 +795,16 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     global prev_adviced_time
     global prev_advice_vm_total_number
     logger.info('---------------------------------------------------------------------------')
-    logger.info(f'  first_advice = {first_advice}')
-    logger.info(f'  prev_adviced_time = {prev_adviced_time}')
-    logger.info(f'  current_time      = {current_time}')
-    logger.info(f'  ellapsed time     = {current_time - prev_adviced_time}')
+    logger.info(f'  first_advice           = {first_advice}')
+    logger.info(f'  prev_adviced_time      = {prev_adviced_time}')
+    logger.info(f'  current_time           = {current_time}')
+    logger.info(f'  ellapsed time          = {current_time - prev_adviced_time}')
+    logger.info(f'  advice_freeze_interval = {advice_freeze_interval}')
     logger.info(f'  prev_advice_vm_total_number = {prev_advice_vm_total_number}')
     logger.info(f'  vm_number_total = {vm_number_total}')
     logger.info('---------------------------------------------------------------------------')
     
-    if( current_time - prev_adviced_time > 1 ):
+    if( current_time - prev_adviced_time > advice_freeze_interval ):
 
         prev_adviced_time = current_time
         prev_advice_vm_total_number = vm_number_total

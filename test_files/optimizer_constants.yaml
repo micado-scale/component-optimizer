@@ -1,11 +1,11 @@
 constants: 
     min_vm_number: 1
     max_vm_number: 10
-    max_delta_vm: 2
     training_samples_required: 300
-    max_number_of_scaling_activity: 100
     nn_stop_error_rate: 10.0
     advice_freeze_interval: 0
+    max_upscale_delta: 5
+    max_downscale_delta: 4
     
     input_metrics: 
       - name: AVG_RR

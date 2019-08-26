@@ -10,8 +10,8 @@ input_metrics:
 - name: SUM_RR
 - name: PktOut
 knowledge_base: use_existing
-max_delta_vm: 2
-max_number_of_scaling_activity: 100
+max_downscale_delta: 6
+max_upscale_delta: 6
 max_vm_number: 10
 min_vm_number: 1
 nn_stop_error_rate: 10.0

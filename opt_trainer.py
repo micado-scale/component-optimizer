@@ -625,9 +625,14 @@ def run(nn_file_name, visualize = False):
     # In[59]: Evaluete the model
     from utils import evaluateGoodnessOfPrediction
     goodness_of_fitt = evaluateGoodnessOfPrediction(y_normalized, y_predicted)
-    print('--------------------------------------------')
-    print(goodness_of_fitt)
-    print('--------------------------------------------')
+    
+    logger.info('------------- Neural Network Goodness of Fitt ------------')
+    logger.info('----------------------------------------------------------')
+    logger.info('   evaluateGoodnessOfPrediction(y_normalized, y_predicted)')
+    logger.info('   This dictionary is also the part of the return of Train')
+    logger.info(f'(  goodness_of_fitt = \n {goodness_of_fitt}')
+    logger.info('----------------------------------------------------------')
+    
     
     # TODO
     # visszatérni az értékekkel és eltárolni őket valamilyen változóban
@@ -1052,7 +1057,10 @@ def run(nn_file_name, visualize = False):
     # ## Return with training_result
     # ## ------------------------------------------------------------------------------------------------------
 
-    training_result = [error_msg, linearRegressionModels]
+    # TODO:
+    # Insted of linearRegressionModels I have to figure out some better output, till then I will ignore it
+    # training_result = [error_msg, goodness_of_fitt, linearRegressionModels]
+    training_result = [error_msg, goodness_of_fitt]
     return training_result
 
     # ## ------------------------------------------------------------------------------------------------------
