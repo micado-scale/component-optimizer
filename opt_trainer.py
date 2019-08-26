@@ -319,10 +319,12 @@ def run(nn_file_name, visualize = False):
     # ## Report
     # ## ------------------------------------------------------------------------------------------------------
     
+    rows = preProcessedDF.shape[0]
+    
     # CorrelationMatrixSave(preProcessedDF)
-    ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], _input_metrics, targetVariable)
-    TimeLinePlot(preProcessedDF, targetVariable)
-    TimeLinePlots(preProcessedDF, _input_metrics)
+    if rows % 3 == 0: ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], _input_metrics, targetVariable)
+    if rows % 3 == 1: TimeLinePlot(preProcessedDF, targetVariable)
+    if rows % 3 == 2: TimeLinePlots(preProcessedDF, _input_metrics)
     
     
     # In[26]:

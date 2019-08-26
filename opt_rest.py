@@ -23,7 +23,7 @@ config = None
 training_unit = None
 target_metrics = None
 input_metrics = None
-training_result = []
+training_result = ['No error', None]
 constants = {}
 
 outsource_metrics = ['AVG_RR', 'SUM_RR']         # Our example application this should leave as it is
@@ -351,7 +351,7 @@ def get_advice():
     # Felmerült az a probléma, hogy néha nem kapunk elfogadható mintát
     # a Sample API-ban, ezért két változót átadok az Advisornak
     # akkor is ha ezek nem lesznek letárolva az adatok között
-    opt_advisor_return = opt_advisor.run(config.nn_filename, vm_number, target_variable, last = _last)
+    opt_advisor_return = opt_advisor.run(config.nn_filename, vm_number, target_variable, last = _last, training_result = training_result)
     
     logger.info('----------------------------------------------------------')
     logger.info('------------------ opt_advisor_return --------------------')

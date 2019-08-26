@@ -58,6 +58,8 @@ default_minimumNumberReducibleNode = -6   # must be negative
 advice_freeze_interval = 0                # minimum time in secundum between two advice
 default_advice_freeze_interval = 0        # must be positive
 
+nn_error_rate = None
+
 
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
@@ -151,7 +153,7 @@ def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate =
 # ## Define run
 # ## ------------------------------------------------------------------------------------------------------
 
-def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = False):
+def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = False, training_result = None):
     
     # Set logger
     logger = logging.getLogger('optimizer')
@@ -646,17 +648,17 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         
         
         logger.info('------------------------------------------------------')
-        logger.info(f'    real target variable from dataframe = {real}')
+        # logger.info(f'    real target variable from dataframe = {real}')
         logger.info('------------------------------------------------------')
         
         logger.info('------------------------------------------------------')
-        logger.info(f'    target_variable_from_sample = {target_variable_from_sample}')
-        logger.info(f'    type = {type(target_variable_from_sample)}')
-        logger.info(f'    target_variable_from_sample[0] = {target_variable_from_sample[0]}')
+        # logger.info(f'    target_variable_from_sample = {target_variable_from_sample}')
+        # logger.info(f'    type = {type(target_variable_from_sample)}')
+        # logger.info(f'    target_variable_from_sample[0] = {target_variable_from_sample[0]}')
         logger.info('------------------------------------------------------')
         
-        real = target_variable_from_sample[0]
-        
+        # real = target_variable_from_sample[0]
+        real = investigationDeNormalizedDF[[targetVariable]].get_value(i, targetVariable)
         
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
@@ -772,6 +774,12 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     
     phase = 'production'
     nn_error_rate = 0
+    print('áááááááááááááááááááááááááááááá')
+    if( training_result[1] is not None ):
+        nn_error_rate = training_result[1].get('correlation')
+    else:
+        nn_error_rate = None
+    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
     # Ez volt az egyéni javaslat, hogy mennyit adjon hozzá
     # vm_number_total = advice
     # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
