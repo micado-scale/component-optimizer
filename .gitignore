@@ -8,4 +8,5 @@
 Helpers.*
 *backup*.*
 .ipynb_checkpoints/
+.ipynb_checkpoints
 /__droid/
