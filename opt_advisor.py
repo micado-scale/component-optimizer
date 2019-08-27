@@ -58,7 +58,6 @@ default_minimumNumberReducibleNode = -6   # must be negative
 advice_freeze_interval = 0                # minimum time in secundum between two advice
 default_advice_freeze_interval = 0        # must be positive
 
-nn_error_rate = None
 
 
 # ## ------------------------------------------------------------------------------------------------------
@@ -125,11 +124,11 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     
     logger.info(f'     target_metric_min = {target_metric_min}')
     logger.info(f'     target_metric_max = {target_metric_max}')
-    logger.info(f'     target_variable = {target_variable}')
+    logger.info(f'     target_variable   = {target_variable}')
     logger.info('     ----------------------------------------')
-    logger.info(f'     _target_metric = {_target_metric}')
+    logger.info(f'     _target_metric    = {_target_metric}')
     logger.info('     ----------------------------------------')
-    logger.info(f'     input_metrics = {input_metrics}')
+    logger.info(f'     input_metrics     = {input_metrics}')
     logger.info(f'     worker_count_name = {worker_count_name}')
     logger.info(f'     _outsource_metrics = {_outsource_metrics}')
     logger.info(f'     outsource_metrics = {outsource_metrics}')
@@ -142,12 +141,14 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
 # ## Define init advice_msg
 # ## ------------------------------------------------------------------------------------------------------
     
-def advice_msg(valid = False, phase = 'training', vm_number = 0, nn_error_rate = 1000, error_msg = None):
+def advice_msg(valid = False, phase = 'training', vm_number = 0, reliability = 0, error_msg = None):
     if valid:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = 'no error')), 200
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = 'no error')), 200
     else:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, nn_error_rate = nn_error_rate, error_msg = error_msg)), 400
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = error_msg)), 400
 
+
+ 
     
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define run
@@ -165,11 +166,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info(f'                   int(time.time() = {current_time}')
     
     
-    
-
-
     # Set the default message False
-    return_msg = advice_msg(valid = False, phase = 'invalid', error_msg = 'Default message')
+    return_msg = advice_msg(valid = False, phase = 'training', vm_number = vm_number_from_sample, error_msg = 'no error')
   
     # Set showPlots True
     showPlots = True
@@ -260,7 +258,21 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     if df.shape[0] <= 0:
         error_msg = 'There is no training sample yet.'
         logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
+        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+    
+
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## If there is not enough data in dataframe then return error message this part wont run at all
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    logger.info('----------------------------------------------------------')
+    logger.info('----------- Checking advisor data properties -------------')
+    if df.shape[0] < 1:
+        logger.info('----------------------------------------------------------')
+        logger.info('------- There is no training sample at all. -------')
+        logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
+        error_msg = 'There is no training sample at all.'
+        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
     
     
     # ## ------------------------------------------------------------------------------------------------------
@@ -276,30 +288,17 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # ez a szerencsétlen viszont már 300 után keresni fogja a modelt
     # amit persze nem talál majd
     # +++++++ szóval ezt az értéket meg kell még növelni a körök számával +1 ++++++++++++
-    # if df.shape[0] <= 300:
-    if df.shape[0] < 300:
+    # if df.shape[0] < 300:
+    if df.shape[0] < constants.get('training_samples_required'):
         error_msg = 'There are not enough training samples yet.'
         logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
+        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
 
     
-    # ## ------------------------------------------------------------------------------------------------------
-    # ## If there is not enough data in dataframe then return error message this part wont run at all
-    # ## ------------------------------------------------------------------------------------------------------
     
     
-    logger.info('----------------------------------------------------------')
-    logger.info('----------- Checking advisor data properties -------------')
-    if df.shape[0] < 1:
-        logger.info('----------------------------------------------------------')
-        logger.info('------- There is no training sample at all. -------')
-        logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
-        error_msg = 'There is no training sample yet.'
-        return advice_msg(valid = False, phase = 'invalid', error_msg = error_msg)
-
-    
     # ## ------------------------------------------------------------------------------------------------------
-    # ## If there is not enough data in dataframe then return error message this part wont run at all
+    # ## If there is not enough data in dataframe then return with error message and this part won't run at all
     # ## ------------------------------------------------------------------------------------------------------
     
 
@@ -484,18 +483,26 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
 
             # X must contain exactly the same columns as the model does
             X = newDFForNerualNetworkPrediction.iloc[:, :len(input_variables)]
-            # print('11111ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            # print(newDFForNerualNetworkPrediction.columns)
-            # print(newDFForNerualNetworkPrediction.shape)
-            # print(newDFForNerualNetworkPrediction.head())
-            # print('22222ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            # print(X.columns)
-            # print(X.shape)
-            # print(X.head())
-            # print('33333ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
-            # print(input_variables)
-            # print(len(input_variables))
-            # print('44444ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            logger.debug('11111ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            logger.debug(f'newDFForNerualNetworkPrediction.shape = {newDFForNerualNetworkPrediction.shape}')
+            logger.debug('')
+            logger.debug('newDFForNerualNetworkPrediction.columns')
+            logger.debug(f'\n {newDFForNerualNetworkPrediction.columns}')
+            logger.debug('')
+            logger.debug('newDFForNerualNetworkPrediction.head()')
+            logger.debug(f'\n {newDFForNerualNetworkPrediction.head()}')
+            logger.debug('22222ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            logger.debug(f'X.shape = {X.shape}')
+            logger.debug('')
+            logger.debug('X.columns')
+            logger.debug(f'\n {X.columns}')
+            logger.debug('')
+            logger.debug('X.head()')
+            logger.debug(f'\n {X.head()}')
+            logger.debug('33333ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
+            logger.debug(f'input_variables = {input_variables}')
+            logger.debug(f'len(input_variables) = {len(input_variables)}')
+            logger.debug('44444ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo')
 
 
             # X must be normalized based on a previously created MinMaxScaler
@@ -503,9 +510,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
 
             X_normalized = X_normalized_MinMaxScaler.transform(X)
 
-            #!!! insted of declare the location of the model here I use loadNeuralNetworkModel() methond inside the run() m.
-            #!!!
-            #!!!
+            # !!! insted of declare the location of the model I use loadNeuralNetworkModel() methond inside the run() method
             # modelNeuralNet = joblib.load('models/saved_mlp_model.pkl')
             modelNeuralNet = modelNeuralNet
 
@@ -576,6 +581,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # itt eldönthetem, hogy a dataframeből olvasom ki ezt az adatot, vagy paraméterként veszem át
     actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(investigationDeNormalizedDF.index[0], 'WorkerCount')
     # másfelől lehet, hogy ezt az értéket az épen aktuális mintából kéne kivennem?!
+    # nem ezt már kiolvastam a sample df-ből (persze lehet, hogy az épen aktuális már nem ez)
     
     
     advice = 0
@@ -584,10 +590,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     countInRange = 0
     countViolatedUp = 0
     countViolatedDown = 0
-    # actual_worker_number = 0
-    # nem ezt már kiolvastam a sample df-ből (persze lehet, hogy az épen aktuális már nem ez)
-    
-    
+
     
     logger.info(f'  actual_worker_number                    = {actual_worker_number}')
     logger.info(f'  investigationDeNormalizedDF.index       = {investigationDeNormalizedDF.index}')
@@ -606,7 +609,6 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     advicedDF['advice'] = advice # az advice alapértelmezetben 0 tehát ez a rész a df-ben csupa 0 lesz
     advicedDF['postScaledTargetVariable'] = np.nan
     advicedDF['advicedVM'] = advicedVM
-    # advicedDF['advicedVM'] = 0 # 0 helyett legyen a ténylegesen vagy annak vélt kiolvasott vm szám
     
     logger.info('')
     logger.info('-----------------------------------------------------------------------------------')
@@ -747,12 +749,6 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
                 print('')
                 advicedDF.ix[i, 'advice'] = advice
                 advicedDF.ix[i, 'postScaledTargetVariable'] = postScaledTargetVariable
-                # TODO
-                # Ide írni még egy elif ágat, hogy nem talált jó megoldást
-                # Egyelőre ilyen esetben legyen az, hogy hagyja a VM számot ott ahol van
-                # Vagy majd kigondolok valami jobbat
-                # Esetleg azt, hogy mi az ami a legközelebb áll az alsó vagy felső limithez
-                # Attól függően, hogy melyik ágon futunk le
 
 
 
@@ -773,13 +769,21 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # ## ------------------------------------------------------------------------------------------------------
     
     phase = 'production'
-    nn_error_rate = 0
-    print('áááááááááááááááááááááááááááááá')
+    reliability = 0
+    logger.info('----------------------------------------------')
+    logger.info('--------- Pass back Goodness of Fit ----------')
     if( training_result[1] is not None ):
-        nn_error_rate = training_result[1].get('correlation')
+        # TODO:
+        # Avoid potential error with try exept
+        try:
+            reliability = training_result[1].get('correlation') * 100
+            if( reliability < 0 ):
+                reliability = 0
+        except:
+            reliability = 0
     else:
-        nn_error_rate = None
-    print('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+        reliability = 0
+    logger.info('----------------------------------------------')
     # Ez volt az egyéni javaslat, hogy mennyit adjon hozzá
     # vm_number_total = advice
     # Ez a konkrét javaslat, hogy hány gépnek kell szerepelnie
@@ -792,6 +796,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info(f'actual_worker_number = {actual_worker_number}')
     logger.info(f'vm_number_total = {vm_number_total}')
     logger.info(f'output_filename = {output_filename}')
+    logger.info(f'reliability = {reliability}')
     logger.info('----------------------------------------------')
     
     # ## ------------------------------------------------------------------------------------------------------
@@ -831,7 +836,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         logger.info('---------------------------------------------------------------------------')
     
     
-    return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, nn_error_rate = nn_error_rate)
+    return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, reliability = reliability)
         
     # ## ------------------------------------------------------------------------------------------------------
     # ## Store and save metrics, advice and predictions in a csv file

@@ -51,6 +51,12 @@ def init():
         raise RequestException(400, 'Empty POST data')
     else:
         # ## ------------------------------------------------------------------------------------------------------
+        # ## Reset training_result
+        # ## ------------------------------------------------------------------------------------------------------
+        global training_result
+        training_result = ['No error', None]
+        
+        # ## ------------------------------------------------------------------------------------------------------
         # ## Load configuration data
         # ## ------------------------------------------------------------------------------------------------------
         global constants
@@ -184,7 +190,7 @@ def sample():
         logger.info(f'      vm_number = {vm_number}')
         logger.info(f'      timestamp_col = {timestamp_col}')
         logger.info(f'      target_variable = {target_variable}')
-        logger.info(f'      np.isnan(target_metrics[0]) = {np.isnan(target_metrics[0])}')
+        # logger.info(f'      np.isnan(target_metrics[0]) = {np.isnan(target_metrics[0])}') # can cause error if array is empty or None
         logger.info('      ----------------------- sample -----------------------')
         logger.info(f'      {sample.get("sample")}')
         logger.info('      ----------------------- sample -----------------------')
@@ -227,6 +233,12 @@ def sample():
             # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
             logger.info(f'tmp_df.shape = {tmp_df.shape}')
             logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
+            
+            # TODO
+            # Ezt az értéket írjuk vissza egy globális változóba, hogy a Reportert csak akkor lehessen
+            # meghívni ha ez a szám nagyobb mint a minimális tanulás
+            #
+            # Sőt itt beállíthatunk egy is_reporter_runable booleant ami szintén glogális változó 
                         
             # ## ------------------------------------------------------------------------------------------------------
             # ## Start Training
@@ -269,7 +281,7 @@ def sample():
 
                     training_result = opt_trainer.run(config.nn_filename, visualize = False)
                     
-                    logger.info(f'\nTraining result = {training_result}\n')
+                    logger.info(f'\n\nTraining result = {training_result}\n')
                     
             else:
                 logger.info('----------------------------------------------')

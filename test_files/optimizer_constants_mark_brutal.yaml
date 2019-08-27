@@ -2,7 +2,6 @@ constants:
     min_vm_number: 1
     max_vm_number: 10
     training_samples_required: 300
-    nn_stop_error_rate: 10.0
     advice_freeze_interval: 0
     max_upscale_delta: 6
     max_downscale_delta: 6

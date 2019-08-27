@@ -1034,7 +1034,7 @@ def run(nn_file_name, visualize = False):
 
         print('temporaryScalingDF.columns = ', temporaryScalingDF.columns)
         print('temporaryScalingDF.shape   = ', temporaryScalingDF.shape)
-        print('____________________________________________________________________________________________')
+        print('____________________________________________________________________________________________\n')
 
 
     # In[152]: Visualize the linear relationship between the real and the predicted metrics values

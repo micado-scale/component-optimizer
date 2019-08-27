@@ -1,0 +1,35 @@
+sample:
+  timestamp: 1565609003
+  input_metrics:
+    - name: Inter
+      value: 956.995699569957
+      
+    - name: KBIn
+      value: 0.025783828382838284
+
+    - name: AVG_RR
+      value: 0.0499990000199996
+
+    - name: CPU
+      value: 7.540754075408643
+
+    - name: PktIn
+      value: 0.25002500250025
+      
+    - name: CTXSW
+      value: 2017.2517251725167
+
+    - name: KBOut
+      value: 0.7142804124162416
+      
+    - name: PktOut
+      value: 0.2000200020002
+
+    - name: SUM_RR
+      value: 0.0499990000199996
+
+  target_metrics:
+    - name: AVG_LAT_05
+      value: 13790.787
+
+  vm_number: 3
