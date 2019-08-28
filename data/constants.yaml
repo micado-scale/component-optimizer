@@ -1,4 +1,3 @@
-advice_freeze_interval: 0
 input_metrics:
 - name: PktIn
 - name: KBIn
@@ -9,14 +8,14 @@ input_metrics:
 - name: CPU
 - name: SUM_RR
 - name: PktOut
-knowledge_base: use_existing
-max_downscale_delta: 6
-max_upscale_delta: 6
-max_vm_number: 10
+knowledge_base: build_new
+max_delta_vm: 2
+max_number_of_scaling_activity: 100
+max_vm_number: 9
 min_vm_number: 1
 nn_stop_error_rate: 10.0
 target_metrics:
-- max_threshold: 13000
-  min_threshold: 12000
+- max_threshold: 15000
+  min_threshold: 9000
   name: AVG_LAT_05
 training_samples_required: 300
