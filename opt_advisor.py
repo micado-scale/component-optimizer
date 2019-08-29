@@ -902,6 +902,11 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         bf.to_csv(output_filename, sep=',', encoding='utf-8', index=False)
         logger.info('------------- advice saved into csv file -----------------')
         
+        # target_variable_from_sample
+        logger.info('------------- advice saved into csv file -----------------')
+        logger.info('------------- target_variable_from_sample ----------------')
+        logger.info(target_variable_from_sample)
+        
         
         # ## ------------------------------------------------------------------------------------------------------
         # ## Generate Report
