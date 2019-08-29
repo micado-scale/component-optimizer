@@ -29,6 +29,7 @@ constants = {}
 outsource_metrics = ['AVG_RR', 'SUM_RR']         # Our example application this should leave as it is
 learning_round = 1                               # learn after n new sample
 _last = True
+is_reportable = False
 
 # Akkor is átveszi a sample-ből ha ott van, ha nincs
 vm_number = None
@@ -51,10 +52,13 @@ def init():
         raise RequestException(400, 'Empty POST data')
     else:
         # ## ------------------------------------------------------------------------------------------------------
-        # ## Reset training_result
+        # ## Reset some variables
         # ## ------------------------------------------------------------------------------------------------------
         global training_result
         training_result = ['No error', None]
+        
+        global is_reportable
+        is_reportable = False
         
         # ## ------------------------------------------------------------------------------------------------------
         # ## Load configuration data
@@ -140,6 +144,7 @@ def init():
         logger.info('--------------------------------------------------------------')
         
     return jsonify('OK'), 200
+
 
 
 @app.route('/optimizer/sample', methods=['POST'])
@@ -283,6 +288,12 @@ def sample():
                     
                     logger.info(f'\n\nTraining result = {training_result}\n')
                     
+                    if( training_result[0] == 'No error' ):
+                        global is_reportable
+                        is_reportable = True
+                        
+                    logger.info(f' is_reportable = {is_reportable}\n')
+                    
             else:
                 logger.info('----------------------------------------------')
                 logger.info('There is not enough data for start learning')
@@ -385,9 +396,20 @@ def index():
 def hello():
     return 'Hello Optimizer'
 
+
 @app.route('/optimizer/report', methods=['GET'])
 def report():
-    return render_template('index.html')
+    global is_reportable
+    logger.info('----------------------------------------------------------')
+    logger.info('        application report method has been called         ')
+    logger.info('----------------------------------------------------------')
+    if( is_reportable == True ):
+        logger.info('        application is reportable         ')               
+        return render_template('index.html')
+    else:
+        logger.info('        application is NOT reportable         ') 
+        return 'There is not enough sample to get report'
+
 
 class RequestException(Exception):
     def __init__(self, status_code, reason, *args):

@@ -89,8 +89,8 @@ def ScatterPlots(x, y, extendedMetricNames, ylabel):
         j = j + 1
 
     plt.tight_layout(w_pad=15, h_pad=3)
-    fig.savefig('images/InnerStateVariableVsTargetVariable.jpg')
-    fig.savefig('static/InnerStateVariableVsTargetVariable.jpg')
+    fig.savefig('images/InnerStateVariableVsTargetVariable.png')
+    fig.savefig('static/InnerStateVariableVsTargetVariable.png')
 
     # plt.show()
     plt.close()
@@ -118,8 +118,8 @@ def TimeLinePlot(df, x):
     plt.text(y = tmp_mean + tmp_std, x = 0, s = '+1Std', fontsize = 20)
     plt.text(y = tmp_mean + 2*tmp_std, x = 0, s = '+2Std', fontsize = 20)
 
-    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLines.jpg')
-    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLines.jpg')
+    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLines.png')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLines.png')
 
     # plt.show()
     plt.close()
@@ -142,8 +142,8 @@ def TimeLinePlots(df, extendedMetricNames):
         j = j + 1
 
     plt.tight_layout(w_pad=15, h_pad=3)
-    fig.savefig('images/InnerStateVariableTimeLines_2.jpg')
-    fig.savefig('static/InnerStateVariableTimeLines_2.jpg')
+    fig.savefig('images/InnerStateVariableTimeLines_2.png')
+    fig.savefig('static/InnerStateVariableTimeLines_2.png')
 
     # plt.show()
     plt.close()
@@ -158,8 +158,8 @@ def VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable):
     plt.scatter(x = y_normalized, y = y_predicted, s = 20)
     plt.xlabel('Normalized real Response Time', fontsize=labelsize)
     plt.ylabel('Normalized estimated Response Time', fontsize=labelsize)
-    fig.savefig('images/Y_normailizedVsY_predictedLatency.jpg')
-    fig.savefig('static/Y_normailizedVsY_predictedLatency.jpg')
+    fig.savefig('images/Y_normailizedVsY_predictedLatency.png')
+    fig.savefig('static/Y_normailizedVsY_predictedLatency.png')
 
     # plt.show()
     plt.close()
@@ -181,8 +181,8 @@ def VisualizePredictedYLine(y_normalized, y_predicted, targetVariable, lines = F
         plt.axhline(y = y_predicted.max(), color = 'grey', alpha = 0.8, linestyle = '--')
         plt.axhline(y = y_predicted.min(), color = 'grey', linestyle = '--')
     plt.gca().legend(('real','predicted'), loc = 2, prop={'size': 16})
-    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.jpg')
-    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.jpg')
+    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.png')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime.png')
     
     # plt.show()
     plt.close()
@@ -205,8 +205,8 @@ def VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable,
     plt.text(y = y_predicted.max() - 0.1, x = -0, s = str(y_predicted.max())[:15], fontsize = 14, horizontalalignment='left')
     plt.text(y = y_predicted.min() + 0.02, x = -0, s = str(y_predicted.min())[:15], fontsize = 14, horizontalalignment='left')
     plt.gca().legend(('real','predicted'), loc = 2, prop={'size': 16})
-    fig.savefig('images/VisualizePredictedYLineWithValues' + name + '.jpg')
-    fig.savefig('static/VisualizePredictedYLineWithValues' + name + '.jpg')
+    fig.savefig('images/VisualizePredictedYLineWithValues' + name + '.png')
+    fig.savefig('static/VisualizePredictedYLineWithValues' + name + '.png')
     
     # plt.show()
     plt.close()
@@ -227,8 +227,8 @@ def VisualizePredictedYWithWorkers(y_normalized, y_predicted, targetVariable):
     variables = y_predicted.columns
     plt.gca().legend((variables), loc = 2, prop={'size': 16})
 
-    fig.savefig('images/PredictedYByWorkers.jpg')
-    fig.savefig('static/PredictedYByWorkers.jpg')
+    fig.savefig('images/PredictedYByWorkers.png')
+    fig.savefig('static/PredictedYByWorkers.png')
     
     # plt.show()
     plt.close()
@@ -290,8 +290,8 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     labels = [label.get_label() for label in ps]
     ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
 
-    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg')
-    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.jpg')
+    fig.savefig('images/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.png')
+    fig.savefig('static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.png')
     
     # plt.show()
     plt.close()
@@ -323,8 +323,8 @@ def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit
     labels = [label.get_label() for label in ps]
     ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
 
-    fig.savefig('images/ResponseTimeAdvicePredicted.jpg')
-    fig.savefig('static/ResponseTimeAdvicePredicted.jpg')
+    fig.savefig('images/ResponseTimeAdvicePredicted.png')
+    fig.savefig('static/ResponseTimeAdvicePredicted.png')
     
     # plt.show()
     plt.close()
@@ -343,8 +343,8 @@ def ScatterPlotsTrainTest(y_train, y_train_predicted, y_test, y_test_predicted, 
     plt.title(targetVariable + ' vs its predicted values by Neural Network on test data set', fontsize=fontsize)
     plt.scatter(x = y_test, y = y_test_predicted, s = 10)
 
-    fig.savefig('images/Y_denormailizedVsY_predictedLatency.jpg')
-    fig.savefig('static/Y_denormailizedVsY_predictedLatency.jpg')
+    fig.savefig('images/Y_denormailizedVsY_predictedLatency.png')
+    fig.savefig('static/Y_denormailizedVsY_predictedLatency.png')
 
     # plt.show()
     plt.close()
