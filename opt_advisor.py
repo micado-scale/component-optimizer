@@ -23,8 +23,9 @@ from visualizerlinux import VisualizePredictedYLine
 from visualizerlinux import VisualizePredictedYWithWorkers
 from visualizerlinux import VisualizePredictedXY2Line
 from visualizerlinux import VisualizePredictedXY3Line
-from visualizerlinux import VisualizePredictedXYLine
-from visualizerlinux import VisualizePredictedXYLine
+from visualizerlinux import VisualizePredictedXY4Line
+# from visualizerlinux import VisualizePredictedXYLine
+# from visualizerlinux import VisualizePredictedXYLine
 
 from sklearn.externals import joblib
 
@@ -946,6 +947,12 @@ def generate_report(df, min_threshold, max_threshold):
     VisualizePredictedXY3Line(df[[target_variable]], \
                               df[['post_scaled_target_variable']], \
                               df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    
+    VisualizePredictedXY4Line(df[[target_variable]], \
+                              df[['post_scaled_target_variable']], \
+                              df[['advised_vm_number']], \
+                              df[['vm_number']], \
+                              target_variable, min_threshold, max_threshold)
     
     # r = re.compile('.*0*.')
     r = re.compile('.*denormalized*.')

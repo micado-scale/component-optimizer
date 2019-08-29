@@ -7,6 +7,9 @@ import pandas as pd
 import imgkit
 import math
 
+titlesize = 24
+labelsize = 20
+
 def CorrelationMatrixSave(df):
 
     # Set CSS properties for table elements in dataframe
@@ -76,13 +79,13 @@ def CorrelationMatrixSave(df):
 def ScatterPlots(x, y, extendedMetricNames, ylabel):
     fig = plt.figure(figsize=(20,20))
     
-    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
+    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; labelsize = 18; color = 'r'; marker = 'o'
 
     j = 1
     for i in extendedMetricNames:
 
         plt.subplot(row, col, j)
-        plt.title('Latency vs ' + i, fontsize=fontsize)
+        plt.title('Latency vs ' + i, fontsize=titlesize)
         plt.scatter(x[i], y, s=shape, c=color, marker=marker)
         plt.xlabel(i, fontsize=labelsize)
         plt.ylabel(ylabel, fontsize=labelsize)
@@ -128,13 +131,13 @@ def TimeLinePlot(df, x):
 def TimeLinePlots(df, extendedMetricNames):
     fig = plt.figure(figsize=(20,20))
 
-    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; fontsize = 24; labelsize = 18; color = 'r'; marker = 'o'
+    row = math.ceil(len(extendedMetricNames)/2); col = 2; shape = 10; labelsize = 18; color = 'r'; marker = 'o'
 
     j = 1
     for i in extendedMetricNames:
 
         plt.subplot(row, col, j)
-        plt.title('Time vs ' + i, fontsize=fontsize)
+        plt.title('Time vs ' + i, fontsize=titlesize)
         # plt.plot(preProcessedDF[i], c=color, marker=marker)
         plt.plot(df[i], c=color)
         plt.xlabel('Time', fontsize=labelsize)
@@ -150,11 +153,10 @@ def TimeLinePlots(df, extendedMetricNames):
     pass
 
 def VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable):
-    fontsize = 24; labelsize = 20
 
     fig = plt.figure(figsize=(20,7))
-    plt.subplot(1, 1, 1)
-    plt.title(targetVariable + ' vs predicted ' + targetVariable + ' by Neural Network', fontsize=fontsize)
+    # plt.subplot(1, 1, 1)
+    plt.title(targetVariable + ' vs predicted ' + targetVariable + ' by Neural Network', fontsize=titlesize)
     plt.scatter(x = y_normalized, y = y_predicted, s = 20)
     plt.xlabel('Normalized real Response Time', fontsize=labelsize)
     plt.ylabel('Normalized estimated Response Time', fontsize=labelsize)
@@ -166,10 +168,9 @@ def VisualizePredictedYScatter(y_normalized, y_predicted, targetVariable):
     pass
 
 def VisualizePredictedYLine(y_normalized, y_predicted, targetVariable, lines = False):
-    titlesize = 24; labelsize = 20
     
     fig = plt.figure(figsize=(20,7))
-    plt.subplot(1, 1, 1)
+    # plt.subplot(1, 1, 1)
     plt.title(targetVariable + ' and its predicted values', fontsize=titlesize)
     plt.plot(y_normalized)
     plt.plot(y_predicted)
@@ -189,10 +190,9 @@ def VisualizePredictedYLine(y_normalized, y_predicted, targetVariable, lines = F
     pass
 
 def VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable, name = 'Normalized'):
-    titlesize = 24; labelsize = 20
     
     fig = plt.figure(figsize=(20,7))
-    plt.subplot(1, 1, 1)
+    # plt.subplot(1, 1, 1)
     plt.title(targetVariable + ' and its predicted values', fontsize=titlesize)
     plt.plot(y_normalized)
     plt.plot(y_predicted)
@@ -212,12 +212,10 @@ def VisualizePredictedYLineWithValues(y_normalized, y_predicted, targetVariable,
     plt.close()
     pass
 
-
 def VisualizePredictedYWithWorkers(y_normalized, y_predicted, targetVariable):
-    titlesize = 24; labelsize = 20
     
     fig = plt.figure(figsize=(20,7))
-    plt.subplot(1, 1, 1)
+    # plt.subplot(1, 1, 1)
     plt.title(targetVariable + ' and its predicted values', fontsize=titlesize)
     plt.plot(y_predicted)
     plt.rc('xtick', labelsize=12)
@@ -234,13 +232,11 @@ def VisualizePredictedYWithWorkers(y_normalized, y_predicted, targetVariable):
     plt.close()
     pass
 
-
 def VisualizePredictedXYLine(y_normalized, y_predicted, targetVariable, lowerLimit, upperLimit):
-    titlesize = 24; labelsize = 20
     
     fig = plt.figure(figsize=(20,7))
-    plt.subplot(1, 1, 1)
-    plt.title('Response time and proposed numb. of additional resources', fontsize=titlesize)
+    # plt.subplot(1, 1, 1)
+    plt.title('Response time and proposed numb. of resources', fontsize=titlesize)
     plt.plot(y_normalized)
     plt.plot(y_predicted)
     plt.rc('xtick', labelsize=12)
@@ -257,9 +253,7 @@ def VisualizePredictedXYLine(y_normalized, y_predicted, targetVariable, lowerLim
     plt.close()
     pass
 
-
 def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
-    titlesize = 24; labelsize = 20
 
     fig, ax1 = plt.subplots(figsize=(20,7))
     
@@ -269,11 +263,11 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     
     ax2 = ax1.twinx()
     p1 = ax1.plot(y1, color = '#1f77b4', label = 'Response time (ms)')
-    p2 = ax2.plot(y2, color = '#ff7f0e', label = 'Proposedd numb. of additional resources')
+    p2 = ax2.plot(y2, color = '#ff7f0e', label = 'Proposedd numb. of resources')
 
     ax1.set_xlabel('Timeline', fontsize = labelsize)
     ax1.set_ylabel('Response time (ms)', fontsize=labelsize)
-    ax2.set_ylabel('Proposedd numb. of additional resources', fontsize=labelsize)
+    ax2.set_ylabel('Proposedd numb. of resources', fontsize=labelsize)
     ax2.set_ylim([-2, 12])
 
     ax1.axhline(y = lowerLimit, color = 'grey')
@@ -282,7 +276,7 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     # ax1.text(y = lowerLimit, x = 0, s = r'{:d}'.format(lowerLimit), va = 'bottom', ha = 'center', fontsize = 12)
     # ax1.text(y = upperLimit, x = 0, s = upperLimit, va = 'bottom', ha = 'center', fontsize = 12)
         
-    plt.title('Response time and proposed numb. of additional resources', fontsize=titlesize)
+    plt.title('Response time and proposed numb. of resources', fontsize=titlesize)
     plt.rc('xtick', labelsize=12)
     plt.rc('ytick', labelsize=12)
     
@@ -298,24 +292,23 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     pass
 
 def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit):
-    titlesize = 24; labelsize = 20
 
     fig, ax1 = plt.subplots(figsize=(20,7))
     
     ax2 = ax1.twinx()
     p1 = ax1.plot(y1, color = '#1f77b4', label = 'Response time (ms)')
     p2 = ax1.plot(y2, color = '#000000', label = 'Predicted Response time (ms)')
-    p3 = ax2.plot(y3, color = '#ff7f0e', label = 'Proposedd numb. of additional resources')
+    p3 = ax2.plot(y3, color = '#ff7f0e', label = 'Proposedd numb. of resources')
 
     ax1.set_xlabel('Timeline', fontsize = labelsize)
     ax1.set_ylabel('Response time (ms)', fontsize=labelsize)
-    ax2.set_ylabel('Proposedd numb. of additional resources', fontsize=labelsize)
+    ax2.set_ylabel('Proposedd numb. of resources', fontsize=labelsize)
     ax2.set_ylim([-2, 12])
 
     ax1.axhline(y = lowerLimit, color = 'grey')
     ax1.axhline(y = upperLimit, color = 'grey')
         
-    plt.title('Response time and proposed numb. of additional resources', fontsize=titlesize)
+    plt.title('Response time and proposed numb. of resources', fontsize=titlesize)
     plt.rc('xtick', labelsize=12)
     plt.rc('ytick', labelsize=12)
     
@@ -325,6 +318,41 @@ def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit
 
     fig.savefig('images/ResponseTimeAdvicePredicted.png')
     fig.savefig('static/ResponseTimeAdvicePredicted.png')
+    
+    # plt.show()
+    plt.close()
+    pass
+
+def VisualizePredictedXY4Line(y1, y2, y3, y4, targetVariable, lowerLimit, upperLimit):
+
+    fig, ax1 = plt.subplots(figsize=(20,7))
+    
+    ax2 = ax1.twinx()
+    p1 = ax1.plot(y1, color = '#1f77b4', label = 'Response time (ms)')
+    p2 = ax1.plot(y2, color = '#000000', label = 'Predicted Response time (ms)')
+    p3 = ax2.plot(y3, color = '#ff7f0e', label = 'Proposedd numb. of resources')
+    # p4 = ax2.plot(y4, color = '#008238', label = 'Actual numb. of resources')
+    # p4 = ax2.plot(y4, color = '#00755E', label = 'Actual numb. of resources')
+    p4 = ax2.plot(y4, color = '#670000', label = 'Actual numb. of resources')
+
+    ax1.set_xlabel('Timeline', fontsize = labelsize)
+    ax1.set_ylabel('Response time (ms)', fontsize=labelsize)
+    ax2.set_ylabel('Proposedd numb. of resources', fontsize=labelsize)
+    ax2.set_ylim([-2, 12])
+
+    ax1.axhline(y = lowerLimit, color = 'grey')
+    ax1.axhline(y = upperLimit, color = 'grey')
+        
+    plt.title('Response time and proposed numb. of resources', fontsize=titlesize)
+    plt.rc('xtick', labelsize=12)
+    plt.rc('ytick', labelsize=12)
+    
+    ps = p1+p2+p3+p4
+    labels = [label.get_label() for label in ps]
+    ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
+
+    fig.savefig('images/ResponseTimeAdvicePredictedWorkerCount.png')
+    fig.savefig('static/ResponseTimeAdvicePredictedWorkerCount.png')
     
     # plt.show()
     plt.close()
@@ -350,10 +378,8 @@ def ScatterPlotsTrainTest(y_train, y_train_predicted, y_test, y_test_predicted, 
     plt.close()
     pass
 
-
 def ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames):
     row = math.ceil(len(metricNames)/2); col = 2; j = 1
-    # fig = plt.figure(figsize=(16,30))
     fig = plt.figure(figsize=(20,30))
     for i in metricNames:
         plt.subplot(row, col, j)
@@ -368,7 +394,6 @@ def ipythonPlotMetricsRealAgainstPredicted(temporaryScalingDF, metricNames):
     # plt.show()
     plt.close()
     pass
-
 
 def ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricNames):
     j = 1
