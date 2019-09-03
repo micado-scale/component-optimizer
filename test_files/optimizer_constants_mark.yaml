@@ -1,7 +1,7 @@
 constants: 
     min_vm_number: 1
     max_vm_number: 10
-    training_samples_required: 300
+    training_samples_required: 4000
     nn_stop_error_rate: 10.0
     advice_freeze_interval: 0
     max_upscale_delta: 6
@@ -19,6 +19,6 @@ constants:
       - name: PktOut
     target_metrics: 
       - name: AVG_LAT_05
-        min_threshold: 12000
-        max_threshold: 13000
+        min_threshold: 6000
+        max_threshold: 12000
     knowledge_base: use_existing

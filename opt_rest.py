@@ -122,7 +122,7 @@ def init():
         # ## Reset or delete output file where advices were stored
         # ## ------------------------------------------------------------------------------------------------------
         
-        # opt_utils.reset_output(config.output_filename)
+        opt_utils.reset_output(config.output_filename)
         
         # ## ------------------------------------------------------------------------------------------------------
         # ## Init opt_advisor
@@ -235,19 +235,16 @@ def sample():
             logger.info('----------------------------------------------')
 
             
-            # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
-            logger.info(f'tmp_df.shape = {tmp_df.shape}')
-            logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
             
-            # TODO
-            # Ezt az értéket írjuk vissza egy globális változóba, hogy a Reportert csak akkor lehessen
-            # meghívni ha ez a szám nagyobb mint a minimális tanulás
-            #
-            # Sőt itt beállíthatunk egy is_reporter_runable booleant ami szintén glogális változó 
-                        
+            
+            
             # ## ------------------------------------------------------------------------------------------------------
             # ## Start Training
             # ## ------------------------------------------------------------------------------------------------------
+            
+            # Ha egy megadott számnál hosszabb a dataframe akkor kezdje el a tanítást
+            logger.info(f'tmp_df.shape = {tmp_df.shape}')
+            logger.info(f'tmp_df.shape[0] = {tmp_df.shape[0]}')
             
             _min_training = constants.get('training_samples_required')
             #TODO:

@@ -59,6 +59,9 @@ default_minimumNumberReducibleNode = -6   # must be negative
 advice_freeze_interval = 0                # minimum time in secundum between two advice
 default_advice_freeze_interval = 0        # must be positive
 
+start_training_vm_number = 1                    # vm number when train phase stars
+autotrain = True                                # handle the optimizer -> adviser the scaling durint the training phas
+
 
 
 # ## ------------------------------------------------------------------------------------------------------
@@ -114,6 +117,12 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     
     global prev_advice_vm_total_number
     prev_advice_vm_total_number = 0
+    
+    global start_training_vm_number
+    start_training_vm_number = 1
+    
+    global autotrain
+    autotrain = True
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -289,12 +298,52 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # ez a szerencsétlen viszont már 300 után keresni fogja a modelt
     # amit persze nem talál majd
     # +++++++ szóval ezt az értéket meg kell még növelni a körök számával +1 ++++++++++++
-    # if df.shape[0] < 300:
-    if df.shape[0] < constants.get('training_samples_required'):
-        error_msg = 'There are not enough training samples yet.'
-        logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Start designed autoscaling
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    global start_training_vm_number
+    global autotrain
+    
+    # Original
+    if( autotrain == False ):
+        if(df.shape[0] < constants.get('training_samples_required')):
+            error_msg = 'There are not enough training samples yet.'
+            logger.warn(error_msg)
+            return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+            
+    # Added
+    if( autotrain == True ):
+        logger.warn(f'start_training_vm_number = {start_training_vm_number}')
+        if(df.shape[0] < constants.get('training_samples_required')):
+            error_msg = 'Designed autoscaling during the training phase. There are not enough training samples yet.'
+            logger.warn(error_msg)
+            
+            if( df.shape[0] % 20 == 0 ):
+                
+                global direction
+                
+                if( start_training_vm_number == constants.get('max_vm_number') ):
+                    direction = "down"
+                if( start_training_vm_number == constants.get('min_vm_number') ):
+                    direction = "up"
+                if( direction == "up" and start_training_vm_number < constants.get('max_vm_number') ):
+                    start_training_vm_number = start_training_vm_number + 1
+                if( direction == "down" and start_training_vm_number > constants.get('min_vm_number') ):
+                    start_training_vm_number = start_training_vm_number - 1
+                    
+                logger.warn(f'----------- Scaling has happened ------------')
+                logger.warn(f'direction = {direction}')
+                logger.warn(f'start_training_vm_number = {start_training_vm_number}')
 
+            logger.warn(f'--------------------------------------')
+            logger.warn(f'Current number of resources during the training')
+            logger.warn(f'start_training_vm_number = {start_training_vm_number}')
+            return advice_msg(valid = True, phase = 'production', vm_number = start_training_vm_number, error_msg = error_msg)
+        
+            
+    
     
     
     

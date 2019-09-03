@@ -403,13 +403,13 @@ def ipythonPlotMetricsRealAgainstPredictedRegression(temporaryScalingDF, metricN
     for i in metricNames:        
         g = sns.jointplot(x=temporaryScalingDF['next1'+str(i)], y=temporaryScalingDF['predictedNext1'+str(i)], kind='reg', ratio=3)
         
-        g.savefig('images/InnerStateMetricRegression' + str(j) + '.jpg')
-        g.savefig('static/InnerStateMetricRegression' + str(j) + '.jpg')
+        g.savefig('images/InnerStateMetricRegression' + str(j) + '.png')
+        g.savefig('static/InnerStateMetricRegression' + str(j) + '.png')
         
         j = j + 1
         
         plt.close()
     
     # plt.show()
-    # plt.close()
+    plt.close()
     pass
