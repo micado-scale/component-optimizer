@@ -85,7 +85,7 @@ def ScatterPlots(x, y, extendedMetricNames, ylabel):
     for i in extendedMetricNames:
 
         plt.subplot(row, col, j)
-        plt.title('Latency vs ' + i, fontsize=titlesize)
+        plt.title(ylabel + ' vs ' + i, fontsize=titlesize)
         plt.scatter(x[i], y, s=shape, c=color, marker=marker)
         plt.xlabel(i, fontsize=labelsize)
         plt.ylabel(ylabel, fontsize=labelsize)
