@@ -8,8 +8,6 @@ import opt_config
 import opt_utils
 import opt_trainer
 import opt_advisor
-import opt_trainer_backtest
-import opt_advisor_backtest
 
 import pandas as pd
 import numpy as np
