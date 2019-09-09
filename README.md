@@ -1,7 +1,7 @@
 # MiCADO - Scaling Optimizer with Machine Learning Support
 
 ## Don't forget to set environment
-From project rott run
+From project root run
 ```source activate optimizer```
 
 ## Test program
@@ -46,10 +46,6 @@ Send a new training sample.
 
 ```curl -X POST http://193.224.59.115:5000/optimizer/sample --data-binary @test_files/metrics_sample_example_down.yaml``` 
 
-__POST /optimizer/backtest__    
-Test the performacne of the system on historical data.   
-```curl -X POST http://193.224.59.115:5000/optimizer/backtest --data-binary @test_files/metrics_sample_example.yaml```
-  
 __GET /optimizer/advice__     
 Get scaling advice.  
 ```curl -X GET http://127.0.0.1:5000/optimizer/advice```  

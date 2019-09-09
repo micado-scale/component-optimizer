@@ -4,7 +4,7 @@ import dateutil.parser as dp
 import time
 
 ''' PLEASE, UPDATE THE VARIABLES BELOW! '''
-inputcsvfilepath = 'grafana_data_export_long_running_test-short.csv' #input
+inputcsvfilepath = 'data/grafana_data_export_long_running_test.csv' #input
 outputcsvfilepath = 'result_for_grafana_data_export_long_running_test.csv' # ebbe tolja bele az output
 separator=';' #updated automatically if file starts with sep= string
 max_number_of_rows_to_process = 20000 # parameter ennyit dolgozhat fel
@@ -69,7 +69,7 @@ def generate_sample(values=dict()):
         if values[index] != "null" else None
       continue
     if index == column_index_of_nodecount:
-      sample['sample']['vm_number'] = int(values[index]) \
+      sample['vm_number'] = int(values[index]) \
         if values[index] != "null" else None
       continue
     values[index] = None if values[index]=="null" else float(values[index])
@@ -86,7 +86,7 @@ def generate_sample(values=dict()):
   for s in sample['sample']['target_metrics']:
     if s['value'] is None:
       return None
-  if sample['sample']['vm_number'] is None:
+  if sample['vm_number'] is None:
     return None
   return sample
 
