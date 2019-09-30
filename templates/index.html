@@ -4,27 +4,27 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="apple-touch-icon" sizes="57x57" href="{{url_for('static', filename='favicon/apple-icon-57x57.png')}}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{{url_for('static', filename='favicon/apple-icon-60x60.png')}}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{url_for('static', filename='favicon/apple-icon-72x72.png')}}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{url_for('static', filename='favicon/apple-icon-76x76.png')}}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{url_for('static', filename='favicon/apple-icon-114x114.png')}}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{url_for('static', filename='favicon/apple-icon-120x120.png')}}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{url_for('static', filename='favicon/apple-icon-144x144.png')}}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{url_for('static', filename='favicon/apple-icon-152x152.png')}}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='favicon/apple-icon-180x180.png')}}">
-    <link rel="icon" type="image/png" sizes="192x192"  href="{{url_for('static', filename='favicon/android-icon-192x192.png')}}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='favicon/favicon-32x32.png')}}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{url_for('static', filename='favicon/favicon-96x96.png')}}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='favicon/favicon-16x16.png')}}">
-    <link rel="shortcut icon" href="{{url_for('static', filename='favicon/favicon.ico')}}" type="image/x-icon">
-    <link rel="manifest" href="{{url_for('static', filename='favicon/manifest.json')}}">
+    <link rel="apple-touch-icon" sizes="57x57" href="static/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="static/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="static/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="static/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="static/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="static/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="static/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="static/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="static/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="static/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="static/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/favicon/favicon-16x16.png">
+    <link rel="shortcut icon" href="static/favicon/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="static/favicon/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="{{url_for('static', filename='favicon/ms-icon-144x144.png')}}">
+    <meta name="msapplication-TileImage" content="static/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-    
+
     <title>Report</title>
-    
+
     <style type="text/css">
     html { font-family: sans-serif; font-size: 14px; }
     body { max-width:310mm; margin: 0 auto;}
@@ -57,7 +57,7 @@
 <body id="0">
 <header>
 <h1>
-<img src="{{url_for('static', filename='logo.png')}}" width="366" height="143" alt="COLA Logo"/>
+<img src="static/logo.png" width="366" height="143" alt="COLA Logo"/>
 <span><br>Report</span>
 </h1>
 </header>
@@ -67,11 +67,11 @@
 <ul>
 <li><a href="#10">Target Variable timeline</a>
 </li>
-<li><a href="#11">Inner State Variables timelines</a>
+<li><a href="#11">Input metrics timelines</a>
 </li>
 <li><a href="#12">Correlation Matrix</a>
 </li>
-<li><a href="#13">Inner State Variable against Target Variable</a>
+<li><a href="#13">Input metrics against Target Variable</a>
 </li>
 <li><a href="#14">Measured Target Variable against predicted Target Variable by Neural Network (set All)</a>
 </li>
@@ -83,9 +83,9 @@
 </li>
 <li><a href="#18">Estimated Target Variable if add different numbers of resources</a>
 </li>
-<li><a href="#19">Target Variable and proposed number of resources on Test Set</a>
+<li><a href="#19">Target Variable and proposed number of resources</a>
 </li>
-<li><a href="#20">Predicted Target Variable and proposed number of resources on Test Set</a>
+<li><a href="#20">Predicted Target Variable and proposed number of resources</a>
 </li>
 <li><a href="#21">Predicted Target Variable - Proposed number of resources - Actual number of resources</a>
 </li>
@@ -96,11 +96,11 @@
 
 <section>
 <h4 id="10">Target Variable timeline</h4>
-<a href="#0"><img src="{{url_for('static', filename='AverageLatencyQuantileZeroPointFiveTimeLines.png')}}" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLines"/></a>
+<a href="#0"><img src="static/AverageLatencyQuantileZeroPointFiveTimeLines.png" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLines"/></a>
 </section>
 <section>
-<h4 id="11">Inner state variables timeline</h4>
-<a href="#0"><img src="{{url_for('static', filename='InnerStateVariableTimeLines_2.png')}}" width="100%" height="100%" alt="Image: InnerStateVariableTimeLines_2"/></a>
+<h4 id="11">Input metrics timeline</h4>
+<a href="#0"><img src="static/InnerStateVariableTimeLines_2.png" width="100%" height="100%" alt="Image: InnerStateVariableTimeLines_2"/></a>
 </section>
 <section>
 <h4 id="12">Correlation Matrix</h4>
@@ -109,20 +109,20 @@
 </div>
 </section>
 <section>
-<h4 id="13">Inner State Variable against Target Variable</h4>
-<a href="#0"><img src="{{url_for('static', filename='InnerStateVariableVsTargetVariable.png')}}" width="100%" height="100%" alt="Image: InnerStateVariableVsTargetVariable"/></a>
+<h4 id="13">Input metrics against Target Variable</h4>
+<a href="#0"><img src="static/InnerStateVariableVsTargetVariable.png" width="100%" height="100%" alt="Image: InnerStateVariableVsTargetVariable"/></a>
 </section>
 <section>
 <h4 id="14">Measured Target Variable against predicted Target Variable by Neural Network (set All)</h4>
-<a href="#0"><img src="{{url_for('static', filename='Y_normailizedVsY_predictedLatency.png')}}" width="100%" height="100%" alt="Image: Y_normailizedVsY_predictedLatency"/></a>
+<a href="#0"><img src="static/Y_normailizedVsY_predictedLatency.png" width="100%" height="100%" alt="Image: Y_normailizedVsY_predictedLatency"/></a>
 </section>
 <section>
 <h4 id="15">Plot measured Target Variable and predicted Target Variable by Neural Network normalized (set All)</h4>
-<a href="#0"><img src="{{url_for('static', filename='VisualizePredictedYLineWithValuesNormalized.png')}}" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesNormalized"/></a>
+<a href="#0"><img src="static/VisualizePredictedYLineWithValuesNormalized.png" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesNormalized"/></a>
 </section>
 <section>
 <h4 id="16">Plot measured Target Variable and predicted Target Variable by Neural Network de-normalized (set All)</h4>
-<a href="#0"><img src="{{url_for('static', filename='VisualizePredictedYLineWithValuesDenormalized.png')}}" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesDenormalized"/></a>
+<a href="#0"><img src="static/VisualizePredictedYLineWithValuesDenormalized.png" width="100%" height="100%" alt="Image: VisualizePredictedYLineWithValuesDenormalized"/></a>
 </section>
 <section>
 <h4 id="17">What would be the metrics values after scaling vs Real metircs values</h4>
@@ -130,26 +130,26 @@
     <table>
 	  <tr>
         <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression1.png')}}" alt="Image: InnerStateMetricRegression1"/>
+            <img src="static/InnerStateMetricRegression1.png" alt="Image: InnerStateMetricRegression1"/>
         </td>
         <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression2.png')}}" alt="Image: InnerStateMetricRegression2"/>
-        </td>
-	  </tr>
-	  <tr>
-        <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression3.png')}}" alt="Image: InnerStateMetricRegression3"/>
-        </td>
-        <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression4.png')}}" alt="Image: InnerStateMetricRegression4"/>
+            <img src="static/InnerStateMetricRegression2.png" alt="Image: InnerStateMetricRegression2"/>
         </td>
 	  </tr>
 	  <tr>
         <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression5.png')}}" alt="Image: InnerStateMetricRegression5"/>
+            <img src="static/InnerStateMetricRegression3.png" alt="Image: InnerStateMetricRegression3"/>
         </td>
         <td>
-            <img src="{{url_for('static', filename='InnerStateMetricRegression6.png')}}" alt="Image: InnerStateMetricRegression6"/>
+            <img src="static/InnerStateMetricRegression4.png" alt="Image: InnerStateMetricRegression4"/>
+        </td>
+	  </tr>
+	  <tr>
+        <td>
+            <img src="static/InnerStateMetricRegression5.png" alt="Image: InnerStateMetricRegression5"/>
+        </td>
+        <td>
+            <img src="static/InnerStateMetricRegression6.png" alt="Image: InnerStateMetricRegression6"/>
         </td>
 	  </tr>
     </table>
@@ -157,22 +157,22 @@
 </section>
 <section>
 <h4 id="18">Estimated Target Variable if add different numbers of resources</h4>
-<a href="#0"><img src="{{url_for('static', filename='PredictedYByWorkers.png')}}" width="100%" height="100%" alt="Image: PredictedYByWorkers"/></a>
+<a href="#0"><img src="static/PredictedYByWorkers.png" width="100%" height="100%" alt="Image: PredictedYByWorkers"/></a>
 </section>
 <section>
-<h4 id="19">Target Variable and proposed number of resources on Test Set</h4>
-<a href="#0"><img src="{{url_for('static', filename='AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.png')}}" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3"/></a>
+<h4 id="19">Target Variable and proposed number of resources</h4>
+<a href="#0"><img src="static/AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3.png" width="100%" height="100%" alt="Image: AverageLatencyQuantileZeroPointFiveTimeLinesAndPredictedValuesAgainstTime_3"/></a>
 </section>
 <section>
-<h4 id="20">Predicted Target Variable and proposed number of resources on Test Set</h4>
-<a href="#0"><img src="{{url_for('static', filename='ResponseTimeAdvicePredicted.png')}}" width="100%" height="100%" alt="Image: ResponseTimeAdvicePredicted"/></a>
+<h4 id="20">Predicted Target Variable and proposed number of resources</h4>
+<a href="#0"><img src="static/ResponseTimeAdvicePredicted.png" width="100%" height="100%" alt="Image: ResponseTimeAdvicePredicted"/></a>
 </section>
 <section>
 <h4 id="21">Predicted Target Variable - Proposed number of resources - Actual number of resources</h4>
-<a href="#0"><img src="{{url_for('static', filename='ResponseTimeAdvicePredictedWorkerCount.png')}}" width="100%" height="100%" alt="Image: ResponseTimeAdvicePredictedWorkerCount"/></a>
+<a href="#0"><img src="static/ResponseTimeAdvicePredictedWorkerCount.png" width="100%" height="100%" alt="Image: ResponseTimeAdvicePredictedWorkerCount"/></a>
 </section>
 </div>
 
-<footer><p>Generated with MiCado Optimizer. More information at <a href="https://project-cola.eu">https://project-cola.eu/</a></p></footer>
+<footer><p>Generated with MiCADO. More information at <a href="https://project-cola.eu">https://project-cola.eu/</a></p></footer>
 </body>
 </html>
