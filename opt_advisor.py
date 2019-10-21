@@ -213,8 +213,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # testFileName = 'data/test_data.csv'                                  # test data
     testFileName = csfFileName                                             # from parameter
     
-    maximumNumberIncreasableNode = 6                                       # must be positive 6
-    minimumNumberReducibleNode = -6                                        # must be negativ -4
+    # maximumNumberIncreasableNode = 6                                     # must be positive 6
+    # minimumNumberReducibleNode = -6                                      # must be negativ -4
     
     upperLimit = target_metric_max                                         # 4000000
     lowerLimit = target_metric_min                                         # 1000000
