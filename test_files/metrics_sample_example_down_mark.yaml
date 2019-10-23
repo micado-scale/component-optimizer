@@ -2,34 +2,34 @@ sample:
   timestamp: 1565597280
   input_metrics:
     - name: PktIn
-      value: 0.2999250187453137
+      value: 0.25
       
     - name: KBIn
-      value: 0.027825074981254687
+      value: 0.028125
 
     - name: AVG_RR
-      value: 0.0499990000199996
+      value: 0.039523333333333334
 
     - name: Inter
-      value: 964.608847788053
+      value: 221.4
       
     - name: CTXSW
-      value: 2083.129217695576
+      value: 889.5
 
     - name: KBOut
-      value: 0.7097834916270933
+      value: 0.436181640625
       
     - name: CPU
-      value: 5.8985253686578885
+      value: 4.0249999999991815
 
     - name: SUM_RR
-      value: 0.0499990000199996
+      value: 0.07903625
 
     - name: PktOut
-      value: 0.1999500124968758
+      value: 0.2
 
   target_metrics:
     - name: AVG_LAT_05
-      value: 10283.558
+      value: 2975.178
 
-  vm_number: 3
+  vm_number: 1

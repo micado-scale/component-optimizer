@@ -24,6 +24,7 @@ from visualizerlinux import VisualizePredictedYWithWorkers
 from visualizerlinux import VisualizePredictedXY2Line
 from visualizerlinux import VisualizePredictedXY3Line
 from visualizerlinux import VisualizePredictedXY4Line
+from visualizerlinux import VisualizeDemo1
 # from visualizerlinux import VisualizePredictedXYLine
 # from visualizerlinux import VisualizePredictedXYLine
 
@@ -60,7 +61,8 @@ advice_freeze_interval = 0                # minimum time in secundum between two
 default_advice_freeze_interval = 0        # must be positive
 
 start_training_vm_number = 1                    # vm number when train phase stars
-autotrain = True                                # handle the optimizer -> adviser the scaling durint the training phas
+default_autotrain = True
+autotrain = None                                # handle the optimizer -> adviser the scaling during the training phase
 
 
 
@@ -122,7 +124,8 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     start_training_vm_number = 1
     
     global autotrain
-    autotrain = True
+    # autotrain = True
+    autotrain = constants.get('auto_trainer') if constants.get('auto_trainer') else default_autotrain
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -142,6 +145,8 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     logger.info(f'     worker_count_name = {worker_count_name}')
     logger.info(f'     _outsource_metrics = {_outsource_metrics}')
     logger.info(f'     outsource_metrics = {outsource_metrics}')
+    logger.info('     ----------------------------------------')
+    logger.info(f'     autotrain         = {autotrain}')
     
     logger.info('-----------------------  advisor init end  ----------------------')
 
@@ -1002,6 +1007,14 @@ def generate_report(df, min_threshold, max_threshold):
                               df[['advised_vm_number']], \
                               df[['vm_number']], \
                               target_variable, min_threshold, max_threshold)
+    
+    VisualizeDemo1(df[['SUM_RR']], \
+                   df[['vm_number']], \
+                   df[['advised_vm_number']], 'Sum Request Rate', 'demo1.png')
+    
+    VisualizeDemo1(df[[target_variable]], \
+                   df[['vm_number']], \
+                   df[['advised_vm_number']], target_variable, 'demo2.png')
     
     # r = re.compile('.*0*.')
     r = re.compile('.*denormalized*.')

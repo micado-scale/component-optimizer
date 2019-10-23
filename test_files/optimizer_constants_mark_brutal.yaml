@@ -5,6 +5,8 @@ constants:
     advice_freeze_interval: 0
     max_upscale_delta: 6
     max_downscale_delta: 6
+    action_lag: 1
+    auto_trainer: True
     
     input_metrics: 
       - name: PktIn

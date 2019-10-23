@@ -135,7 +135,7 @@ def init():
 
         global opt_trainer
         training_samples_required = constants.get('training_samples_required')
-        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required, outsource_metrics)
+        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required, outsource_metrics, constants)
 
         logger.info('--------------------------------------------------------------')
         logger.info('          Optimizer REST initialized successfully             ')
