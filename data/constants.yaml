@@ -2,23 +2,23 @@ action_lag: 1
 advice_freeze_interval: 0
 auto_trainer: true
 input_metrics:
-- name: PktIn
-- name: KBIn
 - name: AVG_RR
+- name: SUM_RR
+- name: CPU
 - name: Inter
 - name: CTXSW
+- name: KBIn
+- name: PktIn
 - name: KBOut
-- name: CPU
-- name: SUM_RR
 - name: PktOut
-knowledge_base: use_existing
+knowledge_base: build_new
 max_downscale_delta: 4
-max_upscale_delta: 4
+max_upscale_delta: 5
 max_vm_number: 10
 min_vm_number: 1
 nn_stop_error_rate: 10.0
 target_metrics:
-- max_threshold: 12000
-  min_threshold: 6000
+- max_threshold: 4000000
+  min_threshold: 1000000
   name: AVG_LAT_05
-training_samples_required: 2000
+training_samples_required: 300

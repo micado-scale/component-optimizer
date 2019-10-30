@@ -199,11 +199,14 @@ def sample():
         logger.info('      ----------------------- sample -----------------------')
         logger.info('')
         logger.info('--------------------------------------------------------------')
-
-        # ToDo: ezt kivenni
-        # Ha a target metrika üres akkkor legyen 0
-        if(np.isnan(target_metrics[0]) == True):
+        
+        print(len(target_metrics))
+        if(len(target_metrics) == 0):
             target_metrics[0] = 0.0
+        print(target_metrics)
+        logger.info(f'      target_variable = {target_variable}')
+        logger.info(f'      target_metrics = {target_metrics}')
+
 
         # if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
         # if( len(input_metrics) != 0 and len(target_metrics) != 0 and None not in timestamp_col+input_metrics+target_metrics+[vm_number]):
@@ -375,8 +378,6 @@ def get_advice():
     # akkor is ha ezek nem lesznek letárolva az adatok között
     opt_advisor_return = opt_advisor.run(config.nn_filename, vm_number, target_variable, last = _last, training_result = training_result)
 
-    logger.info('------------------- vm_number_from_pk --------------------')
-    logger.info(f'vm_number from policy keeper: {vm_number}')
     logger.info('----------------------------------------------------------')
     logger.info('------------------ opt_advisor_return --------------------')
     logger.info(f'opt_advisor_return with message: {opt_advisor_return}')
