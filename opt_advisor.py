@@ -634,9 +634,16 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('------ Get Actual Number of WorkerCount based on investigationDeNormalizedDF ------')
     
     # itt eldönthetem, hogy a dataframeből olvasom ki ezt az adatot, vagy paraméterként veszem át
-    actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(investigationDeNormalizedDF.index[0], 'WorkerCount')
+    # Ez a vm_number_from_sample érték a run metodus paramétere, az opt_rest elvileg a valós vm számot adja itt át
+    actual_worker_number = vm_number_from_sample
+    # actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(investigationDeNormalizedDF.index[0], 'WorkerCount')
     # másfelől lehet, hogy ezt az értéket az épen aktuális mintából kéne kivennem?!
     # nem ezt már kiolvastam a sample df-ből (persze lehet, hogy az épen aktuális már nem ez)
+    logger.info('-----------------------------------------------------------------------------------')
+    logger.info('\n\n\n\n\n\n\n\n')
+    logger.info(f'  actual_worker_number                    = {actual_worker_number}')
+    logger.info('\n\n\n\n\n\n\n\n')
+    logger.info('-----------------------------------------------------------------------------------')
     
     
     advice = 0
@@ -719,6 +726,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
+            # Ez a vm_number_from_sample érték a run metodus paramétere, az opt_rest elvileg a valós vm számot adja itt át
+            # actual_worker_number = vm_number_from_sample
             actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             # advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             advicedVM = actual_worker_number
