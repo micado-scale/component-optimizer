@@ -996,25 +996,34 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
 
 def generate_report(df, min_threshold, max_threshold):
     
-    VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    row = df.shape[0]
     
-    VisualizePredictedXY3Line(df[[target_variable]], \
-                              df[['post_scaled_target_variable']], \
-                              df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    if( row % 5 == 0 ):
     
-    VisualizePredictedXY4Line(df[[target_variable]], \
-                              df[['post_scaled_target_variable']], \
-                              df[['advised_vm_number']], \
-                              df[['vm_number']], \
-                              target_variable, min_threshold, max_threshold)
+        VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
     
-    VisualizeDemo1(df[['SUM_RR']], \
-                   df[['vm_number']], \
-                   df[['advised_vm_number']], 'Sum Request Rate', 'demo1.png')
+    if( row % 5 == 1 ):
+        
+        VisualizePredictedXY3Line(df[[target_variable]], \
+                                  df[['post_scaled_target_variable']], \
+                                  df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
     
-    VisualizeDemo1(df[[target_variable]], \
-                   df[['vm_number']], \
-                   df[['advised_vm_number']], target_variable, 'demo2.png')
+    if( row % 5 == 2 ):
+        VisualizePredictedXY4Line(df[[target_variable]], \
+                                  df[['post_scaled_target_variable']], \
+                                  df[['advised_vm_number']], \
+                                  df[['vm_number']], \
+                                  target_variable, min_threshold, max_threshold)
+    
+    if( row % 5 == 3 ):
+        VisualizeDemo1(df[['SUM_RR']], \
+                       df[['vm_number']], \
+                       df[['advised_vm_number']], 'Sum Request Rate', 'demo1.png')
+    
+    if( row % 5 == 4 ):
+        VisualizeDemo1(df[[target_variable]], \
+                       df[['vm_number']], \
+                       df[['advised_vm_number']], target_variable, 'demo2.png')
     
     # r = re.compile('.*0*.')
     r = re.compile('.*denormalized*.')

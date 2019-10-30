@@ -347,13 +347,13 @@ def run(nn_file_name, visualize = False):
     # if rows % 3 == 1: TimeLinePlot(preProcessedDF, targetVariable)
     # if rows % 3 == 2: TimeLinePlots(preProcessedDF, visualised_metrics)
     
-    if rows %3 == 0:
+    if rows %12 == 0:
         t1 = threading.Thread(target=ScatterPlots, args=(preProcessedDF, preProcessedDF[targetVariable], visualised_metrics, targetVariable))
         t1.start()
-    if rows %3 == 1:
+    if rows %12 == 1:
         t2 = threading.Thread(target=TimeLinePlot, args=(preProcessedDF, targetVariable))
         t2.start()
-    if rows %3 == 2:
+    if rows %12 == 2:
         t3 = threading.Thread(target=TimeLinePlots, args=(preProcessedDF, visualised_metrics))
         t3.start()
     
