@@ -728,7 +728,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
             advice = 0
             # Ez a vm_number_from_sample érték a run metodus paramétere, az opt_rest elvileg a valós vm számot adja itt át
             # actual_worker_number = vm_number_from_sample
-            actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            # actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             # advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             advicedVM = actual_worker_number
             # Ne a javaslatot, hanem a konkrét gép számot adja vissza
@@ -838,7 +838,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('--------- Pass back Goodness of Fit ----------')
     if( training_result[1] is not None ):
         # TODO:
-        # Avoid potential error with try exept
+        # Avoid potential error with try except
         try:
             reliability = training_result[1].get('correlation') * 100
             if( reliability < 0 ):
