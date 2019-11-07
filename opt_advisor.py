@@ -287,7 +287,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] <= 0:
         error_msg = 'There is no training sample yet.'
-        logger.error(error_msg)
+        logger.warning(error_msg)
         return advice_msg(valid = False, vm_number = 1, phase = 'training', error_msg = error_msg)
     
 
@@ -329,7 +329,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # Original
     if( autotrain == False ):
         if(df.shape[0] < constants.get('training_samples_required')):
-            error_msg = 'There are not enough training samples yet.'
+            error_msg = 'There are not enough training samples yet. [' + df.shape[0] + ']'
             logger.warn(error_msg)
             return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
             
