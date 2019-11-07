@@ -157,12 +157,27 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
 # ## ------------------------------------------------------------------------------------------------------
     
 def advice_msg(valid = False, phase = 'training', vm_number = 0, reliability = 0, error_msg = None):
+    logger = logging.getLogger('optimizer')
     if valid:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = 'no error')), 200
+        error_msg = 'no error'
+
+    logger.info('----------------------------------------------------------')
+    logger.info('   ADVICE FOR THE POLICY KEEPER')
+    logger.info('----------------------------------------------------------')
+    logger.info(f'   valid               = {valid}')
+    logger.info(f'   phase               = {phase}')
+    logger.info(f'   vm_number           = {vm_number}')
+    logger.info(f'   reliability         = {reliability}')
+    logger.info(f'   error_msg           = {error_msg}')
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------------------------------------------')
+                
+    if valid:
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = error_msg)), 200
     else:
         return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = error_msg)), 400
-
-
+    
  
     
 # ## ------------------------------------------------------------------------------------------------------
@@ -899,6 +914,19 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         logger.info(f'  vm_number_total = {vm_number_total}')
         logger.info('---------------------------------------------------------------------------')
     
+    # ## 2019.11.07
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Bekorlátozás
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    vm_number_total = max(constants.get('min_vm_number'), vm_number_total)
+    vm_number_total = min(constants.get('max_vm_number'), vm_number_total)
+    
+        
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Send JSON back to Pollicy Keeper
+    # ## ------------------------------------------------------------------------------------------------------
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, reliability = reliability)
         
