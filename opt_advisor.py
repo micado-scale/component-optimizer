@@ -288,7 +288,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     if df.shape[0] <= 0:
         error_msg = 'There is no training sample yet.'
         logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+        return advice_msg(valid = False, vm_number = 1, phase = 'training', error_msg = error_msg)
     
 
     # ## ------------------------------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         logger.info('------- There is no training sample at all. -------')
         logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
         error_msg = 'There is no training sample at all.'
-        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+        return advice_msg(valid = False, vm_number = 1, phase = 'training', error_msg = error_msg)
     
     
     # ## ------------------------------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
             logger.warn(f'--------------------------------------')
             logger.warn(f'Current number of resources during the training')
             logger.warn(f'start_training_vm_number = {start_training_vm_number}')
-            return advice_msg(valid = True, phase = 'production', vm_number = start_training_vm_number, error_msg = error_msg)
+            return advice_msg(valid = True, phase = 'training', vm_number = start_training_vm_number, error_msg = error_msg)
         
             
     
