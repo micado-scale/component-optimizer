@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, send_file, render_template, Response
+from flask import Flask, jsonify, request, send_file, render_template, Response, send_from_directory
+from werkzeug import secure_filename
 from ruamel import yaml
 
 import logging
@@ -11,10 +12,24 @@ import opt_advisor
 
 import pandas as pd
 import numpy as np
+import os
+
+
+UPLOAD_FOLDER = '/data/'
+ALLOWED_EXTENSIONS = set(['csv'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 
 app = Flask(__name__)
+# app = Flask(__name__,static_folder='data')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+
 
 logger = None
 config = None
@@ -401,6 +416,30 @@ def report():
     else:
         logger.info('        application is NOT reportable         ')
         return 'There is not enough sample to get report'
+
+
+
+
+
+
+
+@app.route('/report', methods=['POST'])
+def report_post():
+    logger.info('----------------------------------------------------------')
+    logger.info('              report POST method called                   ')
+    logger.info('----------------------------------------------------------')
+    return render_template('index.html')
+
+@app.route('/datas/<path:filename>', methods=['GET', 'POST'])
+def downloadData(filename):    
+    return send_from_directory(directory='data', filename=filename)
+
+# Custom static data
+@app.route('/data/<path:filename>')
+def custom_static(filename):
+    return send_from_directory('data', filename)
+
+
 
 
 class RequestException(Exception):

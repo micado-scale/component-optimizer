@@ -11,7 +11,7 @@ input_metrics:
 - name: PktIn
 - name: KBOut
 - name: PktOut
-knowledge_base: build_new
+knowledge_base: use_existing
 max_downscale_delta: 4
 max_upscale_delta: 5
 max_vm_number: 10

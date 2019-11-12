@@ -61,6 +61,27 @@
 <span><br>Report</span>
 </h1>
 </header>
+
+
+<div>
+    <h2>Save/Restore/Load</h2>
+</div>
+<div>
+    <a href="data/nn_training_data.csv">Download current data file</a>
+</div>
+
+<div>
+    <a href={{ url_for('custom_static', filename='nn_training_data.csv') }}>Download current data file</a>
+</div>
+
+<div>
+    <form action='' method="POST" enctype="multipart/form-data">
+        <p><input type='file' name='file[]' multiple=''>
+        <input type='submit' value='upload'>
+        </p>
+    </form>
+</div>
+
 <div>
 <h2>Table of content</h2>
 <nav>

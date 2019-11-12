@@ -23,4 +23,4 @@ constants:
       - name: AVG_LAT_05
         min_threshold: 1000000
         max_threshold: 4000000
-    knowledge_base: build_new
+    knowledge_base: use_existing
