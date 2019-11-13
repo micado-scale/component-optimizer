@@ -15,7 +15,7 @@ import numpy as np
 import os
 
 
-UPLOAD_FOLDER = '/data/'
+UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['csv'])
 
 def allowed_file(filename):
@@ -428,16 +428,28 @@ def report_post():
     logger.info('----------------------------------------------------------')
     logger.info('              report POST method called                   ')
     logger.info('----------------------------------------------------------')
+    if request.method =='POST':
+        file = request.files['file[]']
+        logger.info(f'------type(file) = {type(file)}')
+        if file:
+            logger.info('------ file ------')
+            filename = secure_filename(file.filename)
+            logger.info('------ file ------')
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+            logger.info('------ save ------')
+            return render_template('index.html')
     return render_template('index.html')
-
-@app.route('/datas/<path:filename>', methods=['GET', 'POST'])
-def downloadData(filename):    
-    return send_from_directory(directory='data', filename=filename)
 
 # Custom static data
 @app.route('/data/<path:filename>')
 def custom_static(filename):
-    return send_from_directory('data', filename)
+    # return send_from_directory('data', filename)
+    return send_from_directory(directory='data', filename=filename)
+
+# Custom static data
+@app.route('/outputs/<path:filename>')
+def download_from_outputs(filename):
+    return send_from_directory(directory='outputs', filename=filename)
 
 
 
