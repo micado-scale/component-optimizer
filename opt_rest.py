@@ -15,7 +15,7 @@ import numpy as np
 import os
 
 
-UPLOAD_FOLDER = '/data'
+UPLOAD_FOLDER = 'data'
 ALLOWED_EXTENSIONS = set(['csv'])
 
 def allowed_file(filename):
