@@ -415,12 +415,8 @@ def report():
         return render_template('index.html')
     else:
         logger.info('        application is NOT reportable         ')
-        return 'There is not enough sample to get report'
-
-
-
-
-
+        # return 'There is not enough sample to get report'
+        return render_template('manager.html')
 
 
 @app.route('/report', methods=['POST'])
@@ -428,6 +424,13 @@ def report_post():
     logger.info('----------------------------------------------------------')
     logger.info('              report POST method called                   ')
     logger.info('----------------------------------------------------------')
+    if( is_reportable == True ):
+        url = 'index.html'
+    else:
+        url = 'manager.html'
+    
+    url = 'index.html' if is_reportable == True else 'manager.html'
+    
     if request.method =='POST':
         file = request.files['file[]']
         logger.info(f'------type(file) = {type(file)}')
@@ -437,8 +440,10 @@ def report_post():
             logger.info('------ file ------')
             file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
             logger.info('------ save ------')
-            return render_template('index.html')
-    return render_template('index.html')
+            # return render_template('index.html')
+            return render_template(url)
+    # return render_template('index.html')
+    return render_template(url)
 
 # Custom static data
 @app.route('/data/<path:filename>')
