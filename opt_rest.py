@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, send_file, render_template, Response
+from flask import Flask, jsonify, request, send_file, render_template, Response, send_from_directory
+from werkzeug import secure_filename
 from ruamel import yaml
 
 import logging
@@ -11,10 +12,24 @@ import opt_advisor
 
 import pandas as pd
 import numpy as np
+import os
+
+
+UPLOAD_FOLDER = 'data'
+ALLOWED_EXTENSIONS = set(['csv'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 
 app = Flask(__name__)
+# app = Flask(__name__,static_folder='data')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+
 
 logger = None
 config = None
@@ -135,7 +150,7 @@ def init():
 
         global opt_trainer
         training_samples_required = constants.get('training_samples_required')
-        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required, outsource_metrics)
+        opt_trainer.init(target_metrics, input_metrics, worker_count, training_samples_required, outsource_metrics, constants)
 
         logger.info('--------------------------------------------------------------')
         logger.info('          Optimizer REST initialized successfully             ')
@@ -199,6 +214,13 @@ def sample():
         logger.info('      ----------------------- sample -----------------------')
         logger.info('')
         logger.info('--------------------------------------------------------------')
+        
+        print(len(target_metrics))
+        if(len(target_metrics) == 0):
+            target_metrics[0] = 0.0
+        print(target_metrics)
+        logger.info(f'      target_variable = {target_variable}')
+        logger.info(f'      target_metrics = {target_metrics}')
 
 
         # if None not in timestamp_col+input_metrics+target_metrics+[vm_number]: 
@@ -393,7 +415,48 @@ def report():
         return render_template('index.html')
     else:
         logger.info('        application is NOT reportable         ')
-        return 'There is not enough sample to get report'
+        # return 'There is not enough sample to get report'
+        return render_template('manager.html')
+
+
+@app.route('/report', methods=['POST'])
+def report_post():
+    logger.info('----------------------------------------------------------')
+    logger.info('              report POST method called                   ')
+    logger.info('----------------------------------------------------------')
+    if( is_reportable == True ):
+        url = 'index.html'
+    else:
+        url = 'manager.html'
+    
+    url = 'index.html' if is_reportable == True else 'manager.html'
+    
+    if request.method =='POST':
+        file = request.files['file[]']
+        logger.info(f'------type(file) = {type(file)}')
+        if file:
+            logger.info('------ file ------')
+            filename = secure_filename(file.filename)
+            logger.info('------ file ------')
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+            logger.info('------ save ------')
+            # return render_template('index.html')
+            return render_template(url)
+    # return render_template('index.html')
+    return render_template(url)
+
+# Custom static data
+@app.route('/data/<path:filename>')
+def custom_static(filename):
+    # return send_from_directory('data', filename)
+    return send_from_directory(directory='data', filename=filename)
+
+# Custom static data
+@app.route('/outputs/<path:filename>')
+def download_from_outputs(filename):
+    return send_from_directory(directory='outputs', filename=filename)
+
+
 
 
 class RequestException(Exception):

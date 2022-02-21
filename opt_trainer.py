@@ -3,6 +3,8 @@ import logging.config
 
 import opt_config
 
+import threading 
+
 from utils import printNormalizedX, printNormalizedY
 
 from visualizerlinux import TimeLinePlot
@@ -37,13 +39,14 @@ _worker_count = None
 _training_samples_required = None
 _outsource_metrics = None
 _prev_temporary_scaling_df_row = 0
+_constants = None
 
 
 # ## ------------------------------------------------------------------------------------------------------
 # ## Define init method
 # ## ------------------------------------------------------------------------------------------------------
 
-def init(target_variable, input_metrics, worker_count, training_samples_required, outsource_metrics):
+def init(target_variable, input_metrics, worker_count, training_samples_required, outsource_metrics, constants):
     
     logger = logging.getLogger('optimizer')
     
@@ -66,6 +69,9 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     global _outsource_metrics
     _outsource_metrics = outsource_metrics
     
+    global _constants
+    _constants = constants
+    
     logger.info('     ----------------------------------------------')
     logger.info('     ----------- TRAINER INIT DIAGNOSIS -----------')
     logger.info('     ----------------------------------------------')
@@ -80,6 +86,7 @@ def init(target_variable, input_metrics, worker_count, training_samples_required
     logger.info(f'     training_samples_required = {training_samples_required}')
     logger.info(f'     _outsource_metrics = {_outsource_metrics}')
     logger.info(f'     outsource_metrics = {outsource_metrics}')
+    logger.info(f'     _constants = {constants}')
     
     logger.info('---------------------------  trainer init end  -------------------------')
     logger.info('')
@@ -141,6 +148,19 @@ def run(nn_file_name, visualize = False):
     cutFirstCases = 0                   # 0
     
     lead = 1                            # 1 default
+    lead = _constants['action_lag'] if 'action_lag' in _constants.keys() else 1
+
+    print('\n\n\n\n\n')
+    logger.info('---------------------------------------------------------------------------------')
+    logger.info(f'      scaler_min          = {scaler_min}')
+    logger.info(f'      scaler_max          = {scaler_max}')
+    logger.info(f'      train_test_ratio    = {train_test_ratio}')
+    logger.info(f'      activation_function = {activation_function}')
+    logger.info(f'      neuronsWhole        = {neuronsWhole}')
+    logger.info(f'      neuronsTrainTest    = {neuronsTrainTest}')
+    logger.info(f'      lead                = {lead}')
+    logger.info('---------------------------------------------------------------------------------')
+    print('\n\n\n\n\n')
 
     showPlots = False                   # True
     showPlots = visualize               # This value comes as a parameter
@@ -323,9 +343,20 @@ def run(nn_file_name, visualize = False):
     visualised_metrics = _input_metrics + ['WorkerCount']
     
     # CorrelationMatrixSave(preProcessedDF)
-    if rows % 3 == 0: ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], visualised_metrics, targetVariable)
-    if rows % 3 == 1: TimeLinePlot(preProcessedDF, targetVariable)
-    if rows % 3 == 2: TimeLinePlots(preProcessedDF, visualised_metrics)
+    # if rows % 3 == 0: ScatterPlots(preProcessedDF, preProcessedDF[targetVariable], visualised_metrics, targetVariable)
+    # if rows % 3 == 1: TimeLinePlot(preProcessedDF, targetVariable)
+    # if rows % 3 == 2: TimeLinePlots(preProcessedDF, visualised_metrics)
+    
+    if rows %12 == 0:
+        t1 = threading.Thread(target=ScatterPlots, args=(preProcessedDF, preProcessedDF[targetVariable], visualised_metrics, targetVariable))
+        t1.start()
+    if rows %12 == 1:
+        t2 = threading.Thread(target=TimeLinePlot, args=(preProcessedDF, targetVariable))
+        t2.start()
+    if rows %12 == 2:
+        t3 = threading.Thread(target=TimeLinePlots, args=(preProcessedDF, visualised_metrics))
+        t3.start()
+    
     
     # In[26]:
     # ## ------------------------------------------------------------------------------------------------------            

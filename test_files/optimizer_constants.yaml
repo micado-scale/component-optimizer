@@ -6,6 +6,8 @@ constants:
     advice_freeze_interval: 0
     max_upscale_delta: 5
     max_downscale_delta: 4
+    action_lag: 1
+    auto_trainer: True
     
     input_metrics: 
       - name: AVG_RR
@@ -21,4 +23,4 @@ constants:
       - name: AVG_LAT_05
         min_threshold: 1000000
         max_threshold: 4000000
-    knowledge_base: build_new
+    knowledge_base: use_existing

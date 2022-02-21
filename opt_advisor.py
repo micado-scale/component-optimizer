@@ -24,6 +24,7 @@ from visualizerlinux import VisualizePredictedYWithWorkers
 from visualizerlinux import VisualizePredictedXY2Line
 from visualizerlinux import VisualizePredictedXY3Line
 from visualizerlinux import VisualizePredictedXY4Line
+from visualizerlinux import VisualizeDemo1
 # from visualizerlinux import VisualizePredictedXYLine
 # from visualizerlinux import VisualizePredictedXYLine
 
@@ -60,7 +61,8 @@ advice_freeze_interval = 0                # minimum time in secundum between two
 default_advice_freeze_interval = 0        # must be positive
 
 start_training_vm_number = 1                    # vm number when train phase stars
-autotrain = True                                # handle the optimizer -> adviser the scaling durint the training phas
+default_autotrain = True
+autotrain = None                                # handle the optimizer -> adviser the scaling during the training phase
 
 
 
@@ -122,7 +124,8 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     start_training_vm_number = 1
     
     global autotrain
-    autotrain = True
+    # autotrain = True
+    autotrain = constants.get('auto_trainer') if constants.get('auto_trainer') else default_autotrain
 
     logger.info('     ----------------------------------------------')
     logger.info('     ---------- ADVISOR INIT DIAGNOSIS ------------')
@@ -142,6 +145,8 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
     logger.info(f'     worker_count_name = {worker_count_name}')
     logger.info(f'     _outsource_metrics = {_outsource_metrics}')
     logger.info(f'     outsource_metrics = {outsource_metrics}')
+    logger.info('     ----------------------------------------')
+    logger.info(f'     autotrain         = {autotrain}')
     
     logger.info('-----------------------  advisor init end  ----------------------')
 
@@ -152,12 +157,27 @@ def init(_target_metric, input_metrics, worker_count, _outsource_metrics, _confi
 # ## ------------------------------------------------------------------------------------------------------
     
 def advice_msg(valid = False, phase = 'training', vm_number = 0, reliability = 0, error_msg = None):
+    logger = logging.getLogger('optimizer')
     if valid:
-        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = 'no error')), 200
+        error_msg = 'no error'
+
+    logger.info('----------------------------------------------------------')
+    logger.info('   ADVICE FOR THE POLICY KEEPER')
+    logger.info('----------------------------------------------------------')
+    logger.info(f'   valid               = {valid}')
+    logger.info(f'   phase               = {phase}')
+    logger.info(f'   vm_number           = {vm_number}')
+    logger.info(f'   reliability         = {reliability}')
+    logger.info(f'   error_msg           = {error_msg}')
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------------------------------------------')
+    logger.info('----------------------------------------------------------')
+                
+    if valid:
+        return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = error_msg)), 200
     else:
         return jsonify(dict(valid = valid, phase = phase, vm_number = vm_number, reliability = reliability, error_msg = error_msg)), 400
-
-
+    
  
     
 # ## ------------------------------------------------------------------------------------------------------
@@ -213,8 +233,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # testFileName = 'data/test_data.csv'                                  # test data
     testFileName = csfFileName                                             # from parameter
     
-    maximumNumberIncreasableNode = 6                                       # must be positive 6
-    minimumNumberReducibleNode = -6                                        # must be negativ -4
+    # maximumNumberIncreasableNode = 6                                     # must be positive 6
+    # minimumNumberReducibleNode = -6                                      # must be negativ -4
     
     upperLimit = target_metric_max                                         # 4000000
     lowerLimit = target_metric_min                                         # 1000000
@@ -267,8 +287,8 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('----------- Checking advisor data properties -------------')
     if df.shape[0] <= 0:
         error_msg = 'There is no training sample yet.'
-        logger.error(error_msg)
-        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+        logger.warning(error_msg)
+        return advice_msg(valid = False, vm_number = 1, phase = 'training', error_msg = error_msg)
     
 
     # ## ------------------------------------------------------------------------------------------------------
@@ -282,7 +302,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         logger.info('------- There is no training sample at all. -------')
         logger.info(f'---------------- We have only {df.shape[0]} sample ----------------')
         error_msg = 'There is no training sample at all.'
-        return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
+        return advice_msg(valid = False, vm_number = 1, phase = 'training', error_msg = error_msg)
     
     
     # ## ------------------------------------------------------------------------------------------------------
@@ -309,7 +329,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     # Original
     if( autotrain == False ):
         if(df.shape[0] < constants.get('training_samples_required')):
-            error_msg = 'There are not enough training samples yet.'
+            error_msg = 'There are not enough training samples yet. [' + df.shape[0] + ']'
             logger.warn(error_msg)
             return advice_msg(valid = False, phase = 'training', error_msg = error_msg)
             
@@ -340,7 +360,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
             logger.warn(f'--------------------------------------')
             logger.warn(f'Current number of resources during the training')
             logger.warn(f'start_training_vm_number = {start_training_vm_number}')
-            return advice_msg(valid = True, phase = 'production', vm_number = start_training_vm_number, error_msg = error_msg)
+            return advice_msg(valid = True, phase = 'training', vm_number = start_training_vm_number, error_msg = error_msg)
         
             
     
@@ -629,9 +649,16 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('------ Get Actual Number of WorkerCount based on investigationDeNormalizedDF ------')
     
     # itt eldönthetem, hogy a dataframeből olvasom ki ezt az adatot, vagy paraméterként veszem át
-    actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(investigationDeNormalizedDF.index[0], 'WorkerCount')
+    # Ez a vm_number_from_sample érték a run metodus paramétere, az opt_rest elvileg a valós vm számot adja itt át
+    actual_worker_number = vm_number_from_sample
+    # actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(investigationDeNormalizedDF.index[0], 'WorkerCount')
     # másfelől lehet, hogy ezt az értéket az épen aktuális mintából kéne kivennem?!
     # nem ezt már kiolvastam a sample df-ből (persze lehet, hogy az épen aktuális már nem ez)
+    logger.info('-----------------------------------------------------------------------------------')
+    logger.info('\n\n\n\n\n\n\n\n')
+    logger.info(f'  actual_worker_number                    = {actual_worker_number}')
+    logger.info('\n\n\n\n\n\n\n\n')
+    logger.info('-----------------------------------------------------------------------------------')
     
     
     advice = 0
@@ -714,7 +741,9 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         
         if( upperLimit > real and lowerLimit < real ):
             advice = 0
-            actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
+            # Ez a vm_number_from_sample érték a run metodus paramétere, az opt_rest elvileg a valós vm számot adja itt át
+            # actual_worker_number = vm_number_from_sample
+            # actual_worker_number = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             # advicedVM = investigationDeNormalizedDF[['WorkerCount']].get_value(i, 'WorkerCount')
             advicedVM = actual_worker_number
             # Ne a javaslatot, hanem a konkrét gép számot adja vissza
@@ -824,7 +853,7 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
     logger.info('--------- Pass back Goodness of Fit ----------')
     if( training_result[1] is not None ):
         # TODO:
-        # Avoid potential error with try exept
+        # Avoid potential error with try except
         try:
             reliability = training_result[1].get('correlation') * 100
             if( reliability < 0 ):
@@ -885,6 +914,19 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
         logger.info(f'  vm_number_total = {vm_number_total}')
         logger.info('---------------------------------------------------------------------------')
     
+    # ## 2019.11.07
+    
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Bekorlátozás
+    # ## ------------------------------------------------------------------------------------------------------
+    
+    vm_number_total = max(constants.get('min_vm_number'), vm_number_total)
+    vm_number_total = min(constants.get('max_vm_number'), vm_number_total)
+    
+        
+    # ## ------------------------------------------------------------------------------------------------------
+    # ## Send JSON back to Pollicy Keeper
+    # ## ------------------------------------------------------------------------------------------------------
     
     return_msg = advice_msg(valid = True, phase = phase, vm_number = vm_number_total, reliability = reliability)
         
@@ -991,17 +1033,34 @@ def run(csfFileName, vm_number_from_sample, target_variable_from_sample, last = 
 
 def generate_report(df, min_threshold, max_threshold):
     
-    VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    row = df.shape[0]
     
-    VisualizePredictedXY3Line(df[[target_variable]], \
-                              df[['post_scaled_target_variable']], \
-                              df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    if( row % 5 == 0 ):
     
-    VisualizePredictedXY4Line(df[[target_variable]], \
-                              df[['post_scaled_target_variable']], \
-                              df[['advised_vm_number']], \
-                              df[['vm_number']], \
-                              target_variable, min_threshold, max_threshold)
+        VisualizePredictedXY2Line(df[[target_variable]], df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    
+    if( row % 5 == 1 ):
+        
+        VisualizePredictedXY3Line(df[[target_variable]], \
+                                  df[['post_scaled_target_variable']], \
+                                  df[['advised_vm_number']], target_variable, min_threshold, max_threshold)
+    
+    if( row % 5 == 2 ):
+        VisualizePredictedXY4Line(df[[target_variable]], \
+                                  df[['post_scaled_target_variable']], \
+                                  df[['advised_vm_number']], \
+                                  df[['vm_number']], \
+                                  target_variable, min_threshold, max_threshold)
+    
+    if( row % 5 == 3 ):
+        VisualizeDemo1(df[['SUM_RR']], \
+                       df[['vm_number']], \
+                       df[['advised_vm_number']], 'Sum Request Rate', 'demo1.png')
+    
+    if( row % 5 == 4 ):
+        VisualizeDemo1(df[[target_variable]], \
+                       df[['vm_number']], \
+                       df[['advised_vm_number']], target_variable, 'demo2.png')
     
     # r = re.compile('.*0*.')
     r = re.compile('.*denormalized*.')

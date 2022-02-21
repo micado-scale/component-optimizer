@@ -335,6 +335,37 @@ def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit
     plt.close()
     pass
 
+def VisualizeDemo1(y1, y2, y3, targetVariable, filename):
+
+    fig, ax1 = plt.subplots(figsize=(20,7))
+    
+    ax2 = ax1.twinx()
+    # p1 = ax1.plot(y1, color = '#1f77b4', label = 'Response time (ms)')
+    p1 = ax1.plot(y1, color = '#1f77b4', label = targetVariable)
+    # p2 = ax1.plot(y2, color = '#000000', label = 'Predicted Response time (ms)')
+    # p2 = ax1.plot(y2, color = '#000000', label = 'Predicted ' + targetVariable)
+    p3 = ax2.plot(y3, color = '#ff7f0e', label = 'Number of resources')
+
+    ax1.set_xlabel('Timeline', fontsize = labelsize)
+    ax1.set_ylabel(targetVariable, fontsize=labelsize)
+    ax2.set_ylabel('Number of resources', fontsize=labelsize)
+    ax2.set_ylim([-2, 12])
+
+    plt.title(targetVariable + ' and Number of resources', fontsize=titlesize)
+    plt.rc('xtick', labelsize=12)
+    plt.rc('ytick', labelsize=12)
+    
+    # ps = p1+p2+p3
+    ps = p1+p3
+    labels = [label.get_label() for label in ps]
+    ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
+
+    fig.savefig('static/' + filename)
+    
+    # plt.show()
+    plt.close()
+    pass
+
 def VisualizePredictedXY4Line(y1, y2, y3, y4, targetVariable, lowerLimit, upperLimit):
 
     fig, ax1 = plt.subplots(figsize=(20,7))

@@ -287,6 +287,7 @@ def VisualizePredictedXY2Line(y1, y2, targetVariable, lowerLimit, upperLimit):
     plt.close()
     pass
 
+
 def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit):
     titlesize = 24; labelsize = 20
 
@@ -318,6 +319,40 @@ def VisualizePredictedXY3Line(y1, y2, y3, targetVariable, lowerLimit, upperLimit
     plt.show()
     plt.close()
     pass
+
+
+def VisualizeDemo1(y1, y2, y3, targetVariable, lowerLimit, upperLimit, filename):
+    titlesize = 24; labelsize = 20
+
+    fig, ax1 = plt.subplots(figsize=(20,7))
+    
+    ax2 = ax1.twinx()
+    p1 = ax1.plot(y1, color = '#1f77b4', label = 'Response time (ms)')
+    p2 = ax1.plot(y2, color = '#000000', label = 'Predicted Response time (ms)')
+    p3 = ax2.plot(y3, color = '#ff7f0e', label = 'Proposedd numb. of additional resources')
+
+    ax1.set_xlabel('Timeline', fontsize = labelsize)
+    ax1.set_ylabel('Response time (ms)', fontsize=labelsize)
+    ax2.set_ylabel('Proposedd numb. of additional resources', fontsize=labelsize)
+    ax2.set_ylim([-5, 5])
+
+    ax1.axhline(y = lowerLimit, color = 'grey')
+    ax1.axhline(y = upperLimit, color = 'grey')
+        
+    plt.title('Response time and proposed numb. of additional resources', fontsize=titlesize)
+    plt.rc('xtick', labelsize=12)
+    plt.rc('ytick', labelsize=12)
+    
+    ps = p1+p2+p3
+    labels = [label.get_label() for label in ps]
+    ax1.legend(ps, labels, loc = 2, prop = {'size': 12})
+
+    fig.savefig('images/' + filename)
+    
+    plt.show()
+    plt.close()
+    pass
+
 
 def ScatterPlotsTrainTest(y_train, y_train_predicted, y_test, y_test_predicted, targetVariable):
     fig = plt.figure(figsize=(20,7))

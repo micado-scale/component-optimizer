@@ -30,6 +30,6 @@ sample:
 
   target_metrics: 
     - name: AVG_LAT_05
-      value: 914349.53
+      value: 100.53
 
   vm_number: 2
