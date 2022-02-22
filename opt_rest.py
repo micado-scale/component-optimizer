@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, send_file, render_template, Response, send_from_directory
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from ruamel import yaml
 
 import logging
