@@ -1,4 +1,4 @@
-Flask==2.0.3
+Flask==2.3.2
 imgkit==1.0.2
 jinja2==3.0.0
 joblib==0.13.2
